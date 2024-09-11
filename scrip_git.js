@@ -96,19 +96,19 @@ runGitCommand(
 //   "Error committing public files"
 // );
 
-// Branch für die TypeScript-Typdateien erstellen und committen
-runGitCommand(
-  "git checkout -b feature/types-setup",
-  "Error creating feature/types-setup branch"
-);
-runGitCommand(
-  "git add types/nextauth.d.ts types/react-three-fiber.d.ts",
-  "Error adding TypeScript definition files"
-);
-runGitCommand(
-  'git commit -m "Add TypeScript definition files for next-auth and react-three-fiber"',
-  "Error committing TypeScript definition files"
-);
+// // Branch für die TypeScript-Typdateien erstellen und committen
+// runGitCommand(
+//   "git checkout -b feature/types-setup",
+//   "Error creating feature/types-setup branch"
+// );
+// runGitCommand(
+//   "git add types/nextauth.d.ts types/react-three-fiber.d.ts",
+//   "Error adding TypeScript definition files"
+// );
+// runGitCommand(
+//   'git commit -m "Add TypeScript definition files for next-auth and react-three-fiber"',
+//   "Error committing TypeScript definition files"
+// );
 
 // Zurück zum main Branch wechseln
 runGitCommand("git checkout main", "Error checking out main branch");
