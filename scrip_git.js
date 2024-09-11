@@ -39,16 +39,16 @@ runGitCommand(
 //   "Error committing app components"
 // );
 
-// Branch für die UI-Komponenten erstellen und committen
-runGitCommand(
-  "git checkout -b feature/ui-components",
-  "Error creating feature/ui-components branch"
-);
-runGitCommand("git add src/components/ui/", "Error adding UI components");
-runGitCommand(
-  'git commit -m "Add UI components"',
-  "Error committing UI components"
-);
+// // Branch für die UI-Komponenten erstellen und committen
+// runGitCommand(
+//   "git checkout -b feature/ui-components",
+//   "Error creating feature/ui-components branch"
+// );
+// runGitCommand("git add src/components/ui/", "Error adding UI components");
+// runGitCommand(
+//   'git commit -m "Add UI components"',
+//   "Error committing UI components"
+// );
 
 // Branch für die API erstellen und committen
 runGitCommand(
