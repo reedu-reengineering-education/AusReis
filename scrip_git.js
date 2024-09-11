@@ -50,13 +50,13 @@ runGitCommand(
 //   "Error committing UI components"
 // );
 
-// Branch für die API erstellen und committen
-runGitCommand(
-  "git checkout -b feature/api-setup",
-  "Error creating feature/api-setup branch"
-);
-runGitCommand("git add src/pages/api/", "Error adding API files");
-runGitCommand('git commit -m "Add API setup"', "Error committing API setup");
+// // Branch für die API erstellen und committen
+// runGitCommand(
+//   "git checkout -b feature/api-setup",
+//   "Error creating feature/api-setup branch"
+// );
+// runGitCommand("git add src/pages/api/", "Error adding API files");
+// runGitCommand('git commit -m "Add API setup"', "Error committing API setup");
 
 // Branch für die Scripte erstellen und committen
 runGitCommand(
