@@ -66,16 +66,16 @@ runGitCommand(
 // runGitCommand("git add src/scripts/", "Error adding script files");
 // runGitCommand('git commit -m "Add custom scripts"', "Error committing scripts");
 
-// Branch für die Lib erstellen und committen
-runGitCommand(
-  "git checkout -b feature/lib-setup",
-  "Error creating feature/lib-setup branch"
-);
-runGitCommand("git add src/lib/", "Error adding lib files");
-runGitCommand(
-  'git commit -m "Add library files"',
-  "Error committing lib files"
-);
+// // Branch für die Lib erstellen und committen
+// runGitCommand(
+//   "git checkout -b feature/lib-setup",
+//   "Error creating feature/lib-setup branch"
+// );
+// runGitCommand("git add src/lib/", "Error adding lib files");
+// runGitCommand(
+//   'git commit -m "Add library files"',
+//   "Error committing lib files"
+// );
 
 // Branch für die Hooks erstellen und committen
 runGitCommand(
