@@ -10,12 +10,11 @@ function runGitCommand(command, errorMessage) {
   }
 }
 
-// Main Branch initialisieren und committen
+// Erstelle einen leeren initialen Commit im main Branch
 runGitCommand("git checkout main", "Error checking out main branch");
-runGitCommand("git add .", "Error adding files to main branch");
 runGitCommand(
-  'git commit -m "Initial commit on main"',
-  "Error committing to main branch"
+  'git commit --allow-empty -m "Initial empty commit on main"',
+  "Error creating an empty commit on main"
 );
 
 // // Branch für Prisma erstellen und committen
@@ -23,23 +22,22 @@ runGitCommand(
 //   "git checkout -b feature/prisma-setup",
 //   "Error creating feature/prisma-setup branch"
 // );
-// runGitCommand("git rm --cached prisma/*", "Error unstaging Prisma files");
 // runGitCommand("git add prisma/", "Error adding Prisma files");
 // runGitCommand(
 //   'git commit -m "Add Prisma setup and migrations"',
 //   "Error committing Prisma setup"
 // );
 
-// Branch für die App-Komponente erstellen und committen
-runGitCommand(
-  "git checkout -b feature/app-components",
-  "Error creating feature/app-components branch"
-);
-runGitCommand("git add src/app/", "Error adding app files");
-runGitCommand(
-  'git commit -m "Add app components"',
-  "Error committing app components"
-);
+// // Branch für die App-Komponenten erstellen und committen
+// runGitCommand(
+//   "git checkout -b feature/app-components",
+//   "Error creating feature/app-components branch"
+// );
+// runGitCommand("git add src/app/", "Error adding app files");
+// runGitCommand(
+//   'git commit -m "Add app components"',
+//   "Error committing app components"
+// );
 
 // Branch für die UI-Komponenten erstellen und committen
 runGitCommand(
