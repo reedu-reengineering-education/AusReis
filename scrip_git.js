@@ -77,13 +77,13 @@ runGitCommand(
 //   "Error committing lib files"
 // );
 
-// Branch für die Hooks erstellen und committen
-runGitCommand(
-  "git checkout -b feature/hooks-setup",
-  "Error creating feature/hooks-setup branch"
-);
-runGitCommand("git add src/hooks/", "Error adding hooks files");
-runGitCommand('git commit -m "Add hooks"', "Error committing hooks");
+// // Branch für die Hooks erstellen und committen
+// runGitCommand(
+//   "git checkout -b feature/hooks-setup",
+//   "Error creating feature/hooks-setup branch"
+// );
+// runGitCommand("git add src/hooks/", "Error adding hooks files");
+// runGitCommand('git commit -m "Add hooks"', "Error committing hooks");
 
 // Branch für die public Dateien erstellen und committen
 runGitCommand(
