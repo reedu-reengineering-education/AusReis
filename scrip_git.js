@@ -85,16 +85,16 @@ runGitCommand(
 // runGitCommand("git add src/hooks/", "Error adding hooks files");
 // runGitCommand('git commit -m "Add hooks"', "Error committing hooks");
 
-// Branch für die public Dateien erstellen und committen
-runGitCommand(
-  "git checkout -b feature/public-files",
-  "Error creating feature/public-files branch"
-);
-runGitCommand("git add public/", "Error adding public files");
-runGitCommand(
-  'git commit -m "Add public files"',
-  "Error committing public files"
-);
+// // Branch für die public Dateien erstellen und committen
+// runGitCommand(
+//   "git checkout -b feature/public-files",
+//   "Error creating feature/public-files branch"
+// );
+// runGitCommand("git add public/", "Error adding public files");
+// runGitCommand(
+//   'git commit -m "Add public files"',
+//   "Error committing public files"
+// );
 
 // Branch für die TypeScript-Typdateien erstellen und committen
 runGitCommand(
