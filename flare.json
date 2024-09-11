@@ -1,0 +1,15 @@
+[
+  {
+    "name": "flare.analytics.cluster.AgglomerativeCluster",
+    "size": 3938,
+    "imports": ["flare.animate.Transitioner", "flare.vis.data.DataList"]
+  },
+  {
+    "name": "flare.analytics.cluster.CommunityStructure",
+    "size": 3812,
+    "imports": [
+      "flare.analytics.cluster.HierarchicalCluster",
+      "flare.animate.Transitioner"
+    ]
+  }
+]

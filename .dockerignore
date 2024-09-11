@@ -1,0 +1,28 @@
+#---------------> Ignore directories
+node_modules
+.next
+out
+build
+
+#---------------> Ignore environment files
+.env*
+!.env.example
+
+#---------------> Local development
+*.log
+*.cache
+.npm
+.nuxt
+
+#---------------> System files
+.DS_Store
+Thumbs.db
+
+#---------------> Version control
+.git
+.gitignore
+
+#---------------> Dependency directories
+bower_components
+.jest
+coverage
