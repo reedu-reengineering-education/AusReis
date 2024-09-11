@@ -23,6 +23,7 @@ runGitCommand(
   "git checkout -b feature/prisma-setup",
   "Error creating feature/prisma-setup branch"
 );
+runGitCommand("git rm --cached prisma/*", "Error unstaging Prisma files");
 runGitCommand("git add prisma/", "Error adding Prisma files");
 runGitCommand(
   'git commit -m "Add Prisma setup and migrations"',
