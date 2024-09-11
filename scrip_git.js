@@ -58,13 +58,13 @@ runGitCommand(
 // runGitCommand("git add src/pages/api/", "Error adding API files");
 // runGitCommand('git commit -m "Add API setup"', "Error committing API setup");
 
-// Branch für die Scripte erstellen und committen
-runGitCommand(
-  "git checkout -b feature/scripts-setup",
-  "Error creating feature/scripts-setup branch"
-);
-runGitCommand("git add src/scripts/", "Error adding script files");
-runGitCommand('git commit -m "Add custom scripts"', "Error committing scripts");
+// // Branch für die Scripte erstellen und committen
+// runGitCommand(
+//   "git checkout -b feature/scripts-setup",
+//   "Error creating feature/scripts-setup branch"
+// );
+// runGitCommand("git add src/scripts/", "Error adding script files");
+// runGitCommand('git commit -m "Add custom scripts"', "Error committing scripts");
 
 // Branch für die Lib erstellen und committen
 runGitCommand(
