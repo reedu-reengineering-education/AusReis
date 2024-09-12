@@ -38,12 +38,20 @@ model User {
 
 
 model Project {
-  id        String   @id @default(cuid())
-  name      String
-  users     User[]   @relation("UserProjects")
-  createdAt DateTime @default(now())
+  id           String        @id @default(cuid())
+  name         String
+  status       ProjectStatus @default(PENDING) // Status für das Projekt
+  budget       Float         // Neues Budget-Feld hinzugefügt
+  actualSpend  Float         @default(0) // Neues Feld für tatsächliche Ausgaben mit Standardwert 0
+  users        User[]        @relation("UserProjects")
+  createdAt    DateTime      @default(now())
+  Expense      Expense[]
+}
 
-  Expense Expense[]
+enum ProjectStatus {
+  ACTIVE
+  PENDING
+  COMPLETED
 }
 
 enum Role {

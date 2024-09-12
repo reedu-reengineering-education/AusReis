@@ -1,33 +1,24 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import prisma from "@/lib/db";
-import { withMethods } from "@/lib/apiMiddlewares/withMethods";
-import { withUser } from "@/lib/apiMiddlewares/withUser";
+import prisma from "@/lib/db"; // Prisma client importieren
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method === "GET") {
     try {
+      // Lade alle Benutzer
       const users = await prisma.user.findMany();
-      return res.status(200).json(users);
+      return res.status(200).json(users); // Korrekte Antwort senden
     } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: "Server error" });
-    }
-  } else if (req.method === "POST") {
-    const { name, email, password } = req.body;
-
-    try {
-      const newUser = await prisma.user.create({
-        data: { name, email, password },
-      });
-
-      return res.status(201).json(newUser);
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: "Server error" });
+      console.error("Error fetching users:", error);
+      return res.status(500).json({ error: "Error fetching users" });
     }
   } else {
-    res.status(405).end();
+    // HTTP-Methoden-Handler für nicht erlaubte Methoden
+    res.setHeader("Allow", ["GET"]);
+    return res
+      .status(405)
+      .json({ message: `Method ${req.method} Not Allowed` });
   }
 }
-
-export default withMethods(["GET", "POST"], withUser(handler));

@@ -1,53 +1,73 @@
 import axios from "axios";
 
+// Basis-URL für die Projekte-API
 const API_URL = "/api/projects";
 
-export const getProject = async (id: string) => {
+// Ein Projekt oder alle Projekte abrufen
+export async function getProject(id?: string) {
   try {
-    const response = await axios.get(`${API_URL}/${id}`, {
-      params: { id },
-    });
+    const url = id ? `${API_URL}/${id}` : API_URL; // Spezifisches oder alle Projekte abrufen
+    const response = await axios.get(url);
     return response.data;
   } catch (error) {
-    console.error("Error fetching project:", error);
+    console.error("Error fetching project(s):", error);
     throw error;
   }
-};
+}
 
-export const createProject = async (name: string, description: string) => {
-  console.log("createProject called with:", { name, description });
+// Neues Projekt erstellen
+export async function createProject(
+  name: string,
+  status: string,
+  budget: number,
+  actualSpend: number,
+  userIds: string[]
+) {
   try {
-    const response = await axios.post(API_URL, { name, description });
-    console.log("API response:", response.data);
+    const response = await axios.post(API_URL, {
+      name,
+      status,
+      budget,
+      actualSpend,
+      userIds, // Benutzer-IDs hinzufügen
+    });
     return response.data;
   } catch (error) {
     console.error("Error creating project:", error);
     throw error;
   }
-};
+}
 
-export const updateProject = async (
+// Projekt aktualisieren
+export async function updateProject(
   id: string,
-  name?: string,
-  description?: string
-) => {
+  name: string,
+  status: string,
+  budget: number,
+  actualSpend: number
+) {
+  const apiUrl = `${API_URL}/${id}`; // Spezifisches Projekt aktualisieren
   try {
-    const response = await axios.put(`${API_URL}?id=${id}`, {
+    const response = await axios.put(apiUrl, {
       name,
-      description,
+      status,
+      budget,
+      actualSpend,
     });
     return response.data;
   } catch (error) {
     console.error("Error updating project:", error);
     throw error;
   }
-};
+}
 
-export const deleteProject = async (id: string) => {
+// Projekt löschen
+export async function deleteProject(id: string) {
+  const apiUrl = `${API_URL}/${id}`; // Spezifisches Projekt löschen
   try {
-    await axios.delete(`${API_URL}?id=${id}`);
+    await axios.delete(apiUrl);
   } catch (error) {
     console.error("Error deleting project:", error);
     throw error;
   }
-};
+}
