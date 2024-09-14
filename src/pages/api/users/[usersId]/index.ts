@@ -1,3 +1,4 @@
+// pages/api/users/[userId]/index.ts
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/db";
 import { withMethods } from "@/lib/apiMiddlewares/withMethods";

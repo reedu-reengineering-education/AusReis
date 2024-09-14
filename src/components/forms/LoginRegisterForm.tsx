@@ -38,6 +38,7 @@ export function LoginRegisterForm({
   const [email, setEmail] = useState<string>(user?.email || "");
   const [password, setPassword] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
+  const [secretCode, setSecretCode] = useState<string>(""); // Admin-Code-Feld
   const { data: session, status } = useSession();
 
   const router = useRouter();
@@ -91,7 +92,12 @@ export function LoginRegisterForm({
 
   const onSubmitRegister = async () => {
     try {
-      const registerData = await registerUser(name, email, password);
+      const registerData = await registerUser(
+        name,
+        email,
+        password,
+        secretCode
+      );
       console.log("User registered:", registerData);
       setIsDialogOpen(false);
       handleUserCreated();
@@ -204,6 +210,17 @@ export function LoginRegisterForm({
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="secure password"
+                    className="w-full"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="admin-secret">Admin</Label>
+                  <Input
+                    id="admin-secret-code"
+                    type="secretCode"
+                    value={secretCode}
+                    onChange={(e) => setSecretCode(e.target.value)}
+                    placeholder="Admin secret code"
                     className="w-full"
                   />
                 </div>

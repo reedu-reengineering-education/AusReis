@@ -29,14 +29,19 @@ import {
 import SearchBar from "./SearchBar";
 import ProjectForm from "./ProjectForm";
 import { getUser } from "@/lib/api/userClient";
+import { ProjectViewModal } from "./ViewButtonModal";
+import { ProjectEditModal } from "./EditButtonModal";
+import { ProjectDeleteDialog } from "./DeleteButtonModal";
 
 // Importiere die API-Client-Funktionen
 import {
   getProject,
   createProject,
   deleteProject,
+  updateProject,
 } from "@/lib/api/projectClient";
 import { useSession } from "next-auth/react";
+import { Project } from "@prisma/client";
 
 export default function ProjectTable() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,6 +52,14 @@ export default function ProjectTable() {
   const [availableUsers, setAvailableUsers] = useState([]);
   const [showAddProjectForm, setShowAddProjectForm] = useState(false); // Steuerung des Formulars
   const { data: session, status } = useSession(); // Session holen
+  const [editingProject, setEditingProject] = useState<Project | null>(null); // Für das Bearbeiten
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null); // Zustandsvariable für das ausgewählte Projekt
+
+  interface User {
+    id: string;
+    name: string;
+  }
 
   // Schnittstelle für Projekte
   interface Project {
@@ -56,6 +69,7 @@ export default function ProjectTable() {
     status: string;
     budget: number;
     actualSpend: number;
+    assignedUsers: User[];
   }
   if (status === "loading") {
     return <div>Loading...</div>;
@@ -98,14 +112,97 @@ export default function ProjectTable() {
     fetchUsers();
   }, []);
 
-  // Projekt löschen
-  const handleDelete = async (id: string) => {
+  const handleViewClick = (project: Project) => {
+    setSelectedProject(project); // Setze das ausgewählte Projekt
+    setIsModalOpen(true); // Öffne das Modal
+  };
+
+  const handleViewProject = (project: Project) => {
+    setSelectedProject(project); // Das ausgewählte Projekt speichern
+    setIsModalOpen(true); // Modal öffnen
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false); // Modal schließen
+    setSelectedProject(null); // Auswahl zurücksetzen
+  };
+
+  const handleUpdateProject = async (
+    updatedProject: Project
+  ): Promise<boolean> => {
     try {
-      await deleteProject(id); // Projekt löschen
-      setProjects(projects.filter((project) => project.id !== id)); // Projekt aus der Liste entfernen
+      // Prüfen, ob assignedUsers ein Array ist
+      if (Array.isArray(updatedProject.assignedUsers)) {
+        const userIds = updatedProject.assignedUsers
+          .map((user) => {
+            if (typeof user === "string") {
+              return user; // Falls es bereits eine ID ist, zurückgeben
+            } else if (user && user.id) {
+              return user.id; // Falls es ein User-Objekt ist, die ID zurückgeben
+            }
+            console.error("Invalid user object:", user);
+            return null;
+          })
+          .filter(Boolean); // Null-Werte herausfiltern
+
+        // Setze die zugewiesenen Benutzer-IDs
+        updatedProject.assignedUsers = userIds as any; // Typumgehung, da assignedUsers jetzt eine Liste von IDs ist
+      } else {
+        console.error(
+          "assignedUsers is not an array:",
+          updatedProject.assignedUsers
+        );
+      }
+
+      await updateProject(
+        updatedProject.id,
+        updatedProject.name,
+        updatedProject.status,
+        updatedProject.budget,
+        updatedProject.actualSpend,
+        updatedProject.assignedUsers as unknown as string[] // Pass the userIds here
+      );
+
+      setProjects((prevProjects) =>
+        prevProjects.map((p) =>
+          p.id === updatedProject.id ? updatedProject : p
+        )
+      ); // Aktualisiere die Projektliste
+      setEditingProject(null); // Formular schließen
+      return true; // Return true on success
+    } catch (error) {
+      console.error("Error updating project:", error);
+      return false; // Return false on error
+    }
+  };
+
+  // Projekt löschen
+  const handleDelete = async (projectId: string) => {
+    try {
+      const response = await deleteProject(projectId); // Warte auf die Antwort des DELETE-Requests
+      // Überprüfen, ob der Request erfolgreich war
+      if (response.status === 204 || response.status === 200) {
+        setProjects(
+          (prevProjects) =>
+            prevProjects.filter((project) => project.id !== projectId) // Entferne das gelöschte Projekt aus der Liste
+        );
+        console.log("Project deleted successfully");
+      } else {
+        console.error(
+          "Failed to delete project. Status code:",
+          response.status
+        );
+      }
     } catch (error) {
       console.error("Error deleting project:", error);
     }
+  };
+
+  const handleDeleteSuccess = (deletedProjectId: string, message: string) => {
+    console.log(message); // Erfolgsnachricht oder Benachrichtigung anzeigen
+    setProjects((prevProjects) =>
+      prevProjects.filter((project) => project.id !== deletedProjectId)
+    ); // Entferne das gelöschte Projekt aus der Projektliste
   };
 
   // Neues Projekt speichern
@@ -239,33 +336,43 @@ export default function ProjectTable() {
                 )}
               </TableCell>
               <TableCell className="flex justify-end space-x-2">
-                <Button variant="outline" size="sm">
+                {/* <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleViewClick(project)}
+                >
                   View
-                </Button>
-                <Button variant="outline" size="sm">
+                </Button> */}
+                <ProjectViewModal project={project} />
+                {/* <Button variant="outline" size="sm">
                   Edit
-                </Button>
-                <Button
+                </Button> */}
+                <ProjectEditModal
+                  projectId={project.id}
+                  onEdit={setEditingProject}
+                  availableUsers={availableUsers}
+                  onUpdate={handleUpdateProject}
+                  editingProject={editingProject}
+                />
+                {/* <Button
                   variant="destructive"
                   size="sm"
                   onClick={() => handleDelete(project.id)}
                 >
                   Remove
-                </Button>
+                </Button> */}
+                <ProjectDeleteDialog
+                  project={project}
+                  onDelete={handleDelete}
+                  onClose={handleCloseModal}
+                  onDeleteSuccess={handleDeleteSuccess}
+                />
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
-
-      {/* Dialog-Formular für das Hinzufügen von Projekten */}
-      {/* {showAddProjectForm && (
-        <ProjectForm
-          onSave={handleSaveProject}
-          onClose={() => setShowAddProjectForm(false)}
-          availableUsers={availableUsers}
-        />
-      )} */}
+      {/*  */}
     </div>
   );
 }

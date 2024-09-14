@@ -1,21 +1,21 @@
+// registerClient.ts
 import axios from "axios";
 
-const REGISTER_API_URL = "/api/register";
-
-export const registerUser = async (
+export async function registerUser(
   name: string,
   email: string,
-  password: string
-) => {
+  password: string,
+  secretCode?: string // Optionaler Admin-Code
+) {
   try {
-    const response = await axios.post(REGISTER_API_URL, {
+    const response = await axios.post("/api/auth/register", {
       name,
       email,
       password,
+      secretCode, // Optional den Admin-Code mitschicken
     });
     return response.data;
   } catch (error) {
-    console.error("Error registering user:", error);
-    throw error;
+    throw new Error("Error registering user");
   }
-};
+}

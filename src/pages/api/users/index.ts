@@ -1,3 +1,4 @@
+// pages/api/users/index.ts
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/db"; // Prisma client importieren
 
