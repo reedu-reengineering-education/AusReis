@@ -214,7 +214,7 @@ export default function ProjectForm({
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <Button
-          variant="outline"
+          variant="default"
           onClick={() => {
             setIsDialogOpen(true);
           }}

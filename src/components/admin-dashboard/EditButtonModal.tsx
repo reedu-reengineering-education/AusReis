@@ -62,7 +62,7 @@ export function ProjectEditModal({
       setStatus(projectData.status);
       setBudget(projectData.budget);
       setActualSpend(projectData.actualSpend);
-      setAssignedUsers(projectData.assignedUsers || []); // Stelle sicher, dass assignedUsers ein Array ist
+      setAssignedUsers(projectData.assignedUsers || []);
       setSelectedUsers(
         (projectData.assignedUsers || []).map(
           (user: { id: string; name: string }) => ({
@@ -107,7 +107,8 @@ export function ProjectEditModal({
 
   const handleSubmitUpdate = async () => {
     try {
-      await updateProject(
+      console.log(selectedUsers);
+      const updatedProject: any = await updateProject(
         projectId,
         name,
         status,
@@ -117,6 +118,9 @@ export function ProjectEditModal({
       );
       console.log("Project updated successfully");
       setIsDialogOpen(false);
+
+      // Übergeordnete Komponente informieren, dass das Projekt aktualisiert wurde
+      onProjectUpdated(updatedProject);
     } catch (error) {
       console.error("Error updating the project", error);
     }
@@ -243,5 +247,3 @@ export function ProjectEditModal({
     </Dialog>
   );
 }
-
-export default ProjectEditModal;

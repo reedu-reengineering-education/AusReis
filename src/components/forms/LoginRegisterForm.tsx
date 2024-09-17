@@ -19,10 +19,10 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { createUser, getUser } from "@/lib/api/loginClient";
 import { registerUser } from "@/lib/api/registerClient";
 import { useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
+import { SSG_FALLBACK_EXPORT_ERROR } from "next/dist/lib/constants";
 
 type CreateUserProps = {
   user: any;
@@ -40,33 +40,19 @@ export function LoginRegisterForm({
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
   const [secretCode, setSecretCode] = useState<string>(""); // Admin-Code-Feld
   const { data: session, status } = useSession();
-
   const router = useRouter();
-  // useEffect(() => {
-  //   if (status === "authenticated") {
-  //     handleUserCreated();
-  //     router.push("/account/page");
-  //   } else if (status === "unauthenticated") {
-  //     router.push("/home/page");
-  //   }
-  // }, [status]);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      session.user.role === "ADMIN"
+        ? router.push(`/admin`)
+        : router.push(`/account`);
+    }
+  }, [status, router, session]);
 
   const handleTabChange = (tab: "login" | "register") => {
     setActiveTab(tab);
   };
-
-  // const onSubmitLogIn = async () => {
-  //   try {
-  //     const logInData = await getUser(email);
-  //     console.log("User logged in:", logInData);
-  //     localStorage.setItem("token", logInData.token);
-  //     router.push(`/account/${logInData.userId}`);
-  //     setIsDialogOpen(false);
-  //     // handleUserCreated();
-  //   } catch (error) {
-  //     console.error("Error when logging in the user:", error);
-  //   }
-  // };
 
   const onSubmitLogIn = async () => {
     try {

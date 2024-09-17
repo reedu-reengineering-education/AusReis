@@ -94,9 +94,7 @@ function MainNav({ items }: MainNavProps) {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => signOut({ callbackUrl: "/home" })}
-                >
+                <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
                   <span>Sign out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>

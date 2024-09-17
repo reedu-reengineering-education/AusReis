@@ -63,13 +63,14 @@ export default function ProjectTable() {
 
   // Schnittstelle für Projekte
   interface Project {
+    updatedAt: string | number | Date;
     users: any;
     id: string;
     name: string;
     status: string;
     budget: number;
     actualSpend: number;
-    assignedUsers: User[];
+    assignedUsers: { id: string }[];
   }
   if (status === "loading") {
     return <div>Loading...</div>;
@@ -85,6 +86,7 @@ export default function ProjectTable() {
       try {
         setIsLoading(true); // Ladevorgang beginnt
         const data = await getProject(); // API-Aufruf ohne ID, um alle Projekte zu laden
+        const sortedProjects = sortProjects(data); // Projekte sortieren
         setProjects(data); // Projekte in den Zustand laden
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -112,15 +114,33 @@ export default function ProjectTable() {
     fetchUsers();
   }, []);
 
-  const handleViewClick = (project: Project) => {
-    setSelectedProject(project); // Setze das ausgewählte Projekt
-    setIsModalOpen(true); // Öffne das Modal
+  // Funktion, um Projekte alphabetisch und nach letztem Änderungsdatum zu sortieren
+  const sortProjects = (projects: Project[]) => {
+    return projects.sort((a, b) => {
+      // Zuerst alphabetisch nach dem Projektnamen sortieren
+      const nameComparison = a.name.localeCompare(b.name);
+
+      // Falls die Namen gleich sind, nach dem letzten Änderungsdatum sortieren
+      if (nameComparison === 0) {
+        return (
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        );
+      }
+
+      // Wenn die Namen nicht gleich sind, die alphabetische Reihenfolge beibehalten
+      return nameComparison;
+    });
   };
 
-  const handleViewProject = (project: Project) => {
-    setSelectedProject(project); // Das ausgewählte Projekt speichern
-    setIsModalOpen(true); // Modal öffnen
-  };
+  // const handleViewClick = (project: Project) => {
+  //   setSelectedProject(project); // Setze das ausgewählte Projekt
+  //   setIsModalOpen(true); // Öffne das Modal
+  // };
+
+  // const handleViewProject = (project: Project) => {
+  //   setSelectedProject(project); // Das ausgewählte Projekt speichern
+  //   setIsModalOpen(true); // Modal öffnen
+  // };
 
   const handleCloseModal = () => {
     setIsModalOpen(false); // Modal schließen
@@ -132,6 +152,7 @@ export default function ProjectTable() {
   ): Promise<boolean> => {
     try {
       // Prüfen, ob assignedUsers ein Array ist
+      console.log("updatedProject.assignedUsers:", updatedProject);
       if (Array.isArray(updatedProject.assignedUsers)) {
         const userIds = updatedProject.assignedUsers
           .map((user) => {
@@ -349,7 +370,7 @@ export default function ProjectTable() {
                 </Button> */}
                 <ProjectEditModal
                   projectId={project.id}
-                  onEdit={setEditingProject}
+                  onProjectUpdated={handleUpdateProject}
                   availableUsers={availableUsers}
                   onUpdate={handleUpdateProject}
                   editingProject={editingProject}

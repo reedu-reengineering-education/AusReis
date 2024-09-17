@@ -1,11 +1,26 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { LoginRegisterForm } from "@/components/forms/LoginRegisterForm";
 
 export default function HomePage({ params }: { params: { userId: string } }) {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
   const handleUserCreated = () => {
     console.log("User created");
   };
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="flex min-h-screen flex-col">

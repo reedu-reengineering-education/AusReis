@@ -40,19 +40,22 @@ model User {
 model Project {
   id           String        @id @default(cuid())
   name         String
-  status       ProjectStatus @default(PENDING) // Status für das Projekt
-  budget       Float         // Neues Budget-Feld hinzugefügt
-  actualSpend  Float         @default(0) // Neues Feld für tatsächliche Ausgaben mit Standardwert 0
+  status       ProjectStatus @default(PENDING)
+  budget       Float
+  actualSpend  Float         @default(0)
   users        User[]        @relation("UserProjects")
   createdAt    DateTime      @default(now())
+  updatedAt    DateTime?     @updatedAt // Optional, um die Migration durchzuführen
   Expense      Expense[]
 }
+
 
 enum ProjectStatus {
   ACTIVE
   PENDING
   COMPLETED
 }
+
 
 enum Role {
   USER

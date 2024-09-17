@@ -1,14 +1,54 @@
 // components/AdminDashboard/DashboardCards.tsx
+import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
+// Beispiel-API-Aufruf zum Laden der Projektdaten
+async function fetchProjects() {
+  const response = await fetch("/api/projects");
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json();
+}
+
+// Funktion zum Sortieren der Projekte
+function sortProjects(projects: any[]) {
+  // Beispiel-Sortierlogik (nach Name sortieren)
+  return projects.sort((a, b) => a.name.localeCompare(b.name));
+}
+
 export default function DashboardCards() {
-  // Dummy-Daten für die Karten
-  const openExpensesCount = 2;
-  const approvedExpensesCount = 3;
-  const totalProjects = 5;
+  const [openExpensesCount, setOpenExpensesCount] = useState(0);
+  const [approvedExpensesCount, setApprovedExpensesCount] = useState(0);
+  const [totalProjects, setTotalProjects] = useState(0);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const data = await fetchProjects();
+        const sortedProjects = sortProjects(data); // Projekte sortieren
+
+        // Beispiel-Logik zum Zählen der offenen und genehmigten Ausgaben
+        const openExpenses = sortedProjects.filter(
+          (project: { status: string }) => project.status === "OPEN"
+        ).length;
+        const approvedExpenses = sortedProjects.filter(
+          (project: { status: string }) => project.status === "APPROVED"
+        ).length;
+
+        setOpenExpensesCount(openExpenses);
+        setApprovedExpensesCount(approvedExpenses);
+        setTotalProjects(sortedProjects.length);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      }
+    }
+
+    loadData();
+  }, []);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
       <Card className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white">
         <CardHeader>
           <CardTitle>Open Expenses</CardTitle>
