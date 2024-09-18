@@ -4,15 +4,24 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 First, run the development server:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+# AusReis
+
+This is a [Next.js](https://nextjs.org/) project.
+
+## Prerequisites
+
+Make sure the following tools are installed on your system:
+
+- [Node.js](https://nodejs.org/) (version 20.x or higher)
+- A package manager like [npm](https://www.npmjs.com/), [yarn](https://yarnpkg.com/), or [pnpm](https://pnpm.io/)
+
+## Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/YourUsername/AusReis.git
+   ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
