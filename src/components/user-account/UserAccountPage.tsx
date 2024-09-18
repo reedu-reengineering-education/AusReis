@@ -7,6 +7,7 @@ import { DetailsModal } from "./DetailsModal";
 import { AddFormModal } from "./AddFormModal";
 import TravelTable from "./TravelTable";
 import ExpensesTable from "./ExpenseTable";
+import { BillsModal } from "./BillsModal"; // Importiere die BillsModal Komponente
 
 export default function UserAccountPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -15,6 +16,7 @@ export default function UserAccountPage() {
   const [showDetails, setShowDetails] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showBills, setShowBills] = useState(false); // Zustand für BillsModal
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -26,6 +28,11 @@ export default function UserAccountPage() {
   const handleViewDetails = (item: SetStateAction<null>) => {
     setSelectedItem(item);
     setShowDetails(true);
+  };
+
+  const handleViewBills = (item: SetStateAction<null>) => {
+    setSelectedItem(item);
+    setShowBills(true);
   };
 
   const handleAddNewClick = () => {
@@ -59,6 +66,7 @@ export default function UserAccountPage() {
             debouncedSearchTerm={debouncedSearchTerm}
             handleAddNewClick={handleAddNewClick}
             handleViewDetails={handleViewDetails}
+            handleViewBills={handleViewBills} // Übergib die Funktion zum Anzeigen der Rechnungen
           />
         </TabsContent>
 
@@ -69,6 +77,7 @@ export default function UserAccountPage() {
             debouncedSearchTerm={debouncedSearchTerm}
             handleAddNewClick={handleAddNewClick}
             handleViewDetails={handleViewDetails}
+            handleViewBills={handleViewBills} // Übergib die Funktion zum Anzeigen der Rechnungen
           />
         </TabsContent>
       </Tabs>
@@ -77,6 +86,13 @@ export default function UserAccountPage() {
         <DetailsModal
           selectedItem={selectedItem}
           setShowDetails={setShowDetails}
+        />
+      )}
+
+      {showBills && selectedItem && (
+        <BillsModal
+          selectedItem={selectedItem}
+          setShowDetails={setShowBills} // Verwende setShowBills zum Schließen des BillsModal
         />
       )}
     </div>

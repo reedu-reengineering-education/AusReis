@@ -63,8 +63,8 @@ export default function ProjectTable() {
 
   // Schnittstelle für Projekte
   interface Project {
-    updatedAt: string | number | Date;
-    users: any;
+    updatedAt: Date;
+    users: User[];
     id: string;
     name: string;
     status: string;

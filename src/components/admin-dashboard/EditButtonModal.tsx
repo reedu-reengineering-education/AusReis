@@ -38,7 +38,7 @@ interface ProjectEditModalProps {
 
 export function ProjectEditModal({
   projectId,
-  onProjectUpdated,
+  onProjectUpdated = () => {},
 }: ProjectEditModalProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [name, setName] = useState<string>("");

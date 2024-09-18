@@ -1,101 +1,54 @@
-import axios from "axios";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+"use client";
+import React, { useEffect, useRef } from "react";
+import * as d3 from "d3";
 
-const RegisterForm = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+const HierarchicalEdgeBundle = ({ data }) => {
+  const svgRef = useRef(null);
 
-  const handleSubmit = async (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post("/api/auth/register", {
-        email,
-        password,
-        name,
-      });
-      alert("Registration successful");
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        alert(error.response?.data.error);
-      } else {
-        alert("An unexpected error occurred");
-      }
-    }
-  };
+  useEffect(() => {
+    const width = 960;
+    const radius = width / 2;
 
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">Register</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Register</DialogTitle>
-          <DialogDescription>
-            Fill in the form below to create a new account.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="col-span-3"
-                required
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="email" className="text-right">
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="col-span-3"
-                required
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="password" className="text-right">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="col-span-3"
-                required
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit">Register</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
+    const cluster = d3.cluster().size([360, radius - 120]);
+
+    const line = d3
+      .radialLine()
+      .curve(d3.curveBundle.beta(0.85))
+      .radius((d) => d.y)
+      .angle((d) => (d.x / 180) * Math.PI);
+
+    const svg = d3
+      .select(svgRef.current)
+      .attr("width", width)
+      .attr("height", width)
+      .append("g")
+      .attr("transform", `translate(${width / 2},${width / 2})`);
+
+    const root = d3.hierarchy(data).sum((d) => d.size);
+
+    cluster(root);
+
+    svg
+      .selectAll(".link")
+      .data(root.leaves())
+      .enter()
+      .append("path")
+      .each((d) => (d.target = d))
+      .attr("class", "link")
+      .attr("d", (d) => line(d.target.path(d.target.source)));
+
+    svg
+      .selectAll(".node")
+      .data(root.leaves())
+      .enter()
+      .append("text")
+      .attr("class", "node")
+      .attr("dy", "0.31em")
+      .attr("transform", (d) => `rotate(${d.x - 90}) translate(${d.y},0)`)
+      .text((d) => d.data.name);
+  }, [data]);
+
+  return <svg ref={svgRef}></svg>;
 };
 
-export default RegisterForm;
+export default HierarchicalEdgeBundle;

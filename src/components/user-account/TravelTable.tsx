@@ -21,6 +21,7 @@ interface TravelTableProps {
   debouncedSearchTerm: string;
   handleAddNewClick: () => void;
   handleViewDetails: (item: any) => void;
+  handleViewBills: (item: any) => void;
 }
 
 export default function TravelTable({
@@ -29,6 +30,7 @@ export default function TravelTable({
   debouncedSearchTerm,
   handleAddNewClick,
   handleViewDetails,
+  handleViewBills,
 }: TravelTableProps) {
   const [filteredTravels, setFilteredTravels] = useState(travels);
 
@@ -97,6 +99,14 @@ export default function TravelTable({
                   onClick={() => handleViewDetails(item)}
                 >
                   Ansehen
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="ml-2"
+                  onClick={() => handleViewBills(item)}
+                >
+                  Rechnungen
                 </Button>
               </TableCell>
             </TableRow>

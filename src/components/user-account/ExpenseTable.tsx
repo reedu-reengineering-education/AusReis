@@ -21,6 +21,7 @@ interface ExpensesTableProps {
   debouncedSearchTerm: string;
   handleAddNewClick: () => void;
   handleViewDetails: (item: any) => void;
+  handleViewBills: (item: any) => void;
 }
 
 export default function ExpensesTable({
@@ -29,6 +30,7 @@ export default function ExpensesTable({
   debouncedSearchTerm,
   handleAddNewClick,
   handleViewDetails,
+  handleViewBills,
 }: ExpensesTableProps) {
   const [filteredExpenses, setFilteredExpenses] = useState(expenses);
 
@@ -97,6 +99,14 @@ export default function ExpensesTable({
                   onClick={() => handleViewDetails(item)}
                 >
                   Ansehen
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="ml-2"
+                  onClick={() => handleViewBills(item)}
+                >
+                  Rechnungen
                 </Button>
               </TableCell>
             </TableRow>

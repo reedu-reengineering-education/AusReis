@@ -6,16 +6,24 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method === "POST") {
-    const { amount, description, status, userId, projectId } = req.body;
+    const { amount, description, status, userId, projectId, category, bills } =
+      req.body;
 
     try {
       const newExpense = await prisma.expense.create({
         data: {
           amount,
           description,
-          status: status || "PENDING",
+          status: status || "pending",
+          category,
           user: { connect: { id: userId } },
           project: { connect: { id: projectId } },
+          bills: {
+            create: bills.map((bill: { file: string; amount: number }) => ({
+              file: bill.file,
+              amount: bill.amount,
+            })),
+          },
         },
       });
 
@@ -23,6 +31,22 @@ export default async function handler(
     } catch (error) {
       console.error("Error creating expense:", error);
       return res.status(500).json({ error: "Error creating expense" });
+    }
+  } // Zum erstellen einer Liste der Ausgaben
+  else if (req.method === "GET") {
+    try {
+      const expenses = await prisma.expense.findMany({
+        include: {
+          bills: true,
+          user: true,
+          project: true,
+        },
+      });
+
+      return res.status(200).json(expenses);
+    } catch (error) {
+      console.error("Error fetching expenses:", error);
+      return res.status(500).json({ error: "Error fetching expenses" });
     }
   } else {
     res.status(405).json({ error: "Method not allowed" });

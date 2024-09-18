@@ -1,26 +1,19 @@
-// import React from "react";
-// import Graph3D from "@/components/visualisation/DependencyGraph";
-// const VisualisationPage = () => {
-//   return (
-//     <div>
-//       <h1>3D Dependency Graph</h1>
-//       <Graph3D />
-//     </div>
-//   );
-// };
-
-// export default VisualisationPage;
-// ----------------------------------------------------------------------------
 import React from "react";
-import HierarchicalEdgeBundling from "@/components/visualisation/DependencyGraph";
+import { readJsonFile } from "../../../readJsonFile";
+import { createHierarchy } from "../../../createHierarchie";
+import DependencyGraph from "@/components/visualisation/DependencyGraph";
 
-const VisualizationPage = () => {
-  return (
-    <div>
-      <h1>Hierarchical Edge Bundling</h1>
-      <HierarchicalEdgeBundling />
-    </div>
-  );
-};
+// Lese die package.json-Datei
+const packageJson = readJsonFile("./package.json");
 
-export default VisualizationPage;
+// Erstelle die hierarchische Datenstruktur
+const data = createHierarchy(packageJson.dependencies);
+
+const App: React.FC = () => (
+  <div>
+    <h1>Dependency Graph</h1>
+    <DependencyGraph data={data} width={800} height={600} />
+  </div>
+);
+
+export default App;
