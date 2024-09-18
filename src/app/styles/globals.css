@@ -78,6 +78,7 @@
 
   body {
     @apply bg-background text-foreground;
+    background: url("/background.svg") no-repeat center center fixed;
     min-height: 100vh; /* Verhindert ungewolltes Scrollen nach unten */
   }
 
@@ -99,6 +100,28 @@
   height: 2px;
   background-color: currentColor;
   transition: width 0.3s ease-in-out;
+}
+@keyframes typewriter {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}
+
+.typewriter {
+  overflow: hidden; /* Versteckt den überlaufenden Text */
+  white-space: nowrap; /* Verhindert Zeilenumbruch */
+  margin: 0 auto; /* Zentriert das Element */
+  letter-spacing: 0.15em; /* Abstand zwischen Buchstaben */
+  animation: typewriter 1.5s steps(40, end), blink-caret 0.75s step-end infinite;
 }
 
 .underline-animation:hover::after {
