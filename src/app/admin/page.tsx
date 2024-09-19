@@ -1,5 +1,5 @@
 // src/app/admin/page.tsx
-import Dashboard from "@/components/admin-dashboard/Dashboard";
+import AdminDashboard from "@/components/admin-dashboard/AdminDashboard";
 
 export default function AdminPage() {
   return (
@@ -15,7 +15,7 @@ export default function AdminPage() {
             </p>
           </div>
           {/* Haupt-Dashboard-Komponente */}
-          <Dashboard />
+          <AdminDashboard />
         </section>
       </main>
     </div>

@@ -2,17 +2,19 @@
 
 import { useState, useEffect, SetStateAction } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { TabsComponent } from "./UserTabs";
 import { DetailsModal } from "./DetailsModal";
 import { AddFormModal } from "./AddFormModal";
 import TravelTable from "./TravelTable";
 import ExpensesTable from "./ExpenseTable";
 import { BillsModal } from "./BillsModal"; // Importiere die BillsModal Komponente
+import DashboardCardsUser from "@/components/user-account/DashboardCardsUser";
 
 export default function UserAccountPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState<"expenses" | "travel">("expenses");
+  const [activeTab, setActiveTab] = useState<
+    "dashboard" | "expenses" | "travel"
+  >("dashboard");
   const [showDetails, setShowDetails] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -50,14 +52,19 @@ export default function UserAccountPage() {
       <Tabs
         value={activeTab}
         onValueChange={(value: string) =>
-          setActiveTab(value as "expenses" | "travel")
+          setActiveTab(value as "dashboard" | "expenses" | "travel")
         }
         className="w-full"
       >
         <TabsList className="flex border-b">
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="expenses">Auslagen</TabsTrigger>
           <TabsTrigger value="travel">Reisekosten</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="dashboard">
+          <DashboardCardsUser />
+        </TabsContent>
 
         <TabsContent value="expenses">
           <ExpensesTable
@@ -93,6 +100,14 @@ export default function UserAccountPage() {
         <BillsModal
           selectedItem={selectedItem}
           setShowDetails={setShowBills} // Verwende setShowBills zum Schließen des BillsModal
+        />
+      )}
+
+      {showAddForm && (activeTab === "expenses" || activeTab === "travel") && (
+        <AddFormModal
+          setShowAddForm={setShowAddForm}
+          handleFormSubmit={handleFormSubmit}
+          activeTab={activeTab}
         />
       )}
     </div>

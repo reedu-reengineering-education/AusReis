@@ -7,7 +7,7 @@ import UserTable from "@/components/admin-dashboard/UserTable";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useState } from "react";
 
-export default function Dashboard() {
+export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard");
 
   return (

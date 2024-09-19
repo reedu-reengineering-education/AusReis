@@ -49,7 +49,7 @@ export default function DashboardCards() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-      <Card className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white">
+      <Card className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 opacity-50 text-white">
         <CardHeader>
           <CardTitle>Open Expenses</CardTitle>
         </CardHeader>
@@ -57,7 +57,7 @@ export default function DashboardCards() {
           <p className="text-5xl font-bold">{openExpensesCount}</p>
         </CardContent>
       </Card>
-      <Card className="bg-gradient-to-r from-green-400 to-teal-500 text-white">
+      <Card className="bg-gradient-to-r from-green-400 to-teal-500 opacity-50 text-white">
         <CardHeader>
           <CardTitle>Approved Expenses</CardTitle>
         </CardHeader>
@@ -65,7 +65,7 @@ export default function DashboardCards() {
           <p className="text-5xl font-bold">{approvedExpensesCount}</p>
         </CardContent>
       </Card>
-      <Card className="bg-gradient-to-r from-blue-400 to-indigo-500 text-white">
+      <Card className="bg-gradient-to-r from-blue-400 to-indigo-500 opacity-50 text-white">
         <CardHeader>
           <CardTitle>Total Projects</CardTitle>
         </CardHeader>
