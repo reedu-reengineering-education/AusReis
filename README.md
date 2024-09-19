@@ -31,19 +31,19 @@ Make sure the following tools are installed on your system:
 
 3. Install the dependencies:
 
-   - Using npm:
+- Using npm:
 
    ```bash
    npm install
    ```
 
-   - Using yarn:
+- Using yarn:
 
    ```bash
    yarn install
    ```
 
-   - Using pnpm:
+- Using pnpm:
 
    ```bash
    pnpm install
