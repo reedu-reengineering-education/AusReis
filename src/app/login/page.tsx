@@ -1,5 +1,5 @@
 "use client";
-import { LoginRegisterForm } from "@/components/forms/LoginRegisterForm.tsx";
+import { LoginRegisterForm } from "@/components/forms/LoginRegisterForm";
 
 export default function LoginPage() {
   const handleUserCreated = () => {
