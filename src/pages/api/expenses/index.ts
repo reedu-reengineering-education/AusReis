@@ -9,6 +9,9 @@ export default async function handler(
     const { amount, description, status, userId, projectId, category, bills } =
       req.body;
 
+    if (!amount || !description || !userId || !projectId || !category) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
     try {
       const newExpense = await prisma.expense.create({
         data: {

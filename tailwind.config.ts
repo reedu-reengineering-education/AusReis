@@ -1,28 +1,12 @@
-// import type { Config } from "tailwindcss";
-
-// const config: Config = {
-//   content: [
-//     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-//     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-//     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-//   ],
-//   theme: {
-//     extend: {
-//       backgroundImage: {
-//         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-//         "gradient-conic":
-//           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-//       },
-//     },
-//   },
-//   plugins: [],
-// };
-// export default config;
 import { fontFamily } from "tailwindcss/defaultTheme";
 
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./components/**/*.{js,ts,jsx,tsx}", "./app/**/*.{js,ts,jsx,tsx}"],
+  content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx,svg}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx,svg}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx,svg}",
+  ],
   theme: {
     extend: {
       fontFamily: {
@@ -64,6 +48,12 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      backgroundImage: {
+        "gradient-radial":
+          "radial-gradient(circle, hsl(var(--chart-1)), hsl(var(--chart-2)))",
+        "gradient-linear":
+          "linear-gradient(to right, hsl(var(--chart-1)), hsl(var(--chart-2)))",
+      },
       borderRadius: {
         xl: `calc(var(--radius) + 4px)`,
         lg: `var(--radius)`,
@@ -79,10 +69,22 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: 0 },
         },
+        moveHorizontal: {
+          "0%": { transform: "translateX(-50%)" },
+          "50%": { transform: "translateX(50%)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+        moveVertical: {
+          "0%": { transform: "translateY(-50%)" },
+          "50%": { transform: "translateY(50%)" },
+          "100%": { transform: "translateY(-50%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "move-horizontal": "moveHorizontal 30s ease infinite",
+        "move-vertical": "moveVertical 30s ease infinite",
       },
     },
   },

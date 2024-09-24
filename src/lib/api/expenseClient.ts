@@ -2,16 +2,18 @@ import axios from "axios";
 
 const API_URL = "/api/expenses";
 
-export const getExpense = async () => {
+// Abrufen aller Auslagen
+export const getExpenses = async () => {
   try {
     const response = await axios.get(`${API_URL}`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching expense:", error);
+    console.error("Error fetching expenses:", error);
     throw error;
   }
 };
 
+// Erstellen einer neuen Auslage
 export const createExpense = async (
   amount: number,
   description: string,
@@ -45,6 +47,7 @@ export const createExpense = async (
   }
 };
 
+// Aktualisieren einer bestimmten Auslage
 export const updateExpense = async (
   id: string,
   amount?: number,
@@ -54,7 +57,7 @@ export const updateExpense = async (
   bills?: { file: string; amount: number }[]
 ) => {
   try {
-    const response = await axios.put(`${API_URL}?id=${id}`, {
+    const response = await axios.put(`${API_URL}/${id}`, {
       amount,
       description,
       projectId,
@@ -68,9 +71,10 @@ export const updateExpense = async (
   }
 };
 
+// Löschen einer bestimmten Auslage
 export const deleteExpense = async (id: string) => {
   try {
-    await axios.delete(`${API_URL}?id=${id}`);
+    await axios.delete(`${API_URL}/${id}`);
   } catch (error) {
     console.error("Error deleting expense:", error);
     throw error;

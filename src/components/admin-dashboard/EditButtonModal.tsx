@@ -13,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { getProject, updateProject } from "@/lib/api/projectClient";
-import { Project } from "prisma/prisma-client";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -22,6 +21,7 @@ import {
 } from "@radix-ui/react-dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { XIcon } from "lucide-react";
+import { Project, User } from "@prisma/client";
 
 async function fetchUsers() {
   const response = await fetch("/api/users");
@@ -33,21 +33,26 @@ async function fetchUsers() {
 
 interface ProjectEditModalProps {
   projectId: string;
-  onProjectUpdated: (updatedProject: Project) => void;
+
+  onProjectUpdated: (updatedProject: Project) => Promise<boolean>;
+
+  editingProject: Project | null;
+
+  availableUsers: User[] | any[]; // Add this line to include availableUsers prop
 }
 
 export function ProjectEditModal({
   projectId,
-  onProjectUpdated = () => {},
+  onProjectUpdated = async () => false,
 }: ProjectEditModalProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
   const [status, setStatus] = useState<string>("");
   const [budget, setBudget] = useState<number>(0);
   const [actualSpend, setActualSpend] = useState<number>(0);
-  const [assignedUsers, setAssignedUsers] = useState<{ id: string }[]>([]);
+  const [assignedUsers, setAssignedUsers] = useState<User[]>([]);
   const loadProjectRef = React.useRef(() => {});
-  const [project, setProject] = useState<Project | null>(null);
+  const [project, setProject] = useState<Project & { users: User[] }>();
   const [allUsers, setAllUsers] = useState<{ id: string; name: string }[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<
     { id: string; name: string }[]
@@ -56,18 +61,20 @@ export function ProjectEditModal({
 
   loadProjectRef.current = async () => {
     try {
-      const projectData = await getProject(projectId);
+      const projectData: Project & { users: User[] } = await getProject(
+        projectId
+      );
       setProject(projectData);
       setName(projectData.name);
       setStatus(projectData.status);
       setBudget(projectData.budget);
       setActualSpend(projectData.actualSpend);
-      setAssignedUsers(projectData.assignedUsers || []);
+      setAssignedUsers(projectData.users || []);
       setSelectedUsers(
-        (projectData.assignedUsers || []).map(
-          (user: { id: string; name: string }) => ({
+        (projectData.users || []).map(
+          (user: { id: string; name: string | null }) => ({
             id: user.id,
-            name: user.name,
+            name: user.name || "Unknown",
           })
         )
       );
@@ -194,7 +201,7 @@ export function ProjectEditModal({
             />
           </div>
           <div>
-            <Label htmlFor="assignedUsers">Assigned Users</Label>
+            <Label htmlFor="users">Users</Label>
             <div className="flex items-center gap-4">
               <Input
                 placeholder="Benutzer suchen..."

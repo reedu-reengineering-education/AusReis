@@ -44,7 +44,7 @@ export function LoginRegisterForm({
 
   useEffect(() => {
     if (status === "authenticated") {
-      session.user.role === "ADMIN"
+      session.user.role === "admin"
         ? router.push(`/admin`)
         : router.push(`/account`);
     }

@@ -21,10 +21,10 @@ export default async function handler(
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Rolle bestimmen
-    let role: Role = Role.USER; // Standardmäßig USER
+    let role: Role = Role.user; // Standardmäßig USER
 
     if (secretCode === process.env.ADMIN_SECRET_CODE) {
-      role = Role.ADMIN; // Adminrolle setzen, wenn der geheime Code korrekt ist
+      role = Role.admin; // Adminrolle setzen, wenn der geheime Code korrekt ist
     }
 
     // Benutzer in der Datenbank erstellen

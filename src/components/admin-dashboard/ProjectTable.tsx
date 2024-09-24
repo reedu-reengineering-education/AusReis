@@ -41,12 +41,12 @@ import {
   updateProject,
 } from "@/lib/api/projectClient";
 import { useSession } from "next-auth/react";
-import { Project } from "@prisma/client";
+import { Project, User } from "@prisma/client";
 
 export default function ProjectTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("name");
-  const [projects, setProjects] = useState<Project[]>([]); // Zustandsvariable für Projekte
+  const [projects, setProjects] = useState<(Project & { users: User[] })[]>([]); // Zustandsvariable für Projekte
   const [isLoading, setIsLoading] = useState(true); // Zustandsvariable für Ladezustand
   const [error, setError] = useState<Error | null>(null); // Zustandsvariable für Fehler
   const [availableUsers, setAvailableUsers] = useState([]);
@@ -56,22 +56,6 @@ export default function ProjectTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null); // Zustandsvariable für das ausgewählte Projekt
 
-  interface User {
-    id: string;
-    name: string;
-  }
-
-  // Schnittstelle für Projekte
-  interface Project {
-    updatedAt: Date;
-    users: User[];
-    id: string;
-    name: string;
-    status: string;
-    budget: number;
-    actualSpend: number;
-    assignedUsers: { id: string }[];
-  }
   if (status === "loading") {
     return <div>Loading...</div>;
   }
@@ -123,7 +107,8 @@ export default function ProjectTable() {
       // Falls die Namen gleich sind, nach dem letzten Änderungsdatum sortieren
       if (nameComparison === 0) {
         return (
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+          new Date(b.updatedAt ?? 0).getTime() -
+          new Date(a.updatedAt ?? 0).getTime()
         );
       }
 
@@ -148,13 +133,14 @@ export default function ProjectTable() {
   };
 
   const handleUpdateProject = async (
-    updatedProject: Project
+    updatedProject: Project & { users: User[] }
   ): Promise<boolean> => {
     try {
       // Prüfen, ob assignedUsers ein Array ist
-      console.log("updatedProject.assignedUsers:", updatedProject);
-      if (Array.isArray(updatedProject.assignedUsers)) {
-        const userIds = updatedProject.assignedUsers
+
+      console.log("updatedProject.users:", updatedProject);
+      if (Array.isArray(updatedProject.users)) {
+        const userIds = updatedProject.users
           .map((user) => {
             if (typeof user === "string") {
               return user; // Falls es bereits eine ID ist, zurückgeben
@@ -167,21 +153,18 @@ export default function ProjectTable() {
           .filter(Boolean); // Null-Werte herausfiltern
 
         // Setze die zugewiesenen Benutzer-IDs
-        updatedProject.assignedUsers = userIds as any; // Typumgehung, da assignedUsers jetzt eine Liste von IDs ist
+        updatedProject.users = userIds as any; // Typumgehung, da assignedUsers jetzt eine Liste von IDs ist
       } else {
-        console.error(
-          "assignedUsers is not an array:",
-          updatedProject.assignedUsers
-        );
+        console.error("users is not an array:", updatedProject.users);
       }
-
+      const userIds = updatedProject.users.map((user) => user.id);
       await updateProject(
         updatedProject.id,
         updatedProject.name,
         updatedProject.status,
         updatedProject.budget,
         updatedProject.actualSpend,
-        updatedProject.assignedUsers as unknown as string[] // Pass the userIds here
+        updatedProject.users as unknown as string[] // Pass the userIds here
       );
 
       setProjects((prevProjects) =>
@@ -232,7 +215,7 @@ export default function ProjectTable() {
     status: string;
     budget: number;
     actualSpend: number;
-    userIds: string[];
+    users: any[];
   }) => {
     try {
       const savedProject = await createProject(
@@ -240,7 +223,7 @@ export default function ProjectTable() {
         newProject.status,
         newProject.budget,
         newProject.actualSpend,
-        newProject.userIds // Benutzer-IDs hinzufügen
+        newProject.users // Benutzer-IDs hinzufügen
       );
       setProjects([...projects, savedProject]); // Das neue Projekt der Liste hinzufügen
       setShowAddProjectForm(false); // Formular schließen
@@ -259,11 +242,11 @@ export default function ProjectTable() {
   // Funktion, um Status zu bestimmen und die entsprechende Farbe für das Badge zu setzen
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
-      case "ACTIVE":
+      case "active":
         return "bg-green-100 text-green-800"; // Grün für "Active"
-      case "PENDING":
+      case "pending":
         return "bg-yellow-100 text-yellow-800"; // Gelb für "Pending"
-      case "COMPLETED":
+      case "completed":
         return "bg-blue-100 text-blue-800"; // Blau für "Completed"
       default:
         return "bg-gray-100 text-gray-800"; // Grau für unbekannte Status
@@ -335,23 +318,10 @@ export default function ProjectTable() {
 
               {/* Benutzerliste anzeigen */}
               <TableCell>
-                {project.users.map(
-                  (user: {
-                    id: Key | null | undefined;
-                    name:
-                      | string
-                      | number
-                      | bigint
-                      | boolean
-                      | ReactElement<any, string | JSXElementConstructor<any>>
-                      | Iterable<ReactNode>
-                      | ReactPortal
-                      | Promise<AwaitedReactNode>
-                      | null
-                      | undefined;
-                  }) => (
+                {project.users?.map(
+                  (user: { id: string; name: string | null }) => (
                     <Badge key={user.id} className="mr-2">
-                      {user.name}
+                      {user.name ?? "Unknown"}
                     </Badge>
                   )
                 )}
@@ -370,10 +340,11 @@ export default function ProjectTable() {
                 </Button> */}
                 <ProjectEditModal
                   projectId={project.id}
-                  onProjectUpdated={handleUpdateProject}
+                  onProjectUpdated={(project: Project) =>
+                    handleUpdateProject(project as any)
+                  }
                   availableUsers={availableUsers}
-                  onUpdate={handleUpdateProject}
-                  editingProject={editingProject}
+                  editingProject={null}
                 />
                 {/* <Button
                   variant="destructive"

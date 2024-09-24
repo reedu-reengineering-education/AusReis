@@ -33,7 +33,7 @@ export function withProject(handler: NextApiHandler) {
         (user) => user.id === session.user.id
       );
 
-      if (!userIsInProject && session.user.role !== "ADMIN") {
+      if (!userIsInProject && session.user.role !== "admin") {
         return res.status(403).json({ message: "Access denied" });
       }
 
