@@ -1,4 +1,3 @@
-"use client";
 import { useState, useRef } from "react";
 import {
   Table,
@@ -10,8 +9,9 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { XIcon } from "lucide-react";
-import { Progress } from "@/components/ui/progress"; // Importieren Sie die Progress-Komponente von shadcn
+import { UploadIcon, XIcon } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { createFormData } from "@/helpers/fileUploadHelpers";
 
 interface BillsModalProps {
   selectedItem: {
@@ -20,17 +20,17 @@ interface BillsModalProps {
     status: string;
     amount: number;
     bills: { file: string; amount: number }[];
-  } | null; // Erlaube null für selectedItem
+  } | null;
   setShowDetails: (show: boolean) => void;
 }
 
 export function BillsModal({ selectedItem, setShowDetails }: BillsModalProps) {
   const [file, setFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [uploadProgress, setUploadProgress] = useState<number>(0); // Fortschritt des Uploads
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!selectedItem) {
-    return null; // Rendere nichts, wenn selectedItem null ist
+    return null;
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,39 +46,38 @@ export function BillsModal({ selectedItem, setShowDetails }: BillsModalProps) {
     }
   };
 
-  const handleUpload = async () => {
+  const handleUpload = async (event: any) => {
+    event.preventDefault();
+
     if (file) {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("amount", selectedItem.amount.toString());
-      formData.append("title", selectedItem.title);
-      formData.append("project", selectedItem.project);
-      formData.append("status", selectedItem.status);
+      const formData = createFormData([file]);
 
+      // Verwende XMLHttpRequest, um den Upload-Fortschritt zu überwachen
       const xhr = new XMLHttpRequest();
-      xhr.open("POST", "/api/bills", true);
+      xhr.open("POST", "/api/upload/files", true);
 
+      // Fortschritts-Event, um den Upload-Fortschritt zu berechnen
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
-          const percentComplete = (event.loaded / event.total) * 100;
-          setUploadProgress(percentComplete);
+          const progress = (event.loaded / event.total) * 100;
+          setUploadProgress(progress);
+          console.log(`Fortschritt: ${progress.toFixed(2)}%`);
         }
       };
 
       xhr.onload = () => {
         if (xhr.status === 200) {
           console.log("Datei erfolgreich hochgeladen");
-          setShowDetails(false);
         } else {
-          console.error("Fehler beim Hochladen der Datei:", xhr.statusText);
+          console.error("Fehler beim Hochladen");
         }
       };
 
       xhr.onerror = () => {
-        console.error("Fehler beim Hochladen der Datei");
+        console.error("Fehler beim Hochladen");
       };
 
-      xhr.send(formData);
+      xhr.send(formData); // Sende die Datei
     } else {
       console.error("Keine Datei ausgewählt");
     }
@@ -159,11 +158,10 @@ export function BillsModal({ selectedItem, setShowDetails }: BillsModalProps) {
                   <div className="mt-2">
                     <p className="text-sm text-gray-600">{file.name}</p>
                     <Button onClick={handleUpload} variant="outline" size="sm">
-                      Hochladen
+                      <UploadIcon className="w-4 h-4 mr-auto" />
                     </Button>
                     <div className="mt-2">
                       <Progress value={uploadProgress} max={100} />
-                      <span>{uploadProgress.toFixed(2)}%</span>
                     </div>
                   </div>
                 )}

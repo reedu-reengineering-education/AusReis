@@ -16,10 +16,10 @@ generator client {
 model File {
   id        Int      @id @default(autoincrement())
   filename  String
-  fileUrl   String   // URL, wo die Datei gespeichert ist (z.B. in R2)
-  mimeType  String
-  size      Int      // Dateigröße in Bytes
-  createdAt DateTime @default(now())
+  fileUrl   String?  // URL, wo die Datei gespeichert ist (z.B. in R2)
+  mimeType  String?
+  size      Int?      // Dateigröße in Bytes
+  createdAt DateTime? @default(now())
   user      User?    @relation(fields: [userId], references: [id])
   userId    String?  // ID des Benutzers, der die Datei hochgeladen hat
   bills     Bill[]
