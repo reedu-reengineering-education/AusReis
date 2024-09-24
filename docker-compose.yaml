@@ -12,15 +12,33 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  mailhog:
-    image: mailhog/mailhog
-    container_name: mailhog
-    restart: always
+  # mailhog:
+  #   image: mailhog/mailhog
+  #   container_name: mailhog
+  #   restart: always
+  #   ports:
+  #     - "1025:1025" #127.0.0.1:1025:1025
+  #     - "8025:8025"
+  # networks:
+  #   - badgr
+
+  minio:
+    container_name: s3minio
+    image: minio/minio:latest
     ports:
-      - "1025:1025" #127.0.0.1:1025:1025
-      - "8025:8025"
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_storage:/data
+    environment:
+      MINIO_ACCESS_KEY: access_key
+      MINIO_SECRET_KEY: secret_key
+      MINIO_ROOT_USER: user
+      MINIO_ROOT_PASSWORD: passwort123
+    command: server --address ":9000" --console-address ":9001" /data
     # networks:
     #   - badgr
 
 volumes:
   postgres_data:
+  minio_storage:
