@@ -69,3 +69,24 @@ export async function checkFileExistsInBucket({
   }
   return true;
 }
+/**
+ * Get file from S3 bucket
+ * @param bucketName name of the bucket
+ * @param fileName name of the file
+ * @returns file from S3
+ */
+export async function getFileFromBucket({
+  bucketName,
+  fileName,
+}: {
+  bucketName: string;
+  fileName: string;
+}) {
+  try {
+    await s3Client.statObject(bucketName, fileName);
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+  return await s3Client.getObject(bucketName, fileName);
+}

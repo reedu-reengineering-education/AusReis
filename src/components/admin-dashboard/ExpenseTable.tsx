@@ -1,4 +1,6 @@
-import { useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -10,52 +12,90 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import SearchBar from "./SearchBar";
+import type { ExpenseStatus } from "@prisma/client";
+
+interface Expense {
+  id: string;
+  amount: number;
+  description: string;
+  status: ExpenseStatus;
+  userId: string;
+  projectId: string;
+  createdAt: Date;
+  category: string;
+  fileId: string; // Added fileId property
+}
+import { getExpenses, updateExpense } from "@/lib/api/expenseClient";
+
+const downloadFile = async (fileId: string) => {
+  window.open(`/api/download/${fileId}`, "_blank");
+};
 
 export default function ExpenseTable() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [expenses, setExpenses] = useState([
-    {
-      id: 1,
-      user: "John Doe",
-      project: "Project A",
-      amount: 100,
-      status: "Open",
-    },
-    {
-      id: 2,
-      user: "Jane Doe",
-      project: "Project B",
-      amount: 200,
-      status: "Paid",
-    },
-    {
-      id: 3,
-      user: "Bob Smith",
-      project: "Project C",
-      amount: 150,
-      status: "Pending",
-    },
-  ]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  const handleApproveExpense = (id: number) => {
-    const updatedExpenses = expenses.map((expense) =>
-      expense.id === id ? { ...expense, status: "Paid" } : expense
-    );
-    setExpenses(updatedExpenses);
+  // Daten von der API laden
+  useEffect(() => {
+    const fetchExpenses = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getExpenses();
+        setExpenses(data);
+      } catch (error) {
+        console.error("Error fetching expenses:", error);
+        setError(error as any);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchExpenses();
+  }, []);
+
+  const handleApproveExpense = async (id: string) => {
+    try {
+      await updateExpense(id, undefined, undefined, undefined, "paid");
+      setExpenses((prevExpenses) =>
+        prevExpenses.map((expense: Expense) =>
+          expense.id === id ? { ...expense, status: "paid" } : expense
+        )
+      );
+    } catch (error) {
+      console.error("Error approving expense:", error);
+    }
   };
 
-  const handleRejectExpense = (id: number) => {
-    const updatedExpenses = expenses.map((expense) =>
-      expense.id === id ? { ...expense, status: "Rejected" } : expense
-    );
-    setExpenses(updatedExpenses);
+  const handleRejectExpense = async (id: string) => {
+    try {
+      await updateExpense(id, undefined, undefined, undefined, "rejected");
+      setExpenses((prevExpenses) =>
+        prevExpenses.map((expense) =>
+          expense.id === id
+            ? { ...expense, status: "rejected" as ExpenseStatus }
+            : expense
+        )
+      );
+    } catch (error) {
+      console.error("Error rejecting expense:", error);
+    }
   };
 
   const filteredExpenses = expenses.filter(
     (expense) =>
-      expense.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      expense.project.toLowerCase().includes(searchTerm.toLowerCase())
+      expense.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      expense.projectId.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (isLoading) {
+    return <div>Loading expenses...</div>;
+  }
+
+  if (error) {
+    return <div>Error loading expenses: {error.message}</div>;
+  }
 
   return (
     <div>
@@ -78,15 +118,15 @@ export default function ExpenseTable() {
         <TableBody>
           {filteredExpenses.map((expense) => (
             <TableRow key={expense.id}>
-              <TableCell>{expense.user}</TableCell>
-              <TableCell>{expense.project}</TableCell>
+              <TableCell>{expense.userId}</TableCell>
+              <TableCell>{expense.projectId}</TableCell>
               <TableCell>${expense.amount.toLocaleString()}</TableCell>
               <TableCell>
                 <Badge
                   className={`${
-                    expense.status === "Paid"
+                    expense.status === "paid"
                       ? "bg-green-100 text-green-800"
-                      : expense.status === "Pending"
+                      : expense.status === "pending"
                       ? "bg-yellow-100 text-yellow-800"
                       : "bg-red-100 text-red-800"
                   } text-xs`}
@@ -95,7 +135,7 @@ export default function ExpenseTable() {
                 </Badge>
               </TableCell>
               <TableCell className="flex justify-end space-x-2">
-                {expense.status === "Pending" || expense.status === "Open" ? (
+                {expense.status === "pending" ? (
                   <>
                     <Button
                       variant="outline"
@@ -113,6 +153,20 @@ export default function ExpenseTable() {
                     </Button>
                   </>
                 ) : null}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => downloadFile(expense.fileId)}
+                >
+                  View
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => downloadFile(expense.fileId)}
+                >
+                  Download
+                </Button>
               </TableCell>
             </TableRow>
           ))}
