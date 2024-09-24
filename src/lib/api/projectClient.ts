@@ -1,5 +1,4 @@
 import axios from "axios";
-import { use } from "react";
 
 // Basis-URL für die Projekte-API
 const API_URL = "/api/projects";

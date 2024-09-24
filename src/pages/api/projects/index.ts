@@ -30,14 +30,14 @@ export default async function handler(
   // POST-Methode: Neues Projekt erstellen
   if (req.method === "POST") {
     // Überprüfen, ob der Benutzer Admin ist
-    const isAdmin = session.user.role === "ADMIN";
+    const isAdmin = session.user.role === "admin";
     if (!isAdmin) {
       return res
         .status(403)
         .json({ error: "Forbidden: Only admins can create projects." });
     }
 
-    const { name, status, budget, actualSpend, userIds } = req.body;
+    const { name, status, budget, actualSpend, users } = req.body;
 
     // Validierung der benötigten Felder
     if (
@@ -45,8 +45,8 @@ export default async function handler(
       !status ||
       !budget ||
       actualSpend === undefined ||
-      !userIds ||
-      userIds.length === 0
+      !users ||
+      users.length === 0
     ) {
       return res.status(400).json({
         error:
@@ -63,7 +63,7 @@ export default async function handler(
           budget: parseFloat(budget),
           actualSpend: parseFloat(actualSpend),
           users: {
-            connect: userIds.map((id: string) => ({ id })), // Benutzer verknüpfen
+            connect: users.map((id: string) => ({ id })), // Benutzer verknüpfen
           },
         },
       });

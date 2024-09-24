@@ -14,7 +14,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   // Überprüfe, ob der Benutzer Admin ist
-  const isAdmin = session.user.role === "ADMIN";
+  const isAdmin = session.user.role === "admin";
   const { projectId } = req.query;
 
   // Überprüfe, ob die Anfrage GET, PUT oder DELETE ist
@@ -40,7 +40,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         .json({ error: "Forbidden: Only admins can update projects." });
     }
 
-    const { name, status, budget, actualSpend, userIds } = req.body;
+    const { name, status, budget, actualSpend, users } = req.body;
 
     try {
       const updatedProject = await prisma.project.update({
@@ -51,7 +51,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           budget: parseFloat(budget),
           actualSpend: parseFloat(actualSpend),
           users: {
-            set: userIds.map((id: string) => ({ id })),
+            set: users.map((id: string) => ({ id })),
           },
         },
       });

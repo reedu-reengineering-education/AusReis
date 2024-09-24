@@ -20,7 +20,7 @@ export default async function handler(
           name: name || "Admin User",
           email,
           password: hashedPassword,
-          role: "ADMIN", // Admin-Rolle setzen
+          role: "admin", // Admin-Rolle setzen
         },
       });
 
