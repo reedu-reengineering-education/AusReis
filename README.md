@@ -30,7 +30,7 @@ Thgis is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-nex
   
   - [Node.js](https://nodejs.org/) (version 20.x or highr)
 
-  - A [PostgreSQL](https://www.postgresql.org/) database
+  - [Docker](https://www.docker.com/get-started/) 
   
   - A package manager like [npm](https://www.npmjs.om/), [yarn](https://yarnpkg.com/), or [pnpm](https://pnpm.io/)
     
