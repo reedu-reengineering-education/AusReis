@@ -1,16 +1,26 @@
+## About The Project
+The re:edu App is a web based system to visualize the distribution process of teaching students.
+
+Features:
+
+  * 🏎 Fast
+### Built With
+  * [Next.js](https://nextjs.org/)
+  * [Typescript](https://www.typescriptlang.org/)
+  * [TailwindCSS](https://tailwindcss.com/)
+
+## Getting Started
+
 Thgis is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app)
 
-## Getting Star
-First run the development server:
-# AusReis
-
-This is a [Njs](https://nextjs.org/) projt.
 
 ## Prerequisites
 
-Make sure the following tools are installed on your system:
-Node.js](https://nodejs.org/) (version 20.x or highr)
-- A package manager like [npm](https://www.npmjs.om/), [yarn](https://yarnpkg.com/), or [pnpm](https://pnpm.io/)
+  Make sure the following tools are installed on your system:
+  
+  Node.js](https://nodejs.org/) (version 20.x or highr)
+  
+  - A package manager like [npm](https://www.npmjs.om/), [yarn](https://yarnpkg.com/), or [pnpm](https://pnpm.io/)
 
 ## Installation with npm
   1. Clone the reposity:
