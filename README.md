@@ -1,3 +1,13 @@
+<div align="center">
+  <h2 align="center">re:edu App</h2>
+
+  <p align="center">
+     🚀 Template for re:edu applications
+    <br />
+  </p>
+</div>
+
+
 ## About The Project
 The re:edu App is a web based system to visualize the distribution process of teaching students.
 
