@@ -15,7 +15,7 @@ Node.js](https://nodejs.org/) (version 20.x or highr)
 ## Installation
 Clone the reposity:
 
-  ```git clone https://github.com/reedu-reengineering-education/mapstories-2.0.git```
+  ```bashgit clone https://github.com/reedu-reengineering-education/mapstories-2.0.git```
 2. Install NPM packages
 ```npm install```
 3. Start development DB
