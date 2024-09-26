@@ -38,7 +38,7 @@ Thgis is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-nex
   1. Clone the reposity:
 
   ```bash 
-  git clone https://github.com/reedu-reengineering-education/mapstories-2.0.git
+  git clone https://github.com/reedu-reengineering-education/AusReis.git
   ```
 
   2. Based on the ```env.example``` file, create a ```.env``` file and configure it accordingly.
