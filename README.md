@@ -81,5 +81,3 @@ Releasing new versions under a ```v*.*.*``` tag
 ## Contact
 
 re:edu GmbH - @reedu_de - kontakt@reedu.de
-
-Project Link: https://github.com/reedu-reengineering-education/next-13-tailwind-starter
