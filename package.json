@@ -45,6 +45,7 @@
     "formidable": "^3.5.1",
     "framer-motion": "^11.5.4",
     "glob": "^11.0.0",
+    "gsap": "^3.12.5",
     "init": "^0.1.2",
     "jsonwebtoken": "^9.0.2",
     "lru-cache": "^11.0.0",
