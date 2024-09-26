@@ -28,7 +28,9 @@ Thgis is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-nex
 
   Make sure the following tools are installed on your system:
   
-  Node.js](https://nodejs.org/) (version 20.x or highr)
+  - [Node.js](https://nodejs.org/) (version 20.x or highr)
+
+  - A [PostgreSQL](https://www.postgresql.org/) database
   
   - A package manager like [npm](https://www.npmjs.om/), [yarn](https://yarnpkg.com/), or [pnpm](https://pnpm.io/)
 
@@ -37,28 +39,32 @@ Thgis is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-nex
 
   ```bash 
   git clone https://github.com/reedu-reengineering-education/mapstories-2.0.git
-```
-  2. Install npm packages
-```bash
-npm install
-```
-  3. Start development DB
-```bash
-docker compose up -d
-```
-  4. Migrate DB on first run
-```bash
-npx prisma migrate dev
-```
+  ```
 
-  5. Seed database with themes
-```bash
-npx prisma db seed
-```
-  6. Run the App
-```bash
-npm run dev
-```
+  2. Based on the ```env.example``` file, create a ```.env``` file and configure it accordingly.
+
+     
+  3. Install npm packages
+  ```bash
+  npm install
+  ```
+  4. Start development DB
+  ```bash
+  docker compose up -d
+  ```
+  5. Migrate DB on first run
+  ```bash
+  npx prisma migrate dev
+  ```
+
+  6. Seed database with themes
+  ```bash
+  npx prisma db seed
+  ```
+  7. Run the App
+  ```bash
+  npm run dev
+  ```
 
 ## Contributing
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
