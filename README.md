@@ -42,7 +42,7 @@ Thgis is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-nex
   git clone https://github.com/reedu-reengineering-education/AusReis.git
   ```
 
-  2. Based on the ```env.example``` file, create a ```.env``` file and configure it accordingly.
+  2. Based on the ```.env.example``` file, create a ```.env``` file and configure it accordingly.
 
      
   3. Install npm packages
