@@ -13,22 +13,32 @@ Node.js](https://nodejs.org/) (version 20.x or highr)
 - A package manager like [npm](https://www.npmjs.om/), [yarn](https://yarnpkg.com/), or [pnpm](https://pnpm.io/)
 
 ## Installation with npm
-Clone the reposity:
+  1. Clone the reposity:
 
   ```bash 
   git clone https://github.com/reedu-reengineering-education/mapstories-2.0.git
 ```
-2. Install NPM packages
-```npm install```
-3. Start development DB
-```docker compose up -d```
-4. Migrate DB on first run
-```npx prisma migrate dev```
+  2. Install npm packages
+```bash
+npm install
+```
+  3. Start development DB
+```bash
+docker compose up -d
+```
+  4. Migrate DB on first run
+```bash
+npx prisma migrate dev
+```
 
-5. Seed database with themes
-```npx prisma db seed```
-6. Run the App
-```npm run dev```
+  5. Seed database with themes
+```bash
+npx prisma db seed
+```
+  6. Run the App
+```bash
+npm run dev
+```
 
 ## Contributing
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
