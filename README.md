@@ -9,7 +9,7 @@
 
 
 ## About The Project
-The re:edu App is a web based system to visualize the distribution process of teaching students.
+This is a [Next.js](https://nextjs.org/) project, created by [re:edu](https://reedu.de/).
 
 Features:
 
@@ -33,6 +33,7 @@ Thgis is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-nex
   - A [PostgreSQL](https://www.postgresql.org/) database
   
   - A package manager like [npm](https://www.npmjs.om/), [yarn](https://yarnpkg.com/), or [pnpm](https://pnpm.io/)
+    
 
 ## Installation with npm
   1. Clone the reposity:
