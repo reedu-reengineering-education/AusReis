@@ -12,10 +12,12 @@ Make sure the following tools are installed on your system:
 Node.js](https://nodejs.org/) (version 20.x or highr)
 - A package manager like [npm](https://www.npmjs.om/), [yarn](https://yarnpkg.com/), or [pnpm](https://pnpm.io/)
 
-## Installation
+## Installation with npm
 Clone the reposity:
 
-  ```bashgit clone https://github.com/reedu-reengineering-education/mapstories-2.0.git```
+  ```bash 
+  git clone https://github.com/reedu-reengineering-education/mapstories-2.0.git
+```
 2. Install NPM packages
 ```npm install```
 3. Start development DB
