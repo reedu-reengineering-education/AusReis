@@ -58,11 +58,7 @@ Thgis is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-nex
   npx prisma migrate dev
   ```
 
-  6. Seed database with themes
-  ```bash
-  npx prisma db seed
-  ```
-  7. Run the App
+  6. Run the App
   ```bash
   npm run dev
   ```
