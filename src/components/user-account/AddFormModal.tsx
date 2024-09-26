@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { XIcon } from "lucide-react";
+import { XIcon, UploadIcon, FileIcon, TrashIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { Progress } from "@/components/ui/progress";
+import { createFormData } from "@/helpers/fileUploadHelpers";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "../ui/table";
 
 interface AddFormModalProps {
   activeTab: "expenses" | "travel";
@@ -31,6 +41,9 @@ export function AddFormModal({
   handleFormSubmit,
 }: AddFormModalProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<{
     amount: number;
     description: string;
@@ -46,8 +59,25 @@ export function AddFormModal({
     category: "",
     bills: [],
   });
+
+  if (!formData) {
+    return null;
+  }
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!formData.amount || !formData.description || !formData.projectId) {
+      // Optional: Anzeige eines Fehlerhinweises an den Benutzer
+      console.log("Alle Felder müssen ausgefüllt sein.");
+      return;
+    }
+
+    if (formData.bills.length === 0) {
+      console.log("Mindestens eine Datei muss hochgeladen werden.");
+      return;
+    }
+
     handleFormSubmit(formData);
     setIsDialogOpen(false);
   };
@@ -69,6 +99,48 @@ export function AddFormModal({
       ...prevData,
       bills,
     }));
+    if (files && files.length > 0) {
+      setFile(files[0]);
+    }
+  };
+
+  const handleUploadClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleUpload = async (e: any) => {
+    e.preventDefault();
+
+    if (file) {
+      const uploadFormData = createFormData([file]);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/upload/files", true);
+
+      xhr.upload.onprogress = (e: any) => {
+        if (e.lengthComputable) {
+          const progress = (e.loaded / e.total) * 100;
+          setUploadProgress(progress);
+          console.log(`Fortschritt: ${progress.toFixed(2)}%`);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          console.log("Datei erfolgreich hochgeladen");
+        } else {
+          console.error("Fehler beim Hochladen");
+        }
+      };
+
+      xhr.onerror = () => {
+        console.error("Fehler beim Hochladen");
+      };
+
+      xhr.send(uploadFormData);
+    }
   };
 
   return (
@@ -85,6 +157,10 @@ export function AddFormModal({
             ? "Auslage hinzufügen"
             : "Reisekosten hinzufügen"}
         </DialogTitle>
+        <DialogDescription>
+          Bitte füllen Sie die Details aus und laden Sie alle relevanten Dateien
+          hoch.
+        </DialogDescription>
         <form onSubmit={handleSubmit}>
           <Input
             name="description"
@@ -108,15 +184,67 @@ export function AddFormModal({
             className="mb-4"
             onChange={handleInputChange}
           />
-          <Input
-            name="bills"
-            placeholder="Belege (optional)"
-            type="file"
-            multiple
-            className="mb-4"
-            onChange={handleFileChange}
-          />
-          <DialogFooter>
+          <div className="border-2 border-gray-200 border-dashed rounded-lg p-6 dark:border-gray-700 group hover:border-primary transition-colors">
+            <div className="flex flex-col items-center justify-center space-y-3">
+              <UploadIcon className="h-10 w-10 text-gray-400 group-hover:text-primary" />
+              <p className="text-gray-500 dark:text-gray-400 group-hover:text-primary">
+                Dateien hier ablegen
+              </p>
+              <Button variant="outline" onClick={handleUploadClick}>
+                Dateien auswählen
+                <input
+                  className="hidden"
+                  type="file"
+                  onChange={handleFileChange}
+                  ref={fileInputRef}
+                />
+              </Button>
+            </div>
+          </div>
+          {file && (
+            <div className="border rounded-lg overflow-hidden mt-4">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="px-4 py-2 text-left">File</TableHead>
+                    <TableHead className="px-4 py-2 text-right">Size</TableHead>
+                    <TableHead className="px-4 py-2 text-right">
+                      Progress
+                    </TableHead>
+                    <TableHead className="px-4 py-2 text-right">
+                      Actions
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow className="border-b dark:border-gray-700">
+                    <TableCell className="px-4 py-2 flex items-center space-x-2">
+                      <FileIcon className="h-5 w-5 text-gray-500" />
+                      <span>{file.name}</span>
+                    </TableCell>
+                    <TableCell className="px-4 py-2 text-right">
+                      <span className="text-gray-500 dark:text-gray-400">
+                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                      </span>
+                    </TableCell>
+                    <TableCell className="px-4 py-2 text-right">
+                      <Progress value={uploadProgress} />
+                    </TableCell>
+                    <TableCell className="px-4 py-2 text-right">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => setFile(null)}
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          )}
+          <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Abbrechen
             </Button>
