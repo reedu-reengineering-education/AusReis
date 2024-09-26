@@ -1,8 +1,8 @@
 <div align="center">
-  <h2 align="center">re:edu App</h2>
+  <h2 align="center">Next-App</h2>
 
   <p align="center">
-     🚀 Template for re:edu applications
+     
     <br />
   </p>
 </div>
