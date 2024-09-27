@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Progress } from "@/components/ui/progress";
 import { createFormData } from "@/helpers/fileUploadHelpers";
 import {
@@ -21,6 +21,7 @@ import {
   TableBody,
   TableCell,
 } from "../ui/table";
+import { useSession } from "next-auth/react"; // Verwende useSession für die Authentifizierung
 
 interface AddFormModalProps {
   activeTab: "expenses" | "travel";
@@ -40,6 +41,7 @@ export function AddFormModal({
   setShowAddForm,
   handleFormSubmit,
 }: AddFormModalProps) {
+  const { data: session } = useSession(); // Session verwenden, um die userId zu erhalten
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [file, setFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
@@ -55,10 +57,19 @@ export function AddFormModal({
     amount: 0,
     description: "",
     projectId: "",
-    userId: "",
-    category: "",
+    userId: session?.user?.id || "", // userId automatisch ausfüllen
+    category: activeTab === "expenses" ? "reimbursement" : "", // category automatisch basierend auf dem Tab
     bills: [],
   });
+
+  useEffect(() => {
+    if (activeTab === "expenses") {
+      setFormData((prevData) => ({
+        ...prevData,
+        category: "reimbursement",
+      }));
+    }
+  }, [activeTab]);
 
   if (!formData) {
     return null;
@@ -68,7 +79,6 @@ export function AddFormModal({
     e.preventDefault();
 
     if (!formData.amount || !formData.description || !formData.projectId) {
-      // Optional: Anzeige eines Fehlerhinweises an den Benutzer
       console.log("Alle Felder müssen ausgefüllt sein.");
       return;
     }

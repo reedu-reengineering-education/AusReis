@@ -109,6 +109,7 @@ model Expense {
   bills       Bill[]          
 }
 
+
 enum ExpenseStatus {
   pending
   processed

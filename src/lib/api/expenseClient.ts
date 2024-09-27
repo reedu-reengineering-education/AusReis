@@ -18,8 +18,8 @@ export const createExpense = async (
   amount: number,
   description: string,
   projectId: string,
-  userId: string,
-  category: string,
+  userId: string, // Dies wird aus der Session automatisch gesetzt
+  category: string, // Dies wird basierend auf dem Tab automatisch gesetzt
   bills: { file: string; amount: number }[]
 ) => {
   console.log("createExpense called with:", {
@@ -30,6 +30,12 @@ export const createExpense = async (
     category,
     bills,
   });
+
+  if (!userId || !category) {
+    console.error("userId or category is missing");
+    throw new Error("User ID and category are required.");
+  }
+
   try {
     const response = await axios.post(API_URL, {
       amount,
@@ -42,7 +48,10 @@ export const createExpense = async (
     console.log("API response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error creating expense:", error);
+    console.error(
+      "Error creating expense:",
+      (error as any).response || (error as any).message
+    );
     throw error;
   }
 };
@@ -66,7 +75,10 @@ export const updateExpense = async (
     });
     return response.data;
   } catch (error) {
-    console.error("Error updating expense:", error);
+    console.error(
+      "Error updating expense:",
+      (error as any).response || (error as any).message
+    );
     throw error;
   }
 };
@@ -76,7 +88,10 @@ export const deleteExpense = async (id: string) => {
   try {
     await axios.delete(`${API_URL}/${id}`);
   } catch (error) {
-    console.error("Error deleting expense:", error);
+    console.error(
+      "Error deleting expense:",
+      (error as any).response || (error as any).message
+    );
     throw error;
   }
 };

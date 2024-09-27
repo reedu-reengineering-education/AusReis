@@ -9,9 +9,13 @@ export default async function handler(
     const { amount, description, status, userId, projectId, category, bills } =
       req.body;
 
+    console.log("Request Body:", req.body); // Debugging: Zeigt den gesamten Body
     if (!amount || !description || !userId || !projectId || !category) {
       return res.status(400).json({ error: "Missing required fields" });
     }
+
+    // Weitere Log-Ausgabe für Debugging
+    console.log("All fields are present");
     try {
       const newExpense = await prisma.expense.create({
         data: {
@@ -29,7 +33,7 @@ export default async function handler(
           },
         },
       });
-
+      console.log(newExpense);
       return res.status(201).json(newExpense);
     } catch (error) {
       console.error("Error creating expense:", error);
@@ -38,6 +42,7 @@ export default async function handler(
   } // Zum erstellen einer Liste der Ausgaben
   else if (req.method === "GET") {
     try {
+      console.log("Fetching expenses...");
       const expenses = await prisma.expense.findMany({
         include: {
           bills: true,
@@ -46,12 +51,14 @@ export default async function handler(
         },
       });
 
+      console.log("Expenses fetched:", expenses);
       return res.status(200).json(expenses);
-    } catch (error) {
-      console.error("Error fetching expenses:", error);
-      return res.status(500).json({ error: "Error fetching expenses" });
+    } catch (error: any) {
+      console.error("Error fetching expenses:", error.message);
+      return res
+        .status(500)
+        .json({ error: "Error fetching expenses", details: error.message });
     }
-  } else {
-    res.status(405).json({ error: "Method not allowed" });
   }
+  return res.status(405).json({ error: "Method not allowed" });
 }
