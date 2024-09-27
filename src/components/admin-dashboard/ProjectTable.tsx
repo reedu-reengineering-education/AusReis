@@ -42,6 +42,7 @@ import {
 } from "@/lib/api/projectClient";
 import { useSession } from "next-auth/react";
 import { Project, User } from "@prisma/client";
+import { Progress } from "../ui/progress";
 
 export default function ProjectTable() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -293,6 +294,7 @@ export default function ProjectTable() {
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Progres</TableHead>
             <TableHead>Budget</TableHead>
             <TableHead>Actual Spend</TableHead>
             <TableHead>Users</TableHead>
@@ -312,20 +314,42 @@ export default function ProjectTable() {
                   {project.status}
                 </Badge>
               </TableCell>
+              <TableCell>
+                <Progress
+                  value={project.actualSpend}
+                  max={project.budget}
+                  className="bg-gradient-to-r from-green-500 via-orange-500 to-red-500 opacity-50"
+                />
+              </TableCell>
 
-              <TableCell>${project.budget.toLocaleString()}</TableCell>
-              <TableCell>${project.actualSpend.toLocaleString()}</TableCell>
+              <TableCell>{project.budget.toLocaleString()} €</TableCell>
+              <TableCell>{project.actualSpend.toLocaleString()} €</TableCell>
 
               {/* Benutzerliste anzeigen */}
               <TableCell>
-                {project.users?.map(
-                  (user: { id: string; name: string | null }) => (
-                    <Badge key={user.id} className="mr-2">
-                      {user.name ?? "Unknown"}
-                    </Badge>
-                  )
-                )}
+                <div className="relative group">
+                  <div className="flex flex-col space-y-0 transition-all duration-300">
+                    {project.users?.map(
+                      (
+                        user: { id: string; name: string | null },
+                        index: number
+                      ) => (
+                        <Badge
+                          key={user.id}
+                          className="block transform transition-all duration-300 group-hover:translate-y-[var(--hover-spacing)]"
+                          style={{
+                            transform: `translateY(${index * -5}px)`, // Stapel-Effekt
+                            ["--hover-spacing" as any]: `${index * 15}px`, // Abstand bei Hover
+                          }}
+                        >
+                          {user.name ?? "Unknown"}
+                        </Badge>
+                      )
+                    )}
+                  </div>
+                </div>
               </TableCell>
+
               <TableCell className="flex justify-end space-x-2">
                 {/* <Button
                   variant="outline"

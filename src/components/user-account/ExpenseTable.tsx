@@ -21,8 +21,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { expenses } from "../../../data"; // Importiere die Daten
 import { AddFormModal } from "./AddFormModal";
+import { getExpenses, createExpense } from "@/lib/api/expenseClient"; // API Funktionen
 
 import { getExpenses, createExpense } from "@/lib/api/expenseClient"; // API Funktionen
 import { useSession } from "next-auth/react";
@@ -48,6 +48,8 @@ export default function ExpensesTable({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { data: session } = useSession();
 
+
+  // Abrufen der Daten aus der API
   useEffect(() => {
     const fetchExpenses = async () => {
       setIsLoading(true);
@@ -59,6 +61,7 @@ export default function ExpensesTable({
         );
 
         setFilteredReimbursements(reimbursementExpenses);
+
       } catch (error) {
         console.error("Error fetching expenses:", error);
       } finally {
@@ -78,14 +81,17 @@ export default function ExpensesTable({
       item.project.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
   );
 
+
   // Handler für das Erstellen einer neuen Auslage
   const handleFormSubmit = async (formData: any) => {
     try {
+
       const newExpense = await createExpense(formData);
       setFilteredReimbursements((prevExpenses: any) => [
         ...prevExpenses,
         newExpense,
       ]);
+
     } catch (error) {
       console.error("Error creating expense:", error);
     }
@@ -102,13 +108,15 @@ export default function ExpensesTable({
         />
         <AddFormModal
           activeTab="expenses"
-          setShowAddForm={() => {}}
-          handleFormSubmit={handleAddNewClick}
+          setShowAddForm={handleAddNewClick}
+          handleFormSubmit={handleFormSubmit}
         />
       </div>
 
       {isLoading ? (
+
         <p>Lade Auslagen...</p>
+
       ) : (
         <Table>
           <TableHeader>
@@ -221,6 +229,7 @@ export default function ExpensesTable({
                 </TableRow>
               )
             )}
+
           </TableBody>
         </Table>
       )}
