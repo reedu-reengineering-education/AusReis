@@ -103,13 +103,13 @@ export default function UserAccountPage() {
         />
       )}
 
-      {showAddForm && (activeTab === "expenses" || activeTab === "travel") && (
+      {/* {showAddForm && (activeTab === "expenses" || activeTab === "travel") && (
         <AddFormModal
           setShowAddForm={setShowAddForm}
           handleFormSubmit={handleFormSubmit}
           activeTab={activeTab}
         />
-      )}
+      )} */}
     </div>
   );
 }

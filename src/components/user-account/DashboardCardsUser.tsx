@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 // Beispiel-API-Aufruf zum Laden der Projektdaten
 async function fetchProjects() {
-  const response = await fetch("/api/expenses-and-travels");
+  const response = await fetch("/api/expenses");
   if (!response.ok) {
     throw new Error("Network response was not ok");
   }
