@@ -3,7 +3,6 @@
 import { useState, useEffect, SetStateAction } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { DetailsModal } from "./DetailsModal";
-import { AddFormModal } from "./AddFormModal";
 import TravelTable from "./TravelTable";
 import ExpensesTable from "./ExpenseTable";
 import { BillsModal } from "./BillsModal"; // Importiere die BillsModal Komponente
@@ -102,14 +101,6 @@ export default function UserAccountPage() {
           setShowDetails={setShowBills} // Verwende setShowBills zum Schließen des BillsModal
         />
       )}
-
-      {/* {showAddForm && (activeTab === "expenses" || activeTab === "travel") && (
-        <AddFormModal
-          setShowAddForm={setShowAddForm}
-          handleFormSubmit={handleFormSubmit}
-          activeTab={activeTab}
-        />
-      )} */}
     </div>
   );
 }

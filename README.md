@@ -1,198 +1,86 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+<div align="center">
+  <h2 align="center">Aus:Reis</h2>
+
+  <p align="center">
+     
+    
+  </p>
+</div>
+
+
+## About The Project
+This is a [Next.js](https://nextjs.org/) project, created by [re:edu](https://reedu.de/).
+
+Features:
+
+  * 🏎 Fast
+### Built With
+  * [Next.js](https://nextjs.org/)
+  * [Typescript](https://www.typescriptlang.org/)
+  * [TailwindCSS](https://tailwindcss.com/)
 
 ## Getting Started
 
-First, run the development server:
+Thgis is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app)
 
-# AusReis
-
-This is a [Next.js](https://nextjs.org/) project.
 
 ## Prerequisites
 
-Make sure the following tools are installed on your system:
-
-- [Node.js](https://nodejs.org/) (version 20.x or higher)
-- A package manager like [npm](https://www.npmjs.com/), [yarn](https://yarnpkg.com/), or [pnpm](https://pnpm.io/)
-
-## Installation
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/YourUsername/AusReis.git
-   ```
-
-2. Navigate into the project directory:
-
-   ```bash
-   cd AusReis
-   ```
-
-3. Install the dependencies:
-
-- Using npm:
-
-   ```bash
-   npm install
-   ```
-
-- Using yarn:
-
-   ```bash
-   yarn install
-   ```
-
-- Using pnpm:
-
-   ```bash
-   pnpm install
-   ```
-
-## Starting the Development Server
-
-Start the development server:
-
-- Using npm:
-
-```bash
-npm run dev
-```
-
-- Using yarn:
-
-```bash
-yarn dev
-```
-
-- Using pnpm:
-
-```bash
-pnpm dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser to view the result.
-
-## Environment Variables
-
-If your application requires environment variables, create a `.env.local` file in the root directory of the project and add the necessary variables. Example:
-
-```bash
-NEXT_PUBLIC_API_URL=https://api.example.com
-DATABASE_URL=postgresql://user:password@localhost:5432/mydatabase
-```
-
-## Linting
-
-To lint the code, use:
-
-- Using npm:
-
-```bash
-npm run lint
-```
-
-- Using yarn:
-
-```bash
-yarn lint
-```
-
-- Using pnpm:
-
-```bash
-pnpm lint
-```
-
-## Build and Production
-
-To build and start the application for production:
-
-1. Build the application:
-
-- Using npm:
-
-```bash
-npm run build
-```
-
-- Using yarn:
-
-```bash
-yarn build
-```
-
-- Using pnpm:
-
-```bash
-pnpm build
-```
-
-2. Start the application:
-
-- Using npm:
-
-```bash
-npm start
-```
-
-- Using yarn:
-
-```bash
-yarn start
-```
-
-- Using pnpm:
-
-```bash
-pnpm start
-```
-
-## Prisma
-
-If you are using Prisma, ensure that you run the database migrations:
-
-- Using npm:
-
-```bash
-npx prisma migrate dev
-```
-
-- Using yarn:
-
-```bash
-yarn prisma migrate dev
-```
-
-- Using pnpm:
-
-```bash
-pnpm prisma migrate dev
-```
-
-## Additional Information
-
-To learn more about Next.js, check out the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - Learn more about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - An interactive Next.js tutorial.
-- [Next.js GitHub Repository](https://github.com/vercel/next.js) - Your feedback and contributions are welcome!
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+  Make sure the following tools are installed on your system:
+  
+  - [Node.js](https://nodejs.org/) (version 20.x or highr)
+
+  - [Docker](https://www.docker.com/get-started/) 
+  
+  - A package manager like [npm](https://www.npmjs.om/), [yarn](https://yarnpkg.com/), or [pnpm](https://pnpm.io/)
+    
+
+## Installation with npm
+  1. Clone the reposity:
+
+  ```bash 
+  git clone https://github.com/reedu-reengineering-education/AusReis.git
+  ```
+
+  2. Based on the ```.env.example``` file, create a ```.env``` file and configure it accordingly like [this](https://nextjs.org/docs/pages/building-your-application/configuring/environment-variables).
+
+     
+  3. Install npm packages
+  ```bash
+  npm install
+  ```
+  4. Start development DB
+  ```bash
+  docker compose up -d
+  ```
+  5. Migrate DB on first run
+  ```bash
+  npx prisma migrate dev
+  ```
+
+  6. Run the App
+  ```bash
+  npm run dev
+  ```
+
+## Contributing
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement". Don't forget to give the project a star! Thanks again!
+
+1. Fork the Project
+2. Create your Feature Branch (```git checkout -b feature/AmazingFeature```)
+3. Commit your Changes (```git commit -m 'Add some AmazingFeature'```)
+4. Push to the Branch (```git push origin feature/AmazingFeature```)
+5. Open a Pull Request
+## GitHub Actions
+With GitHub Actions, we automatically build Docker images and push them to the GitHub package registry.
+
+Docker images will be built on:
+
+Pull Requests to ```main```
+Pushes to ```main```
+Releasing new versions under a ```v*.*.*``` tag
+## Contact
+
+re:edu GmbH - @reedu_de - kontakt@reedu.de
