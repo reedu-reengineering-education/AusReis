@@ -168,7 +168,7 @@ export default function ProjectForm({
               </Label>
               <select
                 id="userSelect"
-                name="userIds"
+                name="users"
                 multiple
                 value={formData.users}
                 onChange={handleUserChange}

@@ -21,7 +21,7 @@ export async function createProject(
   status: string,
   budget: number,
   actualSpend: number,
-  userIds: string[]
+  users: string[]
 ) {
   try {
     const response = await axios.post(API_URL, {
@@ -29,7 +29,7 @@ export async function createProject(
       status,
       budget,
       actualSpend,
-      userIds, // Benutzer-IDs hinzufügen
+      users, // Benutzer-IDs hinzufügen
     });
     return response.data;
   } catch (error) {

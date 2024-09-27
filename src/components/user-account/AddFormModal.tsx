@@ -21,6 +21,8 @@ import {
   TableBody,
   TableCell,
 } from "../ui/table";
+import { useSession } from "next-auth/react"; // Importiere useSession
+
 
 interface AddFormModalProps {
   activeTab: "expenses" | "travel";
@@ -29,6 +31,7 @@ interface AddFormModalProps {
     amount: number;
     description: string;
     projectId: string;
+    status: string;
     userId: string;
     category: string;
     bills: { file: string; amount: number }[];
@@ -44,7 +47,10 @@ export function AddFormModal({
   const [file, setFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { data: session } = useSession(); // Lade die Session
+
   const [formData, setFormData] = useState<{
+    status: string;
     amount: number;
     description: string;
     projectId: string;
@@ -52,11 +58,12 @@ export function AddFormModal({
     category: string;
     bills: { file: string; amount: number }[];
   }>({
+    status: "pending",
     amount: 0,
     description: "",
     projectId: "",
-    userId: "",
-    category: "",
+    userId: session?.user?.id || "",
+    category: activeTab === "expenses" ? "reimbursement" : "travel",
     bills: [],
   });
 
@@ -67,7 +74,17 @@ export function AddFormModal({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!formData.amount || !formData.description || !formData.projectId) {
+
+    if (
+      !formData.amount ||
+      !formData.description ||
+      !formData.projectId ||
+      !formData.userId ||
+      !formData.category ||
+      !formData.status ||
+      !formData.bills
+    ) {
+
       // Optional: Anzeige eines Fehlerhinweises an den Benutzer
       console.log("Alle Felder müssen ausgefüllt sein.");
       return;
@@ -77,6 +94,9 @@ export function AddFormModal({
       console.log("Mindestens eine Datei muss hochgeladen werden.");
       return;
     }
+
+    console.log("Form data submitted:", formData);
+
 
     handleFormSubmit(formData);
     setIsDialogOpen(false);
