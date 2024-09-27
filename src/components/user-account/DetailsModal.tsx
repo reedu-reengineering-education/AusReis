@@ -12,7 +12,7 @@ import { XIcon } from "lucide-react";
 
 interface DetailsModalProps {
   selectedItem: {
-    title: string;
+    name: string;
     project: string;
     status: string;
     amount: number;
@@ -29,7 +29,7 @@ export function DetailsModal({
     <div className="fixed inset-0 bg-background/80 flex items-center justify-center z-50">
       <div className="bg-background p-6 rounded-lg shadow-lg max-w-4xl w-full">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">{selectedItem.title}</h2>
+          <h2 className="text-2xl font-bold">{selectedItem.name}</h2>
           <Button
             variant="ghost"
             size="icon"

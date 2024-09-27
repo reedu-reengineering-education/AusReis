@@ -14,30 +14,13 @@ export const getExpenses = async () => {
 };
 
 // Erstellen einer neuen Auslage
-export const createExpense = async (
-  amount: number,
-  description: string,
-  projectId: string,
-  userId: string,
-  category: string,
-  bills: { file: string; amount: number }[]
-) => {
+export const createExpense = async (data: any) => {
   console.log("createExpense called with:", {
-    amount,
-    description,
-    projectId,
-    userId,
-    category,
-    bills,
+    data,
   });
   try {
     const response = await axios.post(API_URL, {
-      amount,
-      description,
-      projectId,
-      userId,
-      category,
-      bills,
+      data,
     });
     console.log("API response:", response.data);
     return response.data;
@@ -50,6 +33,7 @@ export const createExpense = async (
 // Aktualisieren einer bestimmten Auslage
 export const updateExpense = async (
   id: string,
+  status?: string,
   amount?: number,
   description?: string,
   projectId?: string,
@@ -59,6 +43,7 @@ export const updateExpense = async (
   try {
     const response = await axios.put(`${API_URL}/${id}`, {
       amount,
+      status,
       description,
       projectId,
       category,

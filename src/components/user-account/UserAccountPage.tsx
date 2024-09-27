@@ -8,6 +8,7 @@ import TravelTable from "./TravelTable";
 import ExpensesTable from "./ExpenseTable";
 import { BillsModal } from "./BillsModal"; // Importiere die BillsModal Komponente
 import DashboardCardsUser from "@/components/user-account/DashboardCardsUser";
+import { getExpenses } from "@/lib/api/expenseClient";
 
 export default function UserAccountPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,6 +20,12 @@ export default function UserAccountPage() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showBills, setShowBills] = useState(false); // Zustand für BillsModal
+  const [openExpensesCount, setOpenExpensesCount] = useState(0);
+  const [approvedExpensesCount, setApprovedExpensesCount] = useState(0);
+  const [rejectedExpensesCount, setRejectedExpensesCount] = useState(0);
+  const [openTravelsCount, setOpenTravelsCount] = useState(0);
+  const [approvedTravelsCount, setApprovedTravelsCount] = useState(0);
+  const [rejectedTravelsCount, setRejectedTravelsCount] = useState(0);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -46,6 +53,55 @@ export default function UserAccountPage() {
     setShowAddForm(false);
   };
 
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const data = await getExpenses(); // Abrufen der Ausgaben-Daten
+        // Beispiel-Logik zum Zählen der offenen und genehmigten Ausgaben/Reisekosten
+        const openExpenses = data.filter(
+          (item: { category: string; status: string }) =>
+            item.category === "reimbursement" && item.status === "OPEN"
+        ).length;
+
+        const approvedExpenses = data.filter(
+          (item: { category: string; status: string }) =>
+            item.category === "reimbursement" && item.status === "APPROVED"
+        ).length;
+
+        const rejectedExpenses = data.filter(
+          (item: { category: string; status: string }) =>
+            item.category === "reimbursement" && item.status === "REJECTED"
+        ).length;
+
+        const openTravels = data.filter(
+          (item: { category: string; status: string }) =>
+            item.category === "travel" && item.status === "OPEN"
+        ).length;
+
+        const approvedTravels = data.filter(
+          (item: { category: string; status: string }) =>
+            item.category === "travel" && item.status === "APPROVED"
+        ).length;
+
+        const rejectedTravels = data.filter(
+          (item: { category: string; status: string }) =>
+            item.category === "travel" && item.status === "REJECTED"
+        ).length;
+
+        setOpenExpensesCount(openExpenses);
+        setApprovedExpensesCount(approvedExpenses);
+        setRejectedExpensesCount(rejectedExpenses);
+        setOpenTravelsCount(openTravels);
+        setApprovedTravelsCount(approvedTravels);
+        setRejectedTravelsCount(rejectedTravels);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      }
+    }
+
+    loadData();
+  }, []);
+
   return (
     <div className="grid grid-cols-1 gap-6 w-full max-w-4xl">
       {/* Tabs für verschiedene Bereiche des Benutzer-Accounts */}
@@ -63,7 +119,14 @@ export default function UserAccountPage() {
         </TabsList>
 
         <TabsContent value="dashboard">
-          <DashboardCardsUser />
+          <DashboardCardsUser
+            openExpensesCount={openExpensesCount}
+            approvedExpensesCount={approvedExpensesCount}
+            rejectedExpensesCount={rejectedExpensesCount}
+            openTravelsCount={openTravelsCount}
+            approvedTravelsCount={approvedTravelsCount}
+            rejectedTravelsCount={rejectedTravelsCount}
+          />
         </TabsContent>
 
         <TabsContent value="expenses">

@@ -10,7 +10,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+
+import { useState, useRef } from "react";
+import { Progress } from "@/components/ui/progress";
+import { createFormData } from "@/helpers/fileUploadHelpers";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "../ui/table";
+import { useSession } from "next-auth/react"; // Importiere useSession
 
 interface AddFormModalProps {
   activeTab: "expenses" | "travel";
@@ -19,6 +31,7 @@ interface AddFormModalProps {
     amount: number;
     description: string;
     projectId: string;
+    status: string;
     userId: string;
     category: string;
     bills: { file: string; amount: number }[];
@@ -31,7 +44,14 @@ export function AddFormModal({
   handleFormSubmit,
 }: AddFormModalProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+
+  const [file, setFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { data: session } = useSession(); // Lade die Session
+
   const [formData, setFormData] = useState<{
+    status: string;
     amount: number;
     description: string;
     projectId: string;
@@ -39,15 +59,37 @@ export function AddFormModal({
     category: string;
     bills: { file: string; amount: number }[];
   }>({
+    status: "pending",
     amount: 0,
     description: "",
     projectId: "",
-    userId: "",
-    category: "",
+    userId: session?.user?.id || "",
+    category: activeTab === "expenses" ? "reimbursement" : "travel",
     bills: [],
   });
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (
+      !formData.amount ||
+      !formData.description ||
+      !formData.projectId ||
+      !formData.userId ||
+      !formData.category ||
+      !formData.status ||
+      !formData.bills
+    ) {
+      // Optional: Anzeige eines Fehlerhinweises an den Benutzer
+      console.log("Alle Felder müssen ausgefüllt sein.");
+      return;
+    }
+
+    if (formData.bills.length === 0) {
+      console.log("Mindestens eine Datei muss hochgeladen werden.");
+      return;
+    }
+    console.log("Form data submitted:", formData);
+
     handleFormSubmit(formData);
     setIsDialogOpen(false);
   };
