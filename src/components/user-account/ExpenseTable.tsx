@@ -22,8 +22,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { AddFormModal } from "./AddFormModal";
-import { getExpenses, createExpense } from "@/lib/api/expenseClient"; // API Funktionen
+import {
+  getExpenses,
+  createExpense,
+  deleteExpense,
+} from "@/lib/api/expenseClient"; // API Funktionen
 import { useSession } from "next-auth/react";
+import { expenses } from "../../../data";
+import { Expense } from "@prisma/client";
 
 interface ExpensesTableProps {
   searchTerm: string;
@@ -45,6 +51,7 @@ export default function ExpensesTable({
   const [filteredReimbursements, setFilteredReimbursements] = useState<any>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { data: session } = useSession();
+  const [expenses, setExpenses] = useState<Expense[]>([]);
 
   // Abrufen der Daten aus der API
   useEffect(() => {
@@ -87,6 +94,25 @@ export default function ExpensesTable({
       ]);
     } catch (error) {
       console.error("Error creating expense:", error);
+    }
+  };
+
+  const onSuccessDelete = (deletedExpenseId: string) => {
+    setFilteredReimbursements((prevExpenses: any) =>
+      prevExpenses.filter((expense: any) => expense.id !== deletedExpenseId)
+    );
+  };
+
+  const handleDeleteExpense = async (id: string) => {
+    console.log("Trying to delete expense with ID:", id);
+    try {
+      await deleteExpense(id);
+      setFilteredReimbursements((prevExpenses: any) =>
+        prevExpenses.filter((expense: any) => expense.id !== id)
+      );
+      onSuccessDelete(id);
+    } catch (error) {
+      console.error("Error deleting expense:", error);
     }
   };
 
@@ -214,6 +240,17 @@ export default function ExpensesTable({
                         onClick={() => handleViewBills(item)}
                       >
                         Rechnungen
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          if (typeof item.id === "string") {
+                            handleDeleteExpense(item.id); // Verwende item.id statt expense.id
+                          }
+                        }}
+                      >
+                        Löschen
                       </Button>
                     </div>
                   </TableCell>

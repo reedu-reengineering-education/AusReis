@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/db";
-import { connect } from "http2";
 
 export default async function handler(
   req: NextApiRequest,
@@ -8,17 +7,9 @@ export default async function handler(
 ) {
   if (req.method === "POST") {
     const { amount, description, status, userId, projectId, category, bills } =
-      req.body.data;
+      req.body;
 
-    if (
-      !amount ||
-      !description ||
-      !userId ||
-      !projectId ||
-      !category ||
-      !bills ||
-      !status
-    ) {
+    if (!amount || !description || !userId || !projectId || !category) {
       return res.status(400).json({ error: "Missing required fields" });
     }
     try {
@@ -30,13 +21,12 @@ export default async function handler(
           category,
           user: { connect: { id: userId } },
           project: { connect: { id: projectId } },
-          bills: undefined,
-          // bills: {
-          //   create: bills.map((bill: { file: string; amount: number }) => ({
-          //     file: bill.file,
-          //     amount: bill.amount,
-          //   })),
-          // },
+          bills: {
+            create: bills.map((bill: { file: string; amount: number }) => ({
+              file: bill.file,
+              amount: bill.amount,
+            })),
+          },
         },
       });
 
