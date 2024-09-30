@@ -11,23 +11,25 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Project, ProjectStatus } from "@prisma/client";
-import { Prisma } from "@prisma/client";
-export type ProjectWithUsers = Prisma.ProjectGetPayload<{
-  include: { users: true };
-}>;
+import { ProjectStatus } from "@prisma/client"; // Prisma Enum importieren
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 export default function ProjectForm({
   onSave,
   availableUsers, // Benutzerliste als Prop
 }: {
   onSave: (project: any) => void;
-  // project: Partial<ProjectWithUsers>
   availableUsers: { id: string; name: string }[]; // Benutzerliste
 }) {
   const [formData, setFormData] = useState({
     name: "",
-    status: "",
+    status: "" as ProjectStatus, // Verwende den Prisma-Enum-Typ für Status
     budget: "",
     actualSpend: "",
     users: [] as any[], // Benutzer-IDs werden hier gespeichert
@@ -35,6 +37,9 @@ export default function ProjectForm({
 
   const [isDialogOpen, setIsDialogOpen] = useState(false); // Steuerung des Dialogs
   const [error, setError] = useState<string | null>(null); // Fehlerzustand
+  const [selectedStatus, setSelectedStatus] = useState<ProjectStatus | null>(
+    null
+  ); // Ausgewählter Status vom Prisma-Enum
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -42,7 +47,6 @@ export default function ProjectForm({
     // Validierung von Budget und Actual Spend
     const parsedBudget = parseFloat(formData.budget);
     const parsedActualSpend = parseFloat(formData.actualSpend);
-    const formattedStatus = formData.status.toLowerCase();
 
     if (isNaN(parsedBudget) || isNaN(parsedActualSpend)) {
       setError("Please enter valid numbers for budget and actual spend.");
@@ -54,10 +58,15 @@ export default function ProjectForm({
       return;
     }
 
+    if (!selectedStatus) {
+      setError("Please select a project status.");
+      return;
+    }
+
     // Wenn alles in Ordnung ist, rufe die onSave-Funktion auf
     onSave({
       ...formData,
-      status: formattedStatus as ProjectStatus,
+      status: selectedStatus, // Der ausgewählte Prisma-Status wird übergeben
       budget: parsedBudget,
       actualSpend: parsedActualSpend,
     });
@@ -70,6 +79,21 @@ export default function ProjectForm({
       (option) => option.value
     );
     setFormData({ ...formData, users: selectedUserIds });
+  };
+
+  const getStatusBadgeColor = (status: ProjectStatus) => {
+    switch (status) {
+      case "active":
+        return "bg-green-100 text-green-800"; // Grün für "Active"
+      case "pending":
+        return "bg-yellow-100 text-yellow-800"; // Gelb für "Inactive"
+      case "completed":
+        return "bg-blue-100 text-blue-800"; // Blau für "Completed"
+      case "archived":
+        return "bg-red-100 text-red-800"; // Grau für "Archived"
+      default:
+        return "bg-gray-100 text-gray-800"; // Grau für unbekannte Status
+    }
   };
 
   return (
@@ -115,16 +139,39 @@ export default function ProjectForm({
               <Label htmlFor="status" className="text-right">
                 Status
               </Label>
-              <Input
-                id="status"
-                value={formData.status}
-                onChange={(e) =>
-                  setFormData({ ...formData, status: e.target.value })
-                }
-                placeholder="Status"
-                className="col-span-3"
-                required
-              />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline">
+                    {selectedStatus ? (
+                      <Badge className={getStatusBadgeColor(selectedStatus)}>
+                        {selectedStatus}
+                      </Badge>
+                    ) : (
+                      "Select"
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => setSelectedStatus("active")}>
+                    Active
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setSelectedStatus("pending")}
+                  >
+                    Pending
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setSelectedStatus("completed")}
+                  >
+                    Completed
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setSelectedStatus("archived")}
+                  >
+                    Archived
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
