@@ -22,7 +22,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { AddFormModal } from "./AddFormModal";
-import { getExpenses, createExpense } from "@/lib/api/expenseClient"; // API Funktionen
+import {
+  getExpenses,
+  createExpense,
+  deleteExpense,
+} from "@/lib/api/expenseClient"; // API Funktionen
 import { useSession } from "next-auth/react";
 
 interface TravelTableProps {
@@ -80,6 +84,25 @@ export default function TravelTable({
       setFilteredTravels((prevExpenses: any) => [...prevExpenses, newExpense]);
     } catch (error) {
       console.error("Error creating expense:", error);
+    }
+  };
+
+  const onSuccessDelete = (deletedExpenseId: string) => {
+    setFilteredTravels((prevExpenses: any) =>
+      prevExpenses.filter((expense: any) => expense.id !== deletedExpenseId)
+    );
+  };
+
+  const handleDeleteExpense = async (id: string) => {
+    console.log("Trying to delete expense with ID:", id);
+    try {
+      await deleteExpense(id);
+      setFilteredTravels((prevExpenses: any) =>
+        prevExpenses.filter((expense: any) => expense.id !== id)
+      );
+      onSuccessDelete(id);
+    } catch (error) {
+      console.error("Error deleting expense:", error);
     }
   };
 
@@ -207,6 +230,18 @@ export default function TravelTable({
                         onClick={() => handleViewBills(item)}
                       >
                         Rechnungen
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="ml-2"
+                        onClick={() => {
+                          if (typeof item.id === "string") {
+                            handleDeleteExpense(item.id); // Verwende item.id statt expense.id
+                          }
+                        }}
+                      >
+                        Löschen
                       </Button>
                     </div>
                   </TableCell>
