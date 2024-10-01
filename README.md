@@ -195,14 +195,11 @@ Releasing new versions under a `v*.*.*` tag
 ## Contact
 
 re:edu GmbH - @reedu_de - kontakt@reedu.de -->
-<div align="center">
-  <h2 align="center">Aus:Reis</h2>
-  <p align="center">Eine Anwendung zur Verwaltung von Auslagen und Reisekosten</p>
-</div>
+<div align="center"> <h2 align="center">Aus:Reis</h2> <p align="center"> A flexible and fast solution for managing expenses and travel costs, either self-hosted or in the cloud. </p> <p align="center"> <strong>Open-Source</strong> · 100% JavaScript/TypeScript · <strong>Next.js</strong> </p> <img src="public/background.svg" alt="Aus:Reis Logo" width="200"/> </div>
 
 ## About the Project
 
-This is a [Next.js](https://nextjs.org/) project, created by [re:edu](https://reedu.de/).
+Aus:reis is an open-source application for managing expenses and travel costs that was developed entirely with [Next.js](https://nextjs.org/) and [Prisma](https://www.prisma.io/). The app is fast, flexible and can be hosted both locally and in the cloud. It offers complete control over your own data and workflows. This project is created by [re:edu](https://reedu.de/).
 
 **Features**:
 
