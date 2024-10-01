@@ -64,6 +64,24 @@ cd /your/dev/directory/AusReis
 cp .env.example .env
 ```
 
+**MinIO setup for the `.env` file:**
+
+- `MINIO_SECRET_KEY`: Required, enter your own secure password here.
+- `MINIO_ENDPOINT`: By default `http://localhost:9000`
+- `MINIO_ACCESS_KEY`: By default `admin`
+- `MINIO_BUCKET`: By default `ausreis-bucket`
+- `MINIO_REGION`: By default `us-east-1`
+
+_Example for the `.env` file configuration:_
+
+```bash
+MINIO_ENDPOINT=http://localhost:9000
+MINIO_ACCESS_KEY=admin
+MINIO_SECRET_KEY=password
+MINIO_BUCKET=ausreis-bucket
+MINIO_REGION=us-east-1
+```
+
 4. Install npm packages
 
 ```bash
@@ -113,9 +131,17 @@ Open the administration console at `http://localhost:9001` and log in with the s
 
 Create a new bucket in the administration console, e.g. `ausreis-bucket`.
 
-4. Configuration of the environment variables:
+4. Set environment variables:
 
-Add the following variables to the `.env` file:
+Most environment variables can be left as they are. Only the `MINIO_SECRET_KEY` must be defined to ensure access to the MinIO server. All other variables are already provided with default values that should work in a local development environment:
+
+- `MINIO_SECRET_KEY`: Required, enter your own secure password here.
+- `MINIO_ENDPOINT`: By default `http://localhost:9000`
+- `MINIO_ACCESS_KEY`: By default `admin`
+- `MINIO_BUCKET`: By default `ausreis-bucket`
+- `MINIO_REGION`: By default `us-east-1`
+
+_Example for the `.env` file configuration:_
 
 ```bash
 MINIO_ENDPOINT=http://localhost:9000
