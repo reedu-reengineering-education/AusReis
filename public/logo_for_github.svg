@@ -27,7 +27,7 @@
         }
       </style>
       <!-- Definieren des Filters für den Schlagschatten -->
-      <filter id="dropShadow" x="-750%" y="-750%" width="200%" height="200%">
+      <filter id="dropShadow" x="-75%" y="-75%" width="200%" height="200%">
         <feDropShadow dx="-20" dy="0" stdDeviation="3" flood-color="#EB5C37" flood-opacity="1"/>
       </filter>
     </defs>
