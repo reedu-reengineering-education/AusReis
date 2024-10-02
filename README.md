@@ -1,6 +1,6 @@
 <div align="center"> <h2 align="center">Aus:Reis</h2> <p align="center"> A flexible and fast solution for managing expenses and travel costs, either self-hosted or in the cloud. </p> <p align="center"> <strong>Open-Source</strong> · 100% JavaScript/TypeScript · <strong>Next.js</strong> </p> </div>
 
-![image](public/background.svg)
+![image](public/logo_for_github.svg)
 
 ## About the Project
 
