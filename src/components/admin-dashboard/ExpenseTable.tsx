@@ -11,33 +11,26 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SearchBar from "./SearchBar";
 import type { ExpenseStatus } from "@prisma/client";
+import { Expense } from "@prisma/client";
+import { User } from "@prisma/client";
+import { Project } from "@prisma/client";
+import { File } from "@prisma/client";
+import { Bill } from "@prisma/client";
 
-interface Expense {
-  id: string;
-  amount: number;
-  description: string;
-  status: ExpenseStatus;
-  userId: string;
-  projectId: string;
-  createdAt: Date;
-  category: string;
-  fileId: string; // Added fileId property
-}
 import { getExpenses, updateExpense } from "@/lib/api/expenseClient";
-
-const downloadFile = async (fileId: string) => {
-  window.open(`/api/download/${fileId}`, "_blank");
-};
 
 export default function ExpenseTable() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [expenses, setExpenses] = useState<
+    (Expense & { user: User; project: Project; file: File; bills: Bill })[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [activeTab, setActiveTab] = useState("all");
 
-  // Daten von der API laden
   useEffect(() => {
     const fetchExpenses = async () => {
       try {
@@ -59,8 +52,15 @@ export default function ExpenseTable() {
     try {
       await updateExpense(id, undefined, undefined, undefined, "paid");
       setExpenses((prevExpenses) =>
-        prevExpenses.map((expense: Expense) =>
-          expense.id === id ? { ...expense, status: "paid" } : expense
+        prevExpenses.map(
+          (
+            expense: Expense & {
+              user: User;
+              project: Project;
+              file: File;
+              bills: Bill;
+            }
+          ) => (expense.id === id ? { ...expense, status: "paid" } : expense)
         )
       );
     } catch (error) {
@@ -85,9 +85,14 @@ export default function ExpenseTable() {
 
   const filteredExpenses = expenses.filter(
     (expense) =>
-      expense.userId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      expense.projectId.toLowerCase().includes(searchTerm.toLowerCase())
+      (expense.userId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        expense.projectId.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (activeTab === "all" || expense.category === activeTab)
   );
+
+  const downloadFile = async (fileId: string) => {
+    window.open(`/api/download/${fileId}`, "_blank");
+  };
 
   if (isLoading) {
     return <div>Loading expenses...</div>;
@@ -98,80 +103,96 @@ export default function ExpenseTable() {
   }
 
   return (
-    <div>
-      <SearchBar
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>User</TableHead>
-            <TableHead>Project</TableHead>
-            <TableHead>Amount</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>
-              <span className="sr-only">Actions</span>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredExpenses.map((expense) => (
-            <TableRow key={expense.id}>
-              <TableCell>{expense.userId}</TableCell>
-              <TableCell>{expense.projectId}</TableCell>
-              <TableCell>${expense.amount.toLocaleString()}</TableCell>
-              <TableCell>
-                <Badge
-                  className={`${
-                    expense.status === "paid"
-                      ? "bg-green-100 text-green-800"
-                      : expense.status === "pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-red-100 text-red-800"
-                  } text-xs`}
-                >
-                  {expense.status}
-                </Badge>
-              </TableCell>
-              <TableCell className="flex justify-end space-x-2">
-                {expense.status === "pending" ? (
-                  <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleApproveExpense(expense.id)}
-                    >
-                      Approve
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleRejectExpense(expense.id)}
-                    >
-                      Reject
-                    </Button>
-                  </>
-                ) : null}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadFile(expense.fileId)}
-                >
-                  View
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadFile(expense.fileId)}
-                >
-                  Download
-                </Button>
-              </TableCell>
+    <div className="flex">
+      <Tabs
+        orientation="vertical"
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="w-48"
+      >
+        <TabsList className="flex flex-col h-full">
+          <TabsTrigger value="all">All Expenses</TabsTrigger>
+          <TabsTrigger value="travel">Travel</TabsTrigger>
+          <TabsTrigger value="reimbursement">Reimbursement</TabsTrigger>
+        </TabsList>
+      </Tabs>
+      <div className="flex-1 ml-4">
+        <SearchBar
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>User</TableHead>
+              <TableHead>Project</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>
+                <span className="sr-only">Actions</span>
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {filteredExpenses.map((expense) => (
+              <TableRow key={expense.id}>
+                <TableCell>{expense.user.name}</TableCell>
+                <TableCell>{expense.project.name}</TableCell>
+                <TableCell>{expense.amount.toLocaleString()} €</TableCell>
+                <TableCell>{expense.category}</TableCell>
+                <TableCell>
+                  <Badge
+                    className={`${
+                      expense.status === "paid"
+                        ? "bg-green-100 text-green-800"
+                        : expense.status === "pending"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-red-100 text-red-800"
+                    } text-xs`}
+                  >
+                    {expense.status}
+                  </Badge>
+                </TableCell>
+                <TableCell className="flex justify-end space-x-2">
+                  {expense.status === "pending" ? (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleApproveExpense(expense.id)}
+                      >
+                        Approve
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleRejectExpense(expense.id)}
+                      >
+                        Reject
+                      </Button>
+                    </>
+                  ) : null}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    // onClick={() => downloadFile(expense.file)}
+                  >
+                    View
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadFile(expense.bills.file)}
+                  >
+                    Download
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
