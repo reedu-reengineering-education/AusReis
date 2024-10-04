@@ -23,7 +23,6 @@ import {
 } from "../ui/table";
 import { useSession } from "next-auth/react"; // Importiere useSession
 
-
 interface AddFormModalProps {
   activeTab: "expenses" | "travel";
   setShowAddForm: (show: boolean) => void;
@@ -74,7 +73,6 @@ export function AddFormModal({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-
     if (
       !formData.amount ||
       !formData.description ||
@@ -84,7 +82,6 @@ export function AddFormModal({
       !formData.status ||
       !formData.bills
     ) {
-
       // Optional: Anzeige eines Fehlerhinweises an den Benutzer
       console.log("Alle Felder müssen ausgefüllt sein.");
       return;
@@ -96,7 +93,6 @@ export function AddFormModal({
     }
 
     console.log("Form data submitted:", formData);
-
 
     handleFormSubmit(formData);
     setIsDialogOpen(false);

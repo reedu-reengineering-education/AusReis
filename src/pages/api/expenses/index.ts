@@ -6,12 +6,14 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method === "POST") {
-    const { amount, description, status, userId, projectId, category, bills } =
-      req.body;
+    const { amount, description, userId, projectId, category, status, bills } =
+      req.body.data;
 
     if (!amount || !description || !userId || !projectId || !category) {
+      console.log(!amount);
       return res.status(400).json({ error: "Missing required fields" });
     }
+
     try {
       const newExpense = await prisma.expense.create({
         data: {
@@ -25,6 +27,7 @@ export default async function handler(
             create: bills.map((bill: { file: string; amount: number }) => ({
               file: bill.file,
               amount: bill.amount,
+              user: { connect: { id: userId } },
             })),
           },
         },
