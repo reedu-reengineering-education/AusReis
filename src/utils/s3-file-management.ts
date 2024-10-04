@@ -46,7 +46,8 @@ export async function saveFileInBucket({
   }
 
   // Upload image to S3 bucket
-  await s3Client.putObject(bucketName, fileName, file);
+
+  return await s3Client.putObject(bucketName, fileName, file);
 }
 
 /**

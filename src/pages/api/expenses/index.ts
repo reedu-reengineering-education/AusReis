@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/db";
+import { uploadFiles } from "@/helpers/minIoHelper";
 
 export default async function handler(
   req: NextApiRequest,
@@ -8,13 +9,13 @@ export default async function handler(
   if (req.method === "POST") {
     const { amount, description, userId, projectId, category, status, bills } =
       req.body.data;
-
+    console.log(req.body.data);
     if (!amount || !description || !userId || !projectId || !category) {
-      console.log(!amount);
       return res.status(400).json({ error: "Missing required fields" });
     }
 
     try {
+      console.log("Bills:", bills);
       const newExpense = await prisma.expense.create({
         data: {
           amount,
@@ -24,7 +25,7 @@ export default async function handler(
           user: { connect: { id: userId } },
           project: { connect: { id: projectId } },
           bills: {
-            create: bills.map((bill: { file: string; amount: number }) => ({
+            create: bills.map((bill: { file: File; amount: number }) => ({
               file: bill.file,
               amount: bill.amount,
               user: { connect: { id: userId } },

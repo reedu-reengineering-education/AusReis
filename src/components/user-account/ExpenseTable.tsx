@@ -28,7 +28,6 @@ import {
   deleteExpense,
 } from "@/lib/api/expenseClient"; // API Funktionen
 import { useSession } from "next-auth/react";
-import { expenses } from "../../../data";
 import { Expense } from "@prisma/client";
 
 interface ExpensesTableProps {
@@ -87,6 +86,23 @@ export default function ExpensesTable({
   // Handler für das Erstellen einer neuen Auslage
   const handleFormSubmit = async (formData: any) => {
     try {
+      const uploadedFiles = await fetch("/api/upload/files", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({ ...formData, files: formData.bills }),
+      });
+      console.log(uploadedFiles);
+      if (uploadedFiles.status != 200) {
+        return console.error("Error uploading files:", uploadedFiles);
+      }
+
+      const files = await uploadedFiles.json();
+      console.log("Files uploaded:", files);
+
       const newExpense = await createExpense(formData);
       setFilteredReimbursements((prevExpenses: any) => [
         ...prevExpenses,

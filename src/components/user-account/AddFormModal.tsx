@@ -33,7 +33,7 @@ interface AddFormModalProps {
     status: string;
     userId: string;
     category: string;
-    bills: { file: string; amount: number }[];
+    bills: { file: File; amount: number }[];
   }) => void;
 }
 
@@ -55,7 +55,7 @@ export function AddFormModal({
     projectId: string;
     userId: string;
     category: string;
-    bills: { file: string; amount: number }[];
+    bills: { file: File; amount: number }[];
   }>({
     status: "pending",
     amount: 0,
@@ -109,7 +109,7 @@ export function AddFormModal({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     const bills = files
-      ? Array.from(files).map((file) => ({ file: file.name, amount: 0 }))
+      ? Array.from(files).map((file) => ({ file: file, amount: 0 }))
       : [];
     setFormData((prevData) => ({
       ...prevData,
