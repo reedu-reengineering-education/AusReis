@@ -23,7 +23,6 @@ import {
 } from "../ui/table";
 import { useSession } from "next-auth/react"; // Importiere useSession
 
-
 interface AddFormModalProps {
   activeTab: "expenses" | "travel";
   setShowAddForm: (show: boolean) => void;
@@ -34,7 +33,7 @@ interface AddFormModalProps {
     status: string;
     userId: string;
     category: string;
-    bills: { file: string; amount: number }[];
+    bills: { file: File; amount: number }[];
   }) => void;
 }
 
@@ -56,7 +55,7 @@ export function AddFormModal({
     projectId: string;
     userId: string;
     category: string;
-    bills: { file: string; amount: number }[];
+    bills: { file: File; amount: number }[];
   }>({
     status: "pending",
     amount: 0,
@@ -74,7 +73,6 @@ export function AddFormModal({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-
     if (
       !formData.amount ||
       !formData.description ||
@@ -84,7 +82,6 @@ export function AddFormModal({
       !formData.status ||
       !formData.bills
     ) {
-
       // Optional: Anzeige eines Fehlerhinweises an den Benutzer
       console.log("Alle Felder müssen ausgefüllt sein.");
       return;
@@ -96,7 +93,6 @@ export function AddFormModal({
     }
 
     console.log("Form data submitted:", formData);
-
 
     handleFormSubmit(formData);
     setIsDialogOpen(false);
@@ -113,7 +109,7 @@ export function AddFormModal({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     const bills = files
-      ? Array.from(files).map((file) => ({ file: file.name, amount: 0 }))
+      ? Array.from(files).map((file) => ({ file: file, amount: 0 }))
       : [];
     setFormData((prevData) => ({
       ...prevData,

@@ -28,8 +28,8 @@ import {
   deleteExpense,
 } from "@/lib/api/expenseClient"; // API Funktionen
 import { useSession } from "next-auth/react";
-import { expenses } from "../../../data";
 import { Expense } from "@prisma/client";
+import { createFormData } from "@/helpers/fileUploadHelpers";
 
 interface ExpensesTableProps {
   searchTerm: string;
@@ -87,11 +87,37 @@ export default function ExpensesTable({
   // Handler für das Erstellen einer neuen Auslage
   const handleFormSubmit = async (formData: any) => {
     try {
-      const newExpense = await createExpense(formData);
-      setFilteredReimbursements((prevExpenses: any) => [
-        ...prevExpenses,
-        newExpense,
-      ]);
+      const uploadFormData = createFormData([formData.bills[0].file]);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/upload/files", true);
+
+      xhr.upload.onprogress = (e: any) => {
+        if (e.lengthComputable) {
+          const progress = (e.loaded / e.total) * 100;
+          // setUploadProgress(progress);
+          console.log(`Fortschritt: ${progress.toFixed(2)}%`);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          console.log("Datei erfolgreich hochgeladen");
+        } else {
+          console.error("Fehler beim Hochladen");
+        }
+      };
+
+      xhr.onerror = () => {
+        console.error("Fehler beim Hochladen");
+      };
+
+      xhr.send(uploadFormData);
+      // const newExpense = await createExpense(formData);
+      // setFilteredReimbursements((prevExpenses: any) => [
+      //   ...prevExpenses,
+      //   newExpense,
+      // ]);
     } catch (error) {
       console.error("Error creating expense:", error);
     }

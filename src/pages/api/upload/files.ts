@@ -46,6 +46,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             fileName,
             file,
           });
+
           //   save file info to database
           await prisma.file.create({
             data: {
