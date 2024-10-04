@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Progress } from "@/components/ui/progress";
 import { createFormData } from "@/helpers/fileUploadHelpers";
 import {
@@ -21,7 +21,15 @@ import {
   TableBody,
   TableCell,
 } from "../ui/table";
-import { useSession } from "next-auth/react"; // Importiere useSession
+import { useSession } from "next-auth/react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getProject } from "@/lib/api/projectClient";
 
 interface AddFormModalProps {
   activeTab: "expenses" | "travel";
@@ -46,7 +54,8 @@ export function AddFormModal({
   const [file, setFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { data: session } = useSession(); // Lade die Session
+  const [projects, setProject] = useState<any[]>([]);
+  const { data: session } = useSession();
 
   const [formData, setFormData] = useState<{
     status: string;
@@ -66,11 +75,20 @@ export function AddFormModal({
     bills: [],
   });
 
-  if (!formData) {
-    return null;
-  }
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const fetchedProjects = await getProject();
+        setProject(fetchedProjects);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    fetchProjects();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (
@@ -80,22 +98,43 @@ export function AddFormModal({
       !formData.userId ||
       !formData.category ||
       !formData.status ||
-      !formData.bills
+      formData.bills.length === 0
     ) {
-      // Optional: Anzeige eines Fehlerhinweises an den Benutzer
-      console.log("Alle Felder müssen ausgefüllt sein.");
+      console.log(
+        "Alle Felder müssen ausgefüllt sein und mindestens eine Datei muss hochgeladen werden."
+      );
       return;
     }
 
-    if (formData.bills.length === 0) {
-      console.log("Mindestens eine Datei muss hochgeladen werden.");
-      return;
+    try {
+      const uploadedFiles = await Promise.all(
+        formData.bills.map(async (bill) => {
+          const uploadFormData = createFormData([bill.file]);
+          const response = await fetch("/api/upload/files", {
+            method: "POST",
+            body: uploadFormData,
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to upload file: ${bill.file.name}`);
+          }
+
+          const result = await response.json();
+          return { ...bill, fileId: result.fileId };
+        })
+      );
+
+      const updatedFormData = {
+        ...formData,
+        bills: uploadedFiles,
+      };
+
+      console.log("Form data submitted:", updatedFormData);
+      handleFormSubmit(updatedFormData);
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error("Error during file upload or form submission:", error);
     }
-
-    console.log("Form data submitted:", formData);
-
-    handleFormSubmit(formData);
-    setIsDialogOpen(false);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,17 +145,21 @@ export function AddFormModal({
     }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    const bills = files
-      ? Array.from(files).map((file) => ({ file: file, amount: 0 }))
-      : [];
+  const handleProjectChange = (value: string) => {
     setFormData((prevData) => ({
       ...prevData,
-      bills,
+      projectId: value,
     }));
-    if (files && files.length > 0) {
-      setFile(files[0]);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const newBills = Array.from(files).map((file) => ({ file, amount: 0 }));
+      setFormData((prevData) => ({
+        ...prevData,
+        bills: [...prevData.bills, ...newBills],
+      }));
     }
   };
 
@@ -126,37 +169,11 @@ export function AddFormModal({
     }
   };
 
-  const handleUpload = async (e: any) => {
-    e.preventDefault();
-
-    if (file) {
-      const uploadFormData = createFormData([file]);
-
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", "/api/upload/files", true);
-
-      xhr.upload.onprogress = (e: any) => {
-        if (e.lengthComputable) {
-          const progress = (e.loaded / e.total) * 100;
-          setUploadProgress(progress);
-          console.log(`Fortschritt: ${progress.toFixed(2)}%`);
-        }
-      };
-
-      xhr.onload = () => {
-        if (xhr.status === 200) {
-          console.log("Datei erfolgreich hochgeladen");
-        } else {
-          console.error("Fehler beim Hochladen");
-        }
-      };
-
-      xhr.onerror = () => {
-        console.error("Fehler beim Hochladen");
-      };
-
-      xhr.send(uploadFormData);
-    }
+  const handleRemoveFile = (index: number) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      bills: prevData.bills.filter((_, i) => i !== index),
+    }));
   };
 
   return (
@@ -167,16 +184,17 @@ export function AddFormModal({
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogHeader />
-        <DialogTitle>
-          {activeTab === "expenses"
-            ? "Auslage hinzufügen"
-            : "Reisekosten hinzufügen"}
-        </DialogTitle>
-        <DialogDescription>
-          Bitte füllen Sie die Details aus und laden Sie alle relevanten Dateien
-          hoch.
-        </DialogDescription>
+        <DialogHeader>
+          <DialogTitle>
+            {activeTab === "expenses"
+              ? "Auslage hinzufügen"
+              : "Reisekosten hinzufügen"}
+          </DialogTitle>
+          <DialogDescription>
+            Bitte füllen Sie die Details aus und laden Sie alle relevanten
+            Dateien hoch.
+          </DialogDescription>
+        </DialogHeader>
         <form onSubmit={handleSubmit}>
           <Input
             name="description"
@@ -193,13 +211,18 @@ export function AddFormModal({
             type="number"
             onChange={handleInputChange}
           />
-          <Input
-            name="projectId"
-            placeholder="Projekt"
-            required
-            className="mb-4"
-            onChange={handleInputChange}
-          />
+          <Select onValueChange={handleProjectChange} required>
+            <SelectTrigger className="mb-4">
+              <SelectValue placeholder="Projekt auswählen" />
+            </SelectTrigger>
+            <SelectContent>
+              {projects.map((project) => (
+                <SelectItem key={project.id} value={project.id}>
+                  {project.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <div className="border-2 border-gray-200 border-dashed rounded-lg p-6 dark:border-gray-700 group hover:border-primary transition-colors">
             <div className="flex flex-col items-center justify-center space-y-3">
               <UploadIcon className="h-10 w-10 text-gray-400 group-hover:text-primary" />
@@ -213,11 +236,12 @@ export function AddFormModal({
                   type="file"
                   onChange={handleFileChange}
                   ref={fileInputRef}
+                  multiple
                 />
               </Button>
             </div>
           </div>
-          {file && (
+          {formData.bills.length > 0 && (
             <div className="border rounded-lg overflow-hidden mt-4">
               <Table>
                 <TableHeader>
@@ -225,37 +249,36 @@ export function AddFormModal({
                     <TableHead className="px-4 py-2 text-left">File</TableHead>
                     <TableHead className="px-4 py-2 text-right">Size</TableHead>
                     <TableHead className="px-4 py-2 text-right">
-                      Progress
-                    </TableHead>
-                    <TableHead className="px-4 py-2 text-right">
                       Actions
                     </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow className="border-b dark:border-gray-700">
-                    <TableCell className="px-4 py-2 flex items-center space-x-2">
-                      <FileIcon className="h-5 w-5 text-gray-500" />
-                      <span>{file.name}</span>
-                    </TableCell>
-                    <TableCell className="px-4 py-2 text-right">
-                      <span className="text-gray-500 dark:text-gray-400">
-                        {(file.size / 1024 / 1024).toFixed(2)} MB
-                      </span>
-                    </TableCell>
-                    <TableCell className="px-4 py-2 text-right">
-                      <Progress value={uploadProgress} />
-                    </TableCell>
-                    <TableCell className="px-4 py-2 text-right">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => setFile(null)}
-                      >
-                        <TrashIcon className="h-5 w-5" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                  {formData.bills.map((bill, index) => (
+                    <TableRow
+                      key={index}
+                      className="border-b dark:border-gray-700"
+                    >
+                      <TableCell className="px-4 py-2 flex items-center space-x-2">
+                        <FileIcon className="h-5 w-5 text-gray-500" />
+                        <span>{bill.file.name}</span>
+                      </TableCell>
+                      <TableCell className="px-4 py-2 text-right">
+                        <span className="text-gray-500 dark:text-gray-400">
+                          {(bill.file.size / 1024 / 1024).toFixed(2)} MB
+                        </span>
+                      </TableCell>
+                      <TableCell className="px-4 py-2 text-right">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleRemoveFile(index)}
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>
