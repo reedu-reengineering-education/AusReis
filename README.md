@@ -62,11 +62,11 @@ Make sure you have the following tools installed:
    Set the following variables in your `.env` file (most are pre-configured for local development):
 
    ```bash
-   MINIO_ENDPOINT=http://localhost:9000
-   MINIO_ACCESS_KEY=admin
-   MINIO_SECRET_KEY=your_secure_password
-   MINIO_BUCKET=ausreis-bucket
-   MINIO_REGION=us-east-1
+   S3_ENDPOINT=http://localhost:9000
+   S3_ACCESS_KEY=admin
+   S3_SECRET_KEY=your_secure_password
+   S3_BUCKET=ausreis-bucket
+   S3_REGION=us-east-1
    ```
 
 5. **Install npm packages**:

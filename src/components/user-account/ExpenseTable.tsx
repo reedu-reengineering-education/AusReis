@@ -29,6 +29,7 @@ import {
 } from "@/lib/api/expenseClient"; // API Funktionen
 import { useSession } from "next-auth/react";
 import { Expense } from "@prisma/client";
+import { createFormData } from "@/helpers/fileUploadHelpers";
 
 interface ExpensesTableProps {
   searchTerm: string;
@@ -86,28 +87,37 @@ export default function ExpensesTable({
   // Handler für das Erstellen einer neuen Auslage
   const handleFormSubmit = async (formData: any) => {
     try {
-      const uploadedFiles = await fetch("/api/upload/files", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
+      const uploadFormData = createFormData([formData.bills[0].file]);
 
-        body: JSON.stringify({ ...formData, files: formData.bills }),
-      });
-      console.log(uploadedFiles);
-      if (uploadedFiles.status != 200) {
-        return console.error("Error uploading files:", uploadedFiles);
-      }
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/api/upload/files", true);
 
-      const files = await uploadedFiles.json();
-      console.log("Files uploaded:", files);
+      xhr.upload.onprogress = (e: any) => {
+        if (e.lengthComputable) {
+          const progress = (e.loaded / e.total) * 100;
+          // setUploadProgress(progress);
+          console.log(`Fortschritt: ${progress.toFixed(2)}%`);
+        }
+      };
 
-      const newExpense = await createExpense(formData);
-      setFilteredReimbursements((prevExpenses: any) => [
-        ...prevExpenses,
-        newExpense,
-      ]);
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          console.log("Datei erfolgreich hochgeladen");
+        } else {
+          console.error("Fehler beim Hochladen");
+        }
+      };
+
+      xhr.onerror = () => {
+        console.error("Fehler beim Hochladen");
+      };
+
+      xhr.send(uploadFormData);
+      // const newExpense = await createExpense(formData);
+      // setFilteredReimbursements((prevExpenses: any) => [
+      //   ...prevExpenses,
+      //   newExpense,
+      // ]);
     } catch (error) {
       console.error("Error creating expense:", error);
     }

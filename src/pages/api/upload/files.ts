@@ -41,12 +41,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           // generate unique file name
           const fileName = `${nanoid(5)}-${fileObject?.originalFilename}`;
           // Save file to S3 bucket and save file info to database concurrently
-          let result = await saveFileInBucket({
+          await saveFileInBucket({
             bucketName,
             fileName,
             file,
           });
-          console.log(result);
+
           //   save file info to database
           await prisma.file.create({
             data: {
