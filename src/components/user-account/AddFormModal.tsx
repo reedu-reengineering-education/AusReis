@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getProject } from "@/lib/api/projectClient";
+import { toast } from "react-toastify";
 
 interface AddFormModalProps {
   activeTab: "expenses" | "travel";
@@ -82,6 +83,9 @@ export function AddFormModal({
         setProject(fetchedProjects);
       } catch (error) {
         console.error("Error fetching projects:", error);
+        toast.error(
+          "Fehler beim Laden der Projekte. Bitte versuchen Sie es später erneut."
+        );
       }
     }
 
@@ -100,8 +104,8 @@ export function AddFormModal({
       !formData.status ||
       formData.bills.length === 0
     ) {
-      console.log(
-        "Alle Felder müssen ausgefüllt sein und mindestens eine Datei muss hochgeladen werden."
+      toast.error(
+        "Bitte füllen Sie alle Felder aus und laden Sie mindestens eine Datei hoch."
       );
       return;
     }
@@ -132,8 +136,12 @@ export function AddFormModal({
       console.log("Form data submitted:", updatedFormData);
       handleFormSubmit(updatedFormData);
       setIsDialogOpen(false);
+      toast.success("Formular erfolgreich eingereicht!");
     } catch (error) {
       console.error("Error during file upload or form submission:", error);
+      toast.error(
+        "Fehler beim Hochladen der Dateien oder Einreichen des Formulars. Bitte versuchen Sie es erneut."
+      );
     }
   };
 
@@ -160,6 +168,7 @@ export function AddFormModal({
         ...prevData,
         bills: [...prevData.bills, ...newBills],
       }));
+      toast.info(`${files.length} Datei(en) hinzugefügt.`);
     }
   };
 
@@ -174,6 +183,7 @@ export function AddFormModal({
       ...prevData,
       bills: prevData.bills.filter((_, i) => i !== index),
     }));
+    toast.info("Datei entfernt.");
   };
 
   return (

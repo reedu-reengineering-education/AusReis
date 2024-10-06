@@ -22,7 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { registerUser } from "@/lib/api/registerClient";
 import { useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
-import { SSG_FALLBACK_EXPORT_ERROR } from "next/dist/lib/constants";
+import { toast } from "react-toastify";
 
 type CreateUserProps = {
   user: any;
@@ -38,7 +38,7 @@ export function LoginRegisterForm({
   const [email, setEmail] = useState<string>(user?.email || "");
   const [password, setPassword] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
-  const [secretCode, setSecretCode] = useState<string>(""); // Admin-Code-Feld
+  const [secretCode, setSecretCode] = useState<string>("");
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -57,22 +57,24 @@ export function LoginRegisterForm({
   const onSubmitLogIn = async () => {
     try {
       const result = await signIn("credentials", {
-        redirect: false, // Verhindere automatische Weiterleitung durch NextAuth
+        redirect: false,
         email,
         password,
       });
 
       if (result?.error) {
         console.error("Login error:", result.error);
+        toast.error("Login failed. Please check your credentials.");
       } else {
-        // Erfolgreicher Login, leite Benutzer zur Account-Seite weiter
         if (session?.user?.id) {
           router.push(`/account/${session?.user?.id}`);
         }
         setIsDialogOpen(false);
+        toast.success("Login successful!");
       }
     } catch (error) {
       console.error("Error when logging in the user:", error);
+      toast.error("An unexpected error occurred. Please try again.");
     }
   };
 
@@ -87,8 +89,10 @@ export function LoginRegisterForm({
       console.log("User registered:", registerData);
       setIsDialogOpen(false);
       handleUserCreated();
+      toast.success("Registration successful! You can now log in.");
     } catch (error) {
       console.error("Error when registering the user:", error);
+      toast.error("Registration failed. Please try again.");
     }
   };
 

@@ -1,4 +1,7 @@
+"use client";
+
 import { useState } from "react";
+import { toast } from "react-toastify";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ProjectStatus } from "@prisma/client"; // Prisma Enum importieren
+import { ProjectStatus } from "@prisma/client";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -22,55 +25,57 @@ import {
 
 export default function ProjectForm({
   onSave,
-  availableUsers, // Benutzerliste als Prop
+  availableUsers,
 }: {
   onSave: (project: any) => void;
-  availableUsers: { id: string; name: string }[]; // Benutzerliste
+  availableUsers: { id: string; name: string }[];
 }) {
   const [formData, setFormData] = useState({
     name: "",
-    status: "" as ProjectStatus, // Verwende den Prisma-Enum-Typ für Status
+    status: "" as ProjectStatus,
     budget: "",
     actualSpend: "",
-    users: [] as any[], // Benutzer-IDs werden hier gespeichert
+    users: [] as any[],
   });
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false); // Steuerung des Dialogs
-  const [error, setError] = useState<string | null>(null); // Fehlerzustand
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<ProjectStatus | null>(
     null
-  ); // Ausgewählter Status vom Prisma-Enum
+  );
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Validierung von Budget und Actual Spend
     const parsedBudget = parseFloat(formData.budget);
     const parsedActualSpend = parseFloat(formData.actualSpend);
 
     if (isNaN(parsedBudget) || isNaN(parsedActualSpend)) {
-      setError("Please enter valid numbers for budget and actual spend.");
+      toast.error("Please enter valid numbers for budget and actual spend.");
       return;
     }
 
     if (!formData.users.length) {
-      setError("Please select at least one user for the project.");
+      toast.error("Please select at least one user for the project.");
       return;
     }
 
     if (!selectedStatus) {
-      setError("Please select a project status.");
+      toast.error("Please select a project status.");
       return;
     }
 
-    // Wenn alles in Ordnung ist, rufe die onSave-Funktion auf
-    onSave({
-      ...formData,
-      status: selectedStatus, // Der ausgewählte Prisma-Status wird übergeben
-      budget: parsedBudget,
-      actualSpend: parsedActualSpend,
-    });
-    setIsDialogOpen(false); // Dialog schließen
+    try {
+      onSave({
+        ...formData,
+        status: selectedStatus,
+        budget: parsedBudget,
+        actualSpend: parsedActualSpend,
+      });
+      setIsDialogOpen(false);
+      toast.success("Project created successfully!");
+    } catch (error) {
+      toast.error("Failed to create project. Please try again.");
+    }
   };
 
   const handleUserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -84,15 +89,15 @@ export default function ProjectForm({
   const getStatusBadgeColor = (status: ProjectStatus) => {
     switch (status) {
       case "active":
-        return "bg-green-100 text-green-800"; // Grün für "Active"
+        return "bg-green-100 text-green-800";
       case "pending":
-        return "bg-yellow-100 text-yellow-800"; // Gelb für "Inactive"
+        return "bg-yellow-100 text-yellow-800";
       case "completed":
-        return "bg-blue-100 text-blue-800"; // Blau für "Completed"
+        return "bg-blue-100 text-blue-800";
       case "archived":
-        return "bg-red-100 text-red-800"; // Grau für "Archived"
+        return "bg-red-100 text-red-800";
       default:
-        return "bg-gray-100 text-gray-800"; // Grau für unbekannte Status
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -116,7 +121,6 @@ export default function ProjectForm({
             and click save when done.
           </DialogDescription>
         </DialogHeader>
-        {error && <p className="text-red-500">{error}</p>} {/* Fehleranzeige */}
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
@@ -208,7 +212,6 @@ export default function ProjectForm({
               />
             </div>
 
-            {/* Multi-Select für Benutzer */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="userSelect" className="text-right">
                 Users
