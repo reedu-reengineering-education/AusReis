@@ -27,6 +27,7 @@ import {
   ExpenseCategory,
   ExpenseStatus,
 } from "@prisma/client";
+import { toast } from "react-toastify";
 
 interface FormData extends BaseFormData {
   bills: { file: string; amount: number }[];
@@ -34,9 +35,7 @@ interface FormData extends BaseFormData {
 
 interface EditFormModalProps {
   activeTab: "expenses" | "travel";
-
   expenseId: string;
-
   handleFormSubmit: (formData: FormData) => Promise<void>;
 }
 
@@ -45,8 +44,8 @@ const initialData: FormData = {
   description: "",
   projectId: "",
   userId: "",
-  category: ExpenseCategory.reimbursement, // Assign a valid default value
-  status: ExpenseStatus.pending, // Assign a valid default value
+  category: ExpenseCategory.reimbursement,
+  status: ExpenseStatus.pending,
   bills: [],
   id: "",
   createdAt: new Date(),
@@ -57,18 +56,18 @@ export function EditFormModal(props: EditFormModalProps) {
   const [file, setFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { data: session } = useSession(); // Lade die Session
+  const { data: session } = useSession();
 
   const [formData, setFormData] = useState({
     ...initialData,
-    userId: session?.user?.id || "", // Benutzer-ID aus der Session laden
+    userId: session?.user?.id || "",
   });
 
   if (!formData) {
     return null;
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (
@@ -80,12 +79,21 @@ export function EditFormModal(props: EditFormModalProps) {
       !formData.status ||
       !formData.bills
     ) {
-      console.log("Alle Felder müssen ausgefüllt sein.");
+      toast.error("Bitte füllen Sie alle Felder aus.");
       return;
     }
 
-    console.log("Form data submitted:", formData);
-    setIsDialogOpen(false);
+    try {
+      await props.handleFormSubmit(formData);
+      console.log("Form data submitted:", formData);
+      setIsDialogOpen(false);
+      toast.success("Änderungen erfolgreich gespeichert.");
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast.error(
+        "Fehler beim Speichern der Änderungen. Bitte versuchen Sie es erneut."
+      );
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,10 +111,11 @@ export function EditFormModal(props: EditFormModalProps) {
       : [];
     setFormData((prevData) => ({
       ...prevData,
-      bills: [...prevData.bills, ...bills], // Neue Dateien hinzufügen
+      bills: [...prevData.bills, ...bills],
     }));
     if (files && files.length > 0) {
       setFile(files[0]);
+      toast.info(`${files.length} neue Datei(en) hinzugefügt.`);
     }
   };
 
@@ -115,6 +124,7 @@ export function EditFormModal(props: EditFormModalProps) {
       ...prevData,
       bills: prevData.bills.filter((bill) => bill.file !== fileName),
     }));
+    toast.info(`Datei "${fileName}" entfernt.`);
   };
 
   const handleUploadClick = () => {
@@ -143,13 +153,16 @@ export function EditFormModal(props: EditFormModalProps) {
       xhr.onload = () => {
         if (xhr.status === 200) {
           console.log("Datei erfolgreich hochgeladen");
+          toast.success("Datei erfolgreich hochgeladen.");
         } else {
           console.error("Fehler beim Hochladen");
+          toast.error("Fehler beim Hochladen der Datei.");
         }
       };
 
       xhr.onerror = () => {
         console.error("Fehler beim Hochladen");
+        toast.error("Fehler beim Hochladen der Datei.");
       };
 
       xhr.send(uploadFormData);

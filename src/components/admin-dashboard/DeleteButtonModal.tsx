@@ -1,4 +1,7 @@
 "use client";
+
+import { useState } from "react";
+import { toast } from "react-toastify";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -9,7 +12,6 @@ import {
   AlertDialogFooter,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 
 interface Project {
   id: string;
@@ -18,7 +20,7 @@ interface Project {
 
 interface ProjectDeleteDialogProps {
   project: Project;
-  onDelete: (id: string) => void;
+  onDelete: (id: string) => Promise<void>;
   onDeleteSuccess: (id: string, message: string) => void;
   onClose: () => void;
 }
@@ -30,13 +32,19 @@ export function ProjectDeleteDialog({
   onClose,
 }: ProjectDeleteDialogProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+
   const handleDelete = async () => {
     try {
-      await onDelete(project.id); // Führt die Löschaktion aus
-      onDeleteSuccess(project.id, "Project deleted successfully."); // Erfolgreiche Löschung
-      onClose(); // Schließt das Dialog
+      await onDelete(project.id);
+      onDeleteSuccess(project.id, "Project deleted successfully.");
+      toast.success(`Project "${project.name}" deleted successfully.`);
+      onClose();
+      setIsDialogOpen(false);
     } catch (error) {
-      console.error("Error deleting the project", error); // Fehlerbehandlung
+      console.error("Error deleting the project", error);
+      toast.error(
+        `Failed to delete project "${project.name}". Please try again.`
+      );
     }
   };
 
@@ -52,7 +60,7 @@ export function ProjectDeleteDialog({
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete the
-            project.
+            project "{project.name}".
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
