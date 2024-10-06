@@ -20,10 +20,6 @@ export function SiteHeader() {
             title: "FAQ",
             href: "/faq",
           },
-          {
-            title: "Contact",
-            href: "/contact",
-          },
         ]}
       />
     </header>
