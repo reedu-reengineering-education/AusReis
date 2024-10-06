@@ -9,11 +9,11 @@ export function SiteHeader() {
       <MainNav
         items={[
           {
-            title: "Bills & Expenses",
-            href: "/myBillsAndExpenses",
+            title: "Admin",
+            href: "/admin",
           },
           {
-            title: "Account",
+            title: "User",
             href: "/account",
           },
           {
