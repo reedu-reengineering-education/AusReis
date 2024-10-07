@@ -1,11 +1,14 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/db";
-import { uploadFiles } from "@/helpers/minIoHelper";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const session = await getServerSession(req, res, authOptions);
+
   if (req.method === "POST") {
     const { amount, description, userId, projectId, category, status, bills } =
       req.body.data;
@@ -43,6 +46,9 @@ export default async function handler(
   else if (req.method === "GET") {
     try {
       const expenses = await prisma.expense.findMany({
+        where: {
+          userId: session?.user.id,
+        },
         include: {
           bills: { include: { files: true } },
           user: true,

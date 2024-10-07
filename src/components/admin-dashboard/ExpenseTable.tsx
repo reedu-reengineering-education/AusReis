@@ -180,13 +180,13 @@ export default function ExpenseTable() {
                   >
                     View
                   </Button>
-                  <Button
+                  {/* <Button
                     variant="outline"
                     size="sm"
                     onClick={() => downloadFile(expense.bills.file)}
-                  >
-                    Download
-                  </Button>
+                  > */}
+                  {/* Download
+                  </Button> */}
                 </TableCell>
               </TableRow>
             ))}
