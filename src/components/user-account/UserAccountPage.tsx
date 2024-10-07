@@ -158,12 +158,12 @@ export default function UserAccountPage() {
         />
       )}
 
-      {showBills && selectedItem && (
+      {/* {showBills && selectedItem && (
         <BillsModal
           selectedItem={selectedItem}
           setShowDetails={setShowBills} // Verwende setShowBills zum Schließen des BillsModal
         />
-      )}
+      )} */}
     </div>
   );
 }
