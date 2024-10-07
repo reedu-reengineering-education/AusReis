@@ -122,7 +122,6 @@ enum ExpenseCategory {
 
 model Bill {
   id        String   @id @default(cuid())
-  file      String
   amount    Float
   expenseId String
   expense   Expense  @relation(fields: [expenseId], references: [id], onDelete: Cascade)

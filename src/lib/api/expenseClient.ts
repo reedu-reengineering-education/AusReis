@@ -1,4 +1,5 @@
 import axios from "axios";
+import File from "prisma/prisma-client";
 
 const API_URL = "/api/expenses";
 
@@ -14,15 +15,16 @@ export const getExpenses = async () => {
 };
 
 // Erstellen einer neuen Auslage
-export const createExpense = async (data: any) => {
+export const createExpense = async (data: any, xhr: any) => {
   console.log("createExpense called with:", {
     data,
   });
   try {
     const response = await axios.post(API_URL, {
       data,
+      xhr,
     });
-    console.log("API response:", response.data);
+
     return response.data;
   } catch (error) {
     console.error("Error creating expense:", error);

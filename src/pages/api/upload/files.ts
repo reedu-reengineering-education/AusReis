@@ -4,6 +4,7 @@ import { IncomingForm, type File } from "formidable";
 import { saveFileInBucket } from "@/utils/s3-file-management";
 import { nanoid } from "nanoid";
 import prisma from "@/lib/db";
+import { File as PrismaFile } from "@prisma/client";
 
 const bucketName = process.env.S3_BUCKET_NAME as string;
 
@@ -11,7 +12,11 @@ type ProcessedFiles = Array<[string, File]>;
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   let status = 200,
-    resultBody = { status: "ok", message: "Files were uploaded successfully" };
+    resultBody = {
+      status: "ok",
+      message: "Files were uploaded successfully",
+      data: {},
+    };
 
   // Get files from request using formidable
   const files = await new Promise<ProcessedFiles | undefined>(
@@ -48,12 +53,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           });
 
           //   save file info to database
-          await prisma.file.create({
+
+          const createFile = await prisma.file.create({
             data: {
               filename: fileName,
               size: fileObject?.size ?? 0,
             },
           });
+          resultBody.data = createFile;
         })
       );
     } catch (e) {
@@ -68,12 +75,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 // Set error status and result body if error occurs
 export function setErrorStatus(
   status: number,
-  resultBody: { status: string; message: string }
+  resultBody: { status: string; message: string; data: any }
 ) {
   status = 500;
   resultBody = {
     status: "fail",
     message: "Upload error",
+    data: {},
   };
   return { status, resultBody };
 }
