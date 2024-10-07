@@ -1,7 +1,14 @@
 // src/app/admin/page.tsx
 import AdminDashboard from "@/components/admin-dashboard/AdminDashboard";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const session = await getServerSession(authOptions);
+
+  if (session?.user.role !== "admin") {
+    return <div>Unauthorized</div>;
+  }
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex-1">
