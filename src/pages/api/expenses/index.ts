@@ -9,7 +9,7 @@ export default async function handler(
   if (req.method === "POST") {
     const { amount, description, userId, projectId, category, status, bills } =
       req.body.data;
-    console.log(req.body.data);
+
     if (!amount || !description || !userId || !projectId || !category) {
       return res.status(400).json({ error: "Missing required fields" });
     }
@@ -25,11 +25,11 @@ export default async function handler(
           user: { connect: { id: userId } },
           project: { connect: { id: projectId } },
           bills: {
-            create: bills.map((bill: { file: File; amount: number }) => ({
-              file: bill.file,
-              amount: bill.amount,
+            create: {
+              files: { connect: { id: req.body.xhr.id } },
+              amount: amount,
               user: { connect: { id: userId } },
-            })),
+            },
           },
         },
       });

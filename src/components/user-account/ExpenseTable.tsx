@@ -87,7 +87,9 @@ export default function ExpensesTable({
   // Handler für das Erstellen einer neuen Auslage
   const handleFormSubmit = async (formData: any) => {
     try {
-      const uploadFormData = createFormData([formData.bills[0].file]);
+      const uploadFormData = createFormData(
+        formData.bills.map((bill: any) => bill.file)
+      );
 
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "/api/upload/files", true);
@@ -96,13 +98,19 @@ export default function ExpensesTable({
         if (e.lengthComputable) {
           const progress = (e.loaded / e.total) * 100;
           // setUploadProgress(progress);
-          console.log(`Fortschritt: ${progress.toFixed(2)}%`);
         }
       };
 
-      xhr.onload = () => {
+      xhr.onload = async () => {
         if (xhr.status === 200) {
-          console.log("Datei erfolgreich hochgeladen");
+          const newExpense = await createExpense(
+            formData,
+            JSON.parse(xhr.response).data
+          );
+          setFilteredReimbursements((prevExpenses: any) => [
+            ...prevExpenses,
+            newExpense,
+          ]);
         } else {
           console.error("Fehler beim Hochladen");
         }
@@ -113,11 +121,6 @@ export default function ExpensesTable({
       };
 
       xhr.send(uploadFormData);
-      // const newExpense = await createExpense(formData);
-      // setFilteredReimbursements((prevExpenses: any) => [
-      //   ...prevExpenses,
-      //   newExpense,
-      // ]);
     } catch (error) {
       console.error("Error creating expense:", error);
     }
