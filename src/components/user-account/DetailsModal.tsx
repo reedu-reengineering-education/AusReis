@@ -9,14 +9,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { XIcon } from "lucide-react";
+import { Bill, Expense, Project, File as PrismaFile } from "@prisma/client";
 
 interface DetailsModalProps {
-  selectedItem: {
-    name: string;
-    project: string;
-    status: string;
-    amount: number;
-    receipts: string[];
+  selectedItem: Expense & {
+    project: Project;
+    bills: Bill & { files: PrismaFile[] }[];
   };
   setShowDetails: (show: boolean) => void;
 }
@@ -29,7 +27,7 @@ export function DetailsModal({
     <div className="fixed inset-0 bg-background/80 flex items-center justify-center z-50">
       <div className="bg-background p-6 rounded-lg shadow-lg max-w-4xl w-full">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">{selectedItem.name}</h2>
+          <h2 className="text-2xl font-bold">{selectedItem.description}</h2>
           <Button
             variant="ghost"
             size="icon"
@@ -39,7 +37,7 @@ export function DetailsModal({
           </Button>
         </div>
         <p className="text-muted-foreground mb-4">
-          Projekt: {selectedItem.project}
+          Projekt: {selectedItem.project.name}
         </p>
         <Table>
           <TableHeader>
@@ -54,9 +52,9 @@ export function DetailsModal({
               <TableCell>
                 <Badge
                   className={`${
-                    selectedItem.status === "Approved"
+                    selectedItem.status === "paid"
                       ? "bg-green-100 text-green-800"
-                      : selectedItem.status === "Pending"
+                      : selectedItem.status === "pending"
                       ? "bg-yellow-100 text-yellow-800"
                       : "bg-red-100 text-red-800"
                   } text-xs`}
@@ -66,11 +64,11 @@ export function DetailsModal({
               </TableCell>
               <TableCell>${selectedItem.amount.toLocaleString()}</TableCell>
               <TableCell>
-                {selectedItem.receipts.length > 0
-                  ? selectedItem.receipts.map((receipt, index) => (
+                {selectedItem.bills.length > 0
+                  ? selectedItem.bills.map((bill, index) => (
                       <a
                         key={index}
-                        href={receipt}
+                        href={`/api/download/${bill.files[0].id}`}
                         className="underline text-blue-500"
                         target="_blank"
                         rel="noopener noreferrer"

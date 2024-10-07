@@ -44,7 +44,7 @@ export default async function handler(
     try {
       const expenses = await prisma.expense.findMany({
         include: {
-          bills: true,
+          bills: { include: { files: true } },
           user: true,
           project: true,
         },
