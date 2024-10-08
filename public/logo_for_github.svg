@@ -36,5 +36,5 @@
     <title>114 logo_Step4</title>
 
     <!-- Die Raute mit den bestehenden Effekten -->
-    <polyline class="cls-1" fill="none" stroke="#EB5C37" points="236.41 283.46 142.28 377.58 236.41 471.7 424.64 283.46 236.41 95.22 142.28 189.34 236.41 283.46" filter="url(#dropShadow)"/>
+    <polyline class="cls-1" fill="none" stroke="#FF8C00" points="236.41 283.46 142.28 377.58 236.41 471.7 424.64 283.46 236.41 95.22 142.28 189.34 236.41 283.46" filter="url(#dropShadow)"/>
 </svg>
