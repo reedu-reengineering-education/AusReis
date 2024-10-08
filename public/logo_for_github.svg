@@ -2,19 +2,12 @@
     <defs>
         <style>
             .cls-1 {
-                stroke: #EB5C37;
+                stroke: #FF8C00;
                 stroke-width: 1;
                 stroke-linejoin: round; 
                 stroke-linecap: round;  
                 stroke-dasharray: 100;
                 animation: dash 10s linear infinite, glow 1.5s ease-in-out infinite alternate forwards 2.5s; /* Start verzögert nach Strahlenanimation */
-            }
-            .ray {
-                stroke: #FF8C00; /* Orange für die Strahlen */
-                stroke-width: 2;
-                stroke-linecap: round;
-                stroke-opacity: 1;
-                animation: drawRay 2s ease forwards;
             }
 
             @keyframes dash {
@@ -33,16 +26,7 @@
                 }
             }
 
-            @keyframes drawRay {
-                0% {
-                    stroke-opacity: 1;
-                    stroke-dasharray: 100, 0;
-                }
-                100% {
-                    stroke-opacity: 0;
-                    stroke-dasharray: 0, 100;
-                }
-            }
+            
         </style>
         <!-- Definieren des Filters für den Schlagschatten -->
         <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
@@ -50,12 +34,6 @@
         </filter>
     </defs>
     <title>114 logo_Step4</title>
-    
-    <!-- Die Strahlen von außen zur Raute -->
-    <line class="ray" x1="136.41" y1="183.46" x2="236.41" y2="283.46" />
-    <line class="ray" x1="336.41" y1="183.46" x2="236.41" y2="283.46" />
-    <line class="ray" x1="336.41" y1="383.46" x2="236.41" y2="283.46" />
-    <line class="ray" x1="136.41" y1="383.46" x2="236.41" y2="283.46" />
 
     <!-- Die Raute mit den bestehenden Effekten -->
     <polyline class="cls-1" fill="none" stroke="#EB5C37" points="236.41 283.46 142.28 377.58 236.41 471.7 424.64 283.46 236.41 95.22 142.28 189.34 236.41 283.46" filter="url(#dropShadow)"/>
