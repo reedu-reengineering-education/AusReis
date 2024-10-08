@@ -1,5 +1,4 @@
 "use client";
-
 import {
   useState,
   useEffect,
@@ -30,6 +29,8 @@ import {
 import { useSession } from "next-auth/react";
 import { Expense } from "@prisma/client";
 import { createFormData } from "@/helpers/fileUploadHelpers";
+import DeleteButtonExpenseModal from "@/components/user-account/DeleteButtonExpenseModal";
+import { toast } from "react-toastify";
 
 interface ExpensesTableProps {
   searchTerm: string;
@@ -50,6 +51,7 @@ export default function ExpensesTable({
 }: ExpensesTableProps) {
   const [filteredReimbursements, setFilteredReimbursements] = useState<any>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { data: session } = useSession();
   const [expenses, setExpenses] = useState<Expense[]>([]);
 
@@ -126,22 +128,28 @@ export default function ExpensesTable({
     }
   };
 
-  const onSuccessDelete = (deletedExpenseId: string) => {
+  const handleCloseModal = () => {
+    setIsModalOpen(false); // Modal schließen
+    // Auswahl zurücksetzen
+  };
+
+  const handleDeleteSuccess = (deletedExpenseId: string, message: string) => {
+    console.log(message);
     setFilteredReimbursements((prevExpenses: any) =>
       prevExpenses.filter((expense: any) => expense.id !== deletedExpenseId)
     );
   };
 
-  const handleDeleteExpense = async (id: string) => {
-    console.log("Trying to delete expense with ID:", id);
+  const handleDelete = async (expenseId: string) => {
+    // console.log("Trying to delete expense with ID:", expenseId);
     try {
-      await deleteExpense(id);
-      setFilteredReimbursements((prevExpenses: any) =>
-        prevExpenses.filter((expense: any) => expense.id !== id)
-      );
-      onSuccessDelete(id);
+      const response = await deleteExpense(expenseId);
+      console.log("Response from delete:", response);
+
+      toast.success("Auslage erfolgreich gelöscht");
     } catch (error) {
       console.error("Error deleting expense:", error);
+      toast.error("Fehler beim Löschen der Auslage");
     }
   };
 
@@ -235,9 +243,9 @@ export default function ExpensesTable({
                   <TableCell>
                     <Badge
                       className={`${
-                        item.status === "Approved"
+                        item.status === "approved"
                           ? "bg-green-100 text-green-800"
-                          : item.status === "Pending"
+                          : item.status === "pending"
                           ? "bg-yellow-100 text-yellow-800"
                           : "bg-red-100 text-red-800"
                       } text-xs`}
@@ -270,17 +278,12 @@ export default function ExpensesTable({
                       >
                         Rechnungen
                       </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => {
-                          if (typeof item.id === "string") {
-                            handleDeleteExpense(item.id); // Verwende item.id statt expense.id
-                          }
-                        }}
-                      >
-                        Löschen
-                      </Button>
+                      <DeleteButtonExpenseModal
+                        expense={item as unknown as Expense}
+                        onDelete={handleDelete}
+                        onDeleteSuccess={handleDeleteSuccess}
+                        onClose={handleCloseModal}
+                      />
                     </div>
                   </TableCell>
                 </TableRow>

@@ -59,9 +59,9 @@ export const updateExpense = async (
 };
 
 // Löschen einer bestimmten Auslage
-export const deleteExpense = async (id: string) => {
+export const deleteExpense = async (expenseId: string) => {
   try {
-    await axios.delete(`api/expenses/${id}`);
+    return await axios.delete(`api/expenses/${expenseId}`);
   } catch (error) {
     console.error("Error deleting expense:", error);
     throw error;
