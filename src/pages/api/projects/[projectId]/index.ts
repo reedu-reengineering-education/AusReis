@@ -40,7 +40,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         .json({ error: "Forbidden: Only admins can update projects." });
     }
 
-    const { name, status, budget, actualSpend, users } = req.body;
+    const { name, status, budget, actualSpend, userIds } = req.body;
 
     try {
       const updatedProject = await prisma.project.update({
@@ -51,9 +51,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           budget: parseFloat(budget),
           actualSpend: parseFloat(actualSpend),
           users: {
-            set: users.map((id: string) => ({ id })),
+            set: userIds.map((id: string) => ({ id })),
           },
         },
+        include: { users: { select: { id: true, name: true } } },
       });
 
       return res.status(200).json(updatedProject);

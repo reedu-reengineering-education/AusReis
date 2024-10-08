@@ -1,4 +1,6 @@
 "use client";
+
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,248 +8,256 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { getProject, updateProject } from "@/lib/api/projectClient";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@radix-ui/react-dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { XIcon } from "lucide-react";
-import { Project, User } from "@prisma/client";
-
-async function fetchUsers() {
-  const response = await fetch("/api/users");
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
-  }
-  return response.json();
-}
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { XIcon, UserPlusIcon, UserMinusIcon } from "lucide-react";
+import { Project, ProjectStatus, User } from "@prisma/client";
+import { getProject, updateProject } from "@/lib/api/projectClient";
 
 interface ProjectEditModalProps {
   projectId: string;
-
   onProjectUpdated: (updatedProject: Project) => Promise<boolean>;
-
   editingProject: Project | null;
-
   availableUsers: User[] | any[]; // Add this line to include availableUsers prop
 }
 
 export function ProjectEditModal({
   projectId,
-  onProjectUpdated = async () => false,
+  onProjectUpdated,
 }: ProjectEditModalProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [name, setName] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
-  const [budget, setBudget] = useState<number>(0);
-  const [actualSpend, setActualSpend] = useState<number>(0);
-  const [assignedUsers, setAssignedUsers] = useState<User[]>([]);
-  const loadProjectRef = React.useRef(() => {});
+  const [isOpen, setIsOpen] = useState(false);
   const [project, setProject] = useState<Project & { users: User[] }>();
-  const [allUsers, setAllUsers] = useState<{ id: string; name: string }[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<
-    { id: string; name: string }[]
-  >([]);
-  const [userSearchTerm, setUserSearchTerm] = useState<string>("");
+  const [name, setName] = useState("");
+  const [status, setStatus] = useState<ProjectStatus>("pending");
+  const [budget, setBudget] = useState(0);
+  const [actualSpend, setActualSpend] = useState(0);
+  const [involvedUsers, setInvolvedUsers] = useState<User[]>([]);
+  const [availableUsers, setAvailableUsers] = useState<User[]>([]);
+  const [userSearchTerm, setUserSearchTerm] = useState("");
 
-  loadProjectRef.current = async () => {
+  useEffect(() => {
+    if (isOpen) {
+      loadProject();
+      loadUsers();
+    }
+  }, [isOpen, projectId]);
+
+  const loadProject = async () => {
     try {
-      const projectData: Project & { users: User[] } = await getProject(
-        projectId
-      );
+      const projectData = await getProject(projectId);
       setProject(projectData);
       setName(projectData.name);
       setStatus(projectData.status);
       setBudget(projectData.budget);
       setActualSpend(projectData.actualSpend);
-      setAssignedUsers(projectData.users || []);
-      setSelectedUsers(
-        (projectData.users || []).map(
-          (user: { id: string; name: string | null }) => ({
-            id: user.id,
-            name: user.name || "Unknown",
-          })
-        )
-      );
+      setInvolvedUsers(projectData.users || []);
     } catch (error) {
-      console.error(error);
+      console.error("Error loading project:", error);
     }
   };
 
-  useEffect(() => {
-    loadProjectRef.current();
-  }, [projectId]);
-
   const loadUsers = async () => {
     try {
-      const users = await fetchUsers();
-      setAllUsers(users);
+      const response = await fetch("/api/users");
+      if (!response.ok) throw new Error("Failed to fetch users");
+      const users = await response.json();
+      setAvailableUsers(
+        users.filter(
+          (user: User) =>
+            !involvedUsers.some((involved) => involved.id === user.id)
+        )
+      );
     } catch (error) {
       console.error("Error fetching users:", error);
     }
   };
 
-  useEffect(() => {
-    if (isDialogOpen) {
-      loadUsers();
-    }
-  }, [isDialogOpen]);
-
-  const handleAddUser = (user: { id: string; name: string }) => {
-    if (!selectedUsers.find((u) => u.id === user.id)) {
-      setSelectedUsers([...selectedUsers, user]);
-    }
-  };
-
-  const handleRemoveUser = (userId: string) => {
-    setSelectedUsers(selectedUsers.filter((user) => user.id !== userId));
-  };
-
-  const handleSubmitUpdate = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      console.log(selectedUsers);
-      const updatedProject: any = await updateProject(
+      const updatedProject = await updateProject(
         projectId,
         name,
         status,
         budget,
         actualSpend,
-        selectedUsers.map((user) => user.id)
+        involvedUsers.map((user) => user.id)
       );
-      console.log("Project updated successfully");
-      setIsDialogOpen(false);
-
-      // Übergeordnete Komponente informieren, dass das Projekt aktualisiert wurde
       onProjectUpdated(updatedProject);
+      setIsOpen(false);
     } catch (error) {
-      console.error("Error updating the project", error);
+      console.error("Error updating project:", error);
     }
   };
 
-  const filteredUsers = allUsers.filter((user) =>
-    user.name.toLowerCase().includes(userSearchTerm.toLowerCase())
+  const addUser = (user: User) => {
+    setInvolvedUsers([...involvedUsers, user]);
+    setAvailableUsers(availableUsers.filter((u) => u.id !== user.id));
+  };
+
+  const removeUser = (user: User) => {
+    setInvolvedUsers(involvedUsers.filter((u) => u.id !== user.id));
+    setAvailableUsers([...availableUsers, user]);
+  };
+
+  const filteredAvailableUsers = availableUsers.filter((user) =>
+    (user.name?.toLowerCase() ?? "").includes(userSearchTerm.toLowerCase())
   );
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DialogTrigger asChild onClick={() => setIsDialogOpen(true)}>
-        <Button variant="outline" size="sm">
-          Edit
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Button variant="outline" size="sm" onClick={() => setIsOpen(true)}>
+        Edit
+      </Button>
+      <DialogContent className="sm:max-w-[650px]">
         <DialogHeader>
           <DialogTitle>Edit Project</DialogTitle>
-          <DialogDescription>Modify project details</DialogDescription>
+          <DialogDescription>
+            Make changes to your project here. Click save when you're done.
+          </DialogDescription>
         </DialogHeader>
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmitUpdate();
-          }}
-        >
-          <div>
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="status">Status</Label>
-            <Input
-              id="status"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="budget">Budget</Label>
-            <Input
-              id="budget"
-              type="number"
-              value={budget === 0 ? "" : budget}
-              onChange={(e) => {
-                const newValue = parseFloat(e.target.value);
-                setBudget(isNaN(newValue) ? 0 : newValue);
-              }}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="actualSpend">Actual Spend</Label>
-            <Input
-              id="actualSpend"
-              type="number"
-              value={actualSpend === 0 ? "" : actualSpend}
-              onChange={(e) => {
-                const newValue = parseFloat(e.target.value);
-                setActualSpend(isNaN(newValue) ? 0 : newValue);
-              }}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="users">Users</Label>
-            <div className="flex items-center gap-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Project Name</Label>
               <Input
-                placeholder="Benutzer suchen..."
-                value={userSearchTerm}
-                onChange={(e) => setUserSearchTerm(e.target.value)}
-                className="bg-background"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter project name"
               />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button>Benutzer hinzufügen</Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {filteredUsers.map((user) => (
-                    <DropdownMenuItem
-                      key={user.id}
-                      onClick={() => handleAddUser(user)}
-                    >
-                      {user.name}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
-            <div className="mt-4">
-              {selectedUsers.map((user) => (
-                <Badge key={user.id} className="mr-2">
-                  {user.name}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemoveUser(user.id)}
-                  >
-                    <XIcon className="w-4 h-4" />
-                  </Button>
-                </Badge>
-              ))}
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select
+                value={status}
+                onValueChange={(value: ProjectStatus) => setStatus(value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="archived">Archived</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="budget">Budget</Label>
+                <Input
+                  id="budget"
+                  type="number"
+                  value={budget || ""}
+                  onChange={(e) => setBudget(Number(e.target.value))}
+                  placeholder="Enter budget"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="actualSpend">Actual Spend</Label>
+                <Input
+                  id="actualSpend"
+                  type="number"
+                  value={actualSpend || ""}
+                  onChange={(e) => setActualSpend(Number(e.target.value))}
+                  placeholder="Enter actual spend"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Project Users</Label>
+              <Tabs defaultValue="involved" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="involved">Involved Users</TabsTrigger>
+                  <TabsTrigger value="available">Available Users</TabsTrigger>
+                </TabsList>
+                <TabsContent value="involved">
+                  <ScrollArea className="h-[200px] w-full border rounded-md p-2">
+                    <div className="space-y-2">
+                      {involvedUsers.map((user) => (
+                        <div
+                          key={user.id}
+                          className="flex items-center justify-between"
+                        >
+                          <Badge
+                            variant="secondary"
+                            className="bg-green-100 text-green-800 hover:bg-green-200"
+                          >
+                            {user.name}
+                          </Badge>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeUser(user)}
+                          >
+                            <UserMinusIcon className="h-4 w-4" />
+                            <span className="sr-only">Remove user</span>
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </TabsContent>
+                <TabsContent value="available">
+                  <div className="space-y-2">
+                    <Input
+                      placeholder="Search available users..."
+                      value={userSearchTerm}
+                      onChange={(e) => setUserSearchTerm(e.target.value)}
+                    />
+                    <ScrollArea className="h-[200px] w-full border rounded-md p-2">
+                      <div className="space-y-2">
+                        {filteredAvailableUsers.map((user) => (
+                          <div
+                            key={user.id}
+                            className="flex items-center justify-between"
+                          >
+                            <Badge
+                              variant="outline"
+                              className="bg-gray-100 text-gray-800 hover:bg-gray-200"
+                            >
+                              {user.name}
+                            </Badge>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => addUser(user)}
+                            >
+                              <UserPlusIcon className="h-4 w-4" />
+                              <span className="sr-only">Add user</span>
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
-
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsOpen(false)}
+            >
               Cancel
             </Button>
-            <Button variant="outline" type="submit">
-              Save Changes
-            </Button>
+            <Button type="submit">Save changes</Button>
           </DialogFooter>
         </form>
       </DialogContent>
