@@ -1,17 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/db";
-import { error } from "console";
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  const { id } = req.query;
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { expenseId } = req.query;
 
   if (req.method === "GET") {
     try {
       const expense = await prisma.expense.findUnique({
-        where: { id: String(id) },
+        where: { id: String(expenseId) },
         include: { bills: true },
       });
 
@@ -29,7 +25,7 @@ export default async function handler(
 
     try {
       const updatedExpense = await prisma.expense.update({
-        where: { id: String(id) },
+        where: { id: String(expenseId) },
         data: {
           amount,
           description,
@@ -50,20 +46,19 @@ export default async function handler(
     }
   }
   if (req.method === "DELETE") {
-    const { expensesId } = req.query;
-    console.log("DELETE request received for ID:", expensesId); // Überprüfe, ob die ID korrekt abgefangen wird
+    console.log("DELETE request received for ID:", expenseId); // Überprüfe, ob die ID korrekt abgefangen wird
 
-    if (!expensesId || typeof expensesId !== "string") {
+    if (!expenseId || typeof expenseId !== "string") {
       console.log("Invalid or missing ID");
       return res.status(400).json({ error: "Invalid or missing expense ID" });
     }
 
     try {
       await prisma.expense.delete({
-        where: { id: expensesId },
+        where: { id: expenseId as string },
       });
 
-      return res.status(200).json({ message: "Expense deleted successfully" });
+      return res.status(200).end();
     } catch (error) {
       console.error("Error deleting expense:", error);
       return res.status(500).json({ error: "Error deleting expense" });
@@ -72,3 +67,5 @@ export default async function handler(
     res.status(405).json({ error: "Method not allowed" });
   }
 }
+
+export default handler;
