@@ -3,9 +3,9 @@ import axios from "axios";
 const API_URL = "/api/users";
 
 // Funktion zum Abrufen eines Benutzers basierend auf der E-Mail
-export const getUser = async (email: string) => {
+export const getUser = async (email: string, name: string) => {
   try {
-    const response = await axios.get(`${API_URL}/${email}`); // Direkt die E-Mail in die URL
+    const response = await axios.get(API_URL, { params: { email, name } }); // Direkt die E-Mail in die URL
     return response.data;
   } catch (error) {
     console.error("Error fetching user:", error);
