@@ -122,7 +122,7 @@ export default function ProjectForm({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
                 Name
@@ -156,21 +156,27 @@ export default function ProjectForm({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => setSelectedStatus("active")}>
+                  <DropdownMenuItem
+                    onClick={() => setSelectedStatus("active")}
+                    className="bg-green-100 text-green-800"
+                  >
                     Active
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => setSelectedStatus("pending")}
+                    className="bg-yellow-100 text-yellow-800"
                   >
                     Pending
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => setSelectedStatus("completed")}
+                    className="bg-blue-100 text-blue-800 mt-8"
                   >
                     Completed
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => setSelectedStatus("archived")}
+                    className="bg-red-100 text-red-800"
                   >
                     Archived
                   </DropdownMenuItem>

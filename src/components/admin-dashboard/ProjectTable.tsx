@@ -118,16 +118,6 @@ export default function ProjectTable() {
     });
   };
 
-  // const handleViewClick = (project: Project) => {
-  //   setSelectedProject(project); // Setze das ausgewählte Projekt
-  //   setIsModalOpen(true); // Öffne das Modal
-  // };
-
-  // const handleViewProject = (project: Project) => {
-  //   setSelectedProject(project); // Das ausgewählte Projekt speichern
-  //   setIsModalOpen(true); // Modal öffnen
-  // };
-
   const handleCloseModal = () => {
     setIsModalOpen(false); // Modal schließen
     setSelectedProject(null); // Auswahl zurücksetzen
@@ -140,33 +130,6 @@ export default function ProjectTable() {
       // Prüfen, ob assignedUsers ein Array ist
 
       console.log("updatedProject.users:", updatedProject);
-      if (Array.isArray(updatedProject.users)) {
-        const userIds = updatedProject.users
-          .map((user) => {
-            if (typeof user === "string") {
-              return user; // Falls es bereits eine ID ist, zurückgeben
-            } else if (user && user.id) {
-              return user.id; // Falls es ein User-Objekt ist, die ID zurückgeben
-            }
-            console.error("Invalid user object:", user);
-            return null;
-          })
-          .filter(Boolean); // Null-Werte herausfiltern
-
-        // Setze die zugewiesenen Benutzer-IDs
-        updatedProject.users = userIds as any; // Typumgehung, da assignedUsers jetzt eine Liste von IDs ist
-      } else {
-        console.error("users is not an array:", updatedProject.users);
-      }
-      const userIds = updatedProject.users.map((user) => user.id);
-      await updateProject(
-        updatedProject.id,
-        updatedProject.name,
-        updatedProject.status,
-        updatedProject.budget,
-        updatedProject.actualSpend,
-        updatedProject.users as unknown as string[] // Pass the userIds here
-      );
 
       setProjects((prevProjects) =>
         prevProjects.map((p) =>
@@ -351,17 +314,7 @@ export default function ProjectTable() {
               </TableCell>
 
               <TableCell className="flex justify-end space-x-2">
-                {/* <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleViewClick(project)}
-                >
-                  View
-                </Button> */}
                 <ProjectViewModal project={project} />
-                {/* <Button variant="outline" size="sm">
-                  Edit
-                </Button> */}
                 <ProjectEditModal
                   projectId={project.id}
                   onProjectUpdated={(project: Project) =>
@@ -370,13 +323,6 @@ export default function ProjectTable() {
                   availableUsers={availableUsers}
                   editingProject={null}
                 />
-                {/* <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDelete(project.id)}
-                >
-                  Remove
-                </Button> */}
                 <ProjectDeleteDialog
                   project={project}
                   onDelete={handleDelete}

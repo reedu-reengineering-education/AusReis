@@ -20,7 +20,7 @@ export default function UserTable() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const users = await getUser("", ""); // Provide the required arguments
+        const users = await getUser(""); // Provide the required arguments
         setUsers(users);
       } catch (error) {
         console.error("Error fetching users:", error);
