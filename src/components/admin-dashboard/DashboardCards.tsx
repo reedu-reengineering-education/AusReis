@@ -1,44 +1,35 @@
 // components/AdminDashboard/DashboardCards.tsx
+import { Expense } from "@prisma/client";
+import { getExpenses } from "@/lib/api/expenseClient";
+import { Project } from "@prisma/client";
+import { getProject } from "@/lib/api/projectClient";
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
-// Beispiel-API-Aufruf zum Laden der Projektdaten
-async function fetchProjects() {
-  const response = await fetch("/api/projects");
-  if (!response.ok) {
-    throw new Error("Network response was not ok");
-  }
-  return response.json();
-}
-
-// Funktion zum Sortieren der Projekte
-function sortProjects(projects: any[]) {
-  // Beispiel-Sortierlogik (nach Name sortieren)
-  return projects.sort((a, b) => a.name.localeCompare(b.name));
-}
-
 export default function DashboardCards() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [openExpensesCount, setOpenExpensesCount] = useState(0);
   const [approvedExpensesCount, setApprovedExpensesCount] = useState(0);
-  const [totalProjects, setTotalProjects] = useState(0);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const data = await fetchProjects();
-        const sortedProjects = sortProjects(data); // Projekte sortieren
+        const expenses = await getExpenses();
+        const projects = await getProject();
 
-        // Beispiel-Logik zum Zählen der offenen und genehmigten Ausgaben
-        const openExpenses = sortedProjects.filter(
-          (project: { status: string }) => project.status === "OPEN"
+        // Beispiel-Logik zum Zählen der
+        // offenen und genehmigten Ausgaben
+        const openExpenses = expenses.filter((expense: any) =>
+          expense.status === "Pending" ? "OPEN" : "APPROVED"
         ).length;
-        const approvedExpenses = sortedProjects.filter(
-          (project: { status: string }) => project.status === "APPROVED"
+        const approvedExpenses = expenses.filter(
+          (expense: any) => expense.status === "APPROVED"
         ).length;
 
         setOpenExpensesCount(openExpenses);
         setApprovedExpensesCount(approvedExpenses);
-        setTotalProjects(sortedProjects.length);
+        setProjects(projects);
       } catch (error) {
         console.error("Error loading data:", error);
       }
@@ -70,7 +61,7 @@ export default function DashboardCards() {
           <CardTitle>Total Projects</CardTitle>
         </CardHeader>
         <CardContent className="flex justify-center items-center h-24">
-          <p className="text-5xl font-bold">{totalProjects}</p>
+          <p className="text-5xl font-bold">{projects.length}</p>
         </CardContent>
       </Card>
     </div>
