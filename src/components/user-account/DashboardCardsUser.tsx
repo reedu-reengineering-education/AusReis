@@ -1,22 +1,40 @@
+import { Expense } from "@prisma/client";
+import { getExpenses } from "@/lib/api/expenseClient";
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
-interface DashboardCardsProps {
-  openExpensesCount: number;
-  approvedExpensesCount: number;
-  rejectedExpensesCount: number;
-  openTravelsCount: number;
-  approvedTravelsCount: number;
-  rejectedTravelsCount: number;
-}
+export default function DashboardCards() {
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [openExpensesCount, setOpenExpensesCount] = useState(0);
+  const [approvedExpensesCount, setApprovedExpensesCount] = useState(0);
+  const [rejectedExpensesCount, setRejectedExpensesCount] = useState(0);
+  const [openTravelsCount, setOpenTravelsCount] = useState(0);
+  const [approvedTravelsCount, setApprovedTravelsCount] = useState(0);
+  const [rejectedTravelsCount, setRejectedTravelsCount] = useState(0);
 
-export default function DashboardCards({
-  openExpensesCount,
-  approvedExpensesCount,
-  rejectedExpensesCount,
-  openTravelsCount,
-  approvedTravelsCount,
-  rejectedTravelsCount,
-}: DashboardCardsProps) {
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const expenses = await getExpenses();
+        const openExpenses = expenses.filter((expense: any) =>
+          expense.status === "Pending" ? "OPEN" : "APPROVED"
+        ).length;
+        const approvedExpenses = expenses.filter(
+          (expense: any) => expense.status === "APPROVED"
+        ).length;
+        const rejectedExpenses = expenses.filter(
+          (expense: any) => expense.status === "REJECTED"
+        ).length;
+        setOpenExpensesCount(openExpenses);
+        setApprovedExpensesCount(approvedExpenses);
+        setRejectedExpensesCount(rejectedExpenses);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      }
+    }
+    loadData();
+  }, []);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
       {/* Auslagen-Karte */}
