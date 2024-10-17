@@ -1,61 +1,67 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import prisma from "@/lib/db"; // Prisma-Datenbankzugriff importieren
-import bcrypt from "bcryptjs"; // Für Passwort-Hashing
-import { Prisma } from "@prisma/client"; // Prisma-Spezifische Fehler
+import prisma from "@/lib/db";
+import bcrypt from "bcryptjs";
 import { Role } from "@prisma/client"; // Import Role type from Prisma client
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
   const { name, email, password, secretCode } = req.body;
 
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
   try {
-    // Überprüfung auf bereits existierende Benutzer
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true }, // Only select the id to minimize data exposure
+    });
+
     if (existingUser) {
-      return res.status(400).json({ error: "User already exists" });
+      return res.status(400).json({ error: "Email already in use" });
     }
 
-    // Passwort-Hashing
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Rolle bestimmen
-    let role: Role = Role.user; // Standardmäßig USER
+    const hashedPassword = await bcrypt.hash(password, 12); // Increased from 10 to 12 for better security
+    let role: Role = Role.user;
 
     if (secretCode === process.env.ADMIN_SECRET_CODE) {
-      role = Role.admin; // Adminrolle setzen, wenn der geheime Code korrekt ist
+      role = "admin";
     }
 
-    // Benutzer in der Datenbank erstellen
-    const user = await prisma.user.create({
+    const newUser = await prisma.user.create({
       data: {
         name,
         email,
         password: hashedPassword,
         role,
       },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      }, // Only return non-sensitive data
     });
 
-    return res.status(201).json(user); // Erfolgreich erstellt
-  } catch (error: any) {
-    // Prisma-Spezifische Fehlerbehandlung
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2002") {
-        // Fehlercode P2002 bedeutet, dass ein eindeutiger Wert verletzt wurde (z.B. E-Mail ist bereits registriert)
-        return res.status(409).json({ error: "Email is already registered" });
-      }
-    }
-
-    // Detailliertere allgemeine Fehlerbehandlung
+    return res.status(201).json({
+      message: "User created successfully",
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+      },
+    });
+  } catch (error) {
     console.error("Error registering user:", error);
-
-    if (error.message.includes("ECONNREFUSED")) {
-      // Wenn die Verbindung zur Datenbank nicht hergestellt werden kann
-      return res.status(503).json({ error: "Database connection refused" });
-    }
-
-    // Generischer Server-Fehler
-    return res.status(500).json({ error: "Server error" });
+    return res
+      .status(500)
+      .json({ error: "An error occurred during registration" });
   }
 }

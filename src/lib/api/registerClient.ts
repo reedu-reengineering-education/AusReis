@@ -1,21 +1,23 @@
-// registerClient.ts
 import axios from "axios";
 
 export async function registerUser(
   name: string,
   email: string,
   password: string,
-  secretCode?: string // Optionaler Admin-Code
+  secretCode?: string
 ) {
   try {
     const response = await axios.post("/api/auth/register", {
       name,
       email,
       password,
-      secretCode, // Optional den Admin-Code mitschicken
+      secretCode,
     });
     return response.data;
   } catch (error) {
-    throw new Error("Error registering user");
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error || "Error registering user");
+    }
+    throw new Error("An unexpected error occurred during registration");
   }
 }

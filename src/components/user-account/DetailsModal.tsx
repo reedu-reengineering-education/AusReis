@@ -42,6 +42,7 @@ export function DetailsModal({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Zweck</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Betrag</TableHead>
               <TableHead>Belege</TableHead>
@@ -49,6 +50,7 @@ export function DetailsModal({
           </TableHeader>
           <TableBody>
             <TableRow>
+              <TableCell>{selectedItem.description}</TableCell>
               <TableCell>
                 <Badge
                   className={`${
@@ -56,27 +58,37 @@ export function DetailsModal({
                       ? "bg-green-100 text-green-800"
                       : selectedItem.status === "pending"
                       ? "bg-yellow-100 text-yellow-800"
+                      : selectedItem.status === "processed"
+                      ? "bg-blue-100 text-blue-800"
                       : "bg-red-100 text-red-800"
                   } text-xs`}
                 >
                   {selectedItem.status}
                 </Badge>
               </TableCell>
-              <TableCell>${selectedItem.amount.toLocaleString()}</TableCell>
+              <TableCell>{selectedItem.amount.toLocaleString()} €</TableCell>
               <TableCell>
-                {selectedItem.bills.length > 0
-                  ? selectedItem.bills.map((bill, index) => (
-                      <a
-                        key={index}
-                        href={`/api/download/${bill.files[0].id}`}
-                        className="underline text-blue-500"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Beleg {index + 1}
-                      </a>
-                    ))
-                  : "Keine Belege hochgeladen"}
+                {selectedItem.bills.length > 0 ? (
+                  <div className="space-y-2">
+                    {selectedItem.bills.map((bill, index) => (
+                      <div key={index}>
+                        {bill.files.map((file, fileIndex) => (
+                          <a
+                            key={fileIndex}
+                            href={`/api/download/${file.id}`}
+                            className="block underline text-blue-500 hover:text-blue-700"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {file.filename || `File ${fileIndex + 1}`}
+                          </a>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  "Keine Belege hochgeladen"
+                )}
               </TableCell>
             </TableRow>
           </TableBody>

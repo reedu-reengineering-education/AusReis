@@ -30,7 +30,7 @@ import {
 import SearchBar from "./SearchBar";
 import ProjectForm from "./ProjectForm";
 import { getUser } from "@/lib/api/userClient";
-import { ProjectViewModal } from "./ViewButtonModal";
+
 import { ProjectEditModal } from "./EditButtonModal";
 import { ProjectDeleteDialog } from "./DeleteButtonModal";
 
@@ -44,6 +44,7 @@ import {
 import { useSession } from "next-auth/react";
 import { Project, User } from "@prisma/client";
 import { Progress } from "../ui/progress";
+import { ProjectViewModal } from "./ViewButtonModal";
 
 export default function ProjectTable() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -256,8 +257,8 @@ export default function ProjectTable() {
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
-            <TableHead>Progres</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Progres</TableHead>
             <TableHead>Budget</TableHead>
             <TableHead>Actual Spend</TableHead>
             <TableHead>Users</TableHead>

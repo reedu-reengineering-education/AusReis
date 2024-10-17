@@ -1,3 +1,4 @@
+// pages/api/register/index.ts
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/db";
 import bcrypt from "bcryptjs";
