@@ -4,7 +4,7 @@ import { useState, useEffect, SetStateAction } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { DetailsModal } from "./DetailsModal";
 import SharedExpenseTable from "./SharedExpenseTable";
-import { BillsModal } from "./BillsModal";
+import { BillsModal } from "./ViewModal";
 import DashboardCardsUser from "@/components/user-account/DashboardCardsUser";
 import {
   getExpenses,
@@ -49,26 +49,26 @@ export default function UserAccountPage() {
 
         const openExpenses = data.filter(
           (item: any) =>
-            item.category === "reimbursement" && item.status === "OPEN"
+            item.category === "reimbursement" && item.status === "open"
         ).length;
         const approvedExpenses = data.filter(
           (item: any) =>
-            item.category === "reimbursement" && item.status === "APPROVED"
+            item.category === "reimbursement" && item.status === "approved"
         ).length;
         const rejectedExpenses = data.filter(
           (item: any) =>
-            item.category === "reimbursement" && item.status === "REJECTED"
+            item.category === "reimbursement" && item.status === "rejected"
         ).length;
         const openTravels = data.filter(
-          (item: any) => item.category === "travel" && item.status === "OPEN"
+          (item: any) => item.category === "travel" && item.status === "open"
         ).length;
         const approvedTravels = data.filter(
           (item: any) =>
-            item.category === "travel" && item.status === "APPROVED"
+            item.category === "travel" && item.status === "approved"
         ).length;
         const rejectedTravels = data.filter(
           (item: any) =>
-            item.category === "travel" && item.status === "REJECTED"
+            item.category === "travel" && item.status === "rejected"
         ).length;
 
         setOpenExpensesCount(openExpenses);
@@ -90,11 +90,6 @@ export default function UserAccountPage() {
   const handleViewDetails = (item: SetStateAction<null>) => {
     setSelectedItem(item);
     setShowDetails(true);
-  };
-
-  const handleViewBills = (item: SetStateAction<null>) => {
-    setSelectedItem(item);
-    setShowBills(true);
   };
 
   const handleAddNewClick = () => {
@@ -184,7 +179,6 @@ export default function UserAccountPage() {
             setSearchTerm={setSearchTerm}
             handleAddNewClick={handleAddNewClick}
             handleViewDetails={handleViewDetails}
-            handleViewBills={handleViewBills}
             handleFormSubmit={handleFormSubmit}
             handleDelete={handleDelete}
           />
@@ -199,7 +193,6 @@ export default function UserAccountPage() {
             setSearchTerm={setSearchTerm}
             handleAddNewClick={handleAddNewClick}
             handleViewDetails={handleViewDetails}
-            handleViewBills={handleViewBills}
             handleFormSubmit={handleFormSubmit}
             handleDelete={handleDelete}
           />

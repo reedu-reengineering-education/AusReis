@@ -25,12 +25,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { XIcon, UserPlusIcon, UserMinusIcon } from "lucide-react";
 import { Project, ProjectStatus, User } from "@prisma/client";
 import { getProject, updateProject } from "@/lib/api/projectClient";
+import axios from "axios";
 
 interface ProjectEditModalProps {
   projectId: string;
   onProjectUpdated: (updatedProject: Project) => Promise<boolean>;
   editingProject: Project | null;
-  availableUsers: User[] | any[]; // Add this line to include availableUsers prop
 }
 
 export function ProjectEditModal({
@@ -44,13 +44,13 @@ export function ProjectEditModal({
   const [budget, setBudget] = useState(0);
   const [actualSpend, setActualSpend] = useState(0);
   const [involvedUsers, setInvolvedUsers] = useState<User[]>([]);
-  const [availableUsers, setAvailableUsers] = useState<User[]>([]);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
   const [userSearchTerm, setUserSearchTerm] = useState("");
 
   useEffect(() => {
     if (isOpen) {
       loadProject();
-      loadUsers();
+      loadAllUsers();
     }
   }, [isOpen, projectId]);
 
@@ -68,17 +68,10 @@ export function ProjectEditModal({
     }
   };
 
-  const loadUsers = async () => {
+  const loadAllUsers = async () => {
     try {
-      const response = await fetch("/api/users");
-      if (!response.ok) throw new Error("Failed to fetch users");
-      const users = await response.json();
-      setAvailableUsers(
-        users.filter(
-          (user: User) =>
-            !involvedUsers.some((involved) => involved.id === user.id)
-        )
-      );
+      const response = await axios.get("/api/users");
+      setAllUsers(response.data);
     } catch (error) {
       console.error("Error fetching users:", error);
     }
@@ -104,13 +97,16 @@ export function ProjectEditModal({
 
   const addUser = (user: User) => {
     setInvolvedUsers([...involvedUsers, user]);
-    setAvailableUsers(availableUsers.filter((u) => u.id !== user.id));
   };
 
   const removeUser = (user: User) => {
     setInvolvedUsers(involvedUsers.filter((u) => u.id !== user.id));
-    setAvailableUsers([...availableUsers, user]);
+    // Wir fügen den Benutzer nicht mehr direkt zu availableUsers hinzu
   };
+
+  const availableUsers = allUsers.filter(
+    (user) => !involvedUsers.some((involved) => involved.id === user.id)
+  );
 
   const filteredAvailableUsers = availableUsers.filter((user) =>
     (user.name?.toLowerCase() ?? "").includes(userSearchTerm.toLowerCase())

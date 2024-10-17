@@ -44,8 +44,8 @@ export const updateExpense = async (
 ) => {
   try {
     const response = await axios.put(`${API_URL}/${id}`, {
-      amount,
       status,
+      amount,
       description,
       projectId,
       category,

@@ -1,5 +1,4 @@
 // components/AdminDashboard/DashboardCards.tsx
-import { Expense } from "@prisma/client";
 import { getExpenses } from "@/lib/api/expenseClient";
 import { Project } from "@prisma/client";
 import { getProject } from "@/lib/api/projectClient";
@@ -8,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 export default function DashboardCards() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+
   const [openExpensesCount, setOpenExpensesCount] = useState(0);
   const [approvedExpensesCount, setApprovedExpensesCount] = useState(0);
 

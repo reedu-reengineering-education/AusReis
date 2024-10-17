@@ -1,3 +1,4 @@
+// Api-Endpoint für spezifischen Anfragen
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/db";
 
@@ -32,11 +33,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           status,
           category,
           bills: {
-            set: bills.map((bill: { file: string; amount: number }) => ({
+            set: bills?.map((bill: { file: string; amount: number }) => ({
               file: bill.file,
               amount: bill.amount,
             })),
           },
+        },
+        include: {
+          bills: true,
+          user: true,
+          project: true,
         },
       });
       return res.status(200).json(updatedExpense);

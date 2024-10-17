@@ -22,7 +22,7 @@ interface SharedExpenseTableProps {
   setSearchTerm: (value: string) => void;
   handleAddNewClick: () => void;
   handleViewDetails: (item: any) => void;
-  handleViewBills: (item: any) => void;
+
   handleFormSubmit: (formData: any) => Promise<void>;
   handleDelete: (id: string) => Promise<void>;
 }
@@ -35,7 +35,7 @@ export default function SharedExpenseTable({
   setSearchTerm,
   handleAddNewClick,
   handleViewDetails,
-  handleViewBills,
+
   handleFormSubmit,
   handleDelete,
 }: SharedExpenseTableProps) {
@@ -88,11 +88,11 @@ export default function SharedExpenseTable({
                 <TableCell>
                   <Badge
                     className={`${
-                      item.status === "approved"
+                      item.status === "paid"
                         ? "bg-green-100 text-green-800"
                         : item.status === "pending"
                         ? "bg-yellow-100 text-yellow-800"
-                        : "bg-red-100 text-red-800"
+                        : "bg-blue-100 text-blue-800"
                     } text-xs`}
                   >
                     {item.status}
@@ -115,13 +115,6 @@ export default function SharedExpenseTable({
                       onClick={() => handleViewDetails(item)}
                     >
                       Ansehen
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleViewBills(item)}
-                    >
-                      Rechnungen
                     </Button>
                     <DeleteButtonExpenseModal
                       expense={item as unknown as Expense}

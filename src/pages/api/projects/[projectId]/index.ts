@@ -22,6 +22,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
       const project = await prisma.project.findUnique({
         where: { id: projectId as string },
+        include: {
+          users: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+            },
+          },
+        },
       });
 
       if (!project) {

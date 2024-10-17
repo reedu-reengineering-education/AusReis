@@ -1,10 +1,8 @@
-import { Expense } from "@prisma/client";
 import { getExpenses } from "@/lib/api/expenseClient";
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 export default function DashboardCards() {
-  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [openExpensesCount, setOpenExpensesCount] = useState(0);
   const [approvedExpensesCount, setApprovedExpensesCount] = useState(0);
   const [rejectedExpensesCount, setRejectedExpensesCount] = useState(0);
@@ -16,18 +14,45 @@ export default function DashboardCards() {
     async function loadData() {
       try {
         const expenses = await getExpenses();
-        const openExpenses = expenses.filter((expense: any) =>
-          expense.status === "Pending" ? "OPEN" : "APPROVED"
+
+        const openExpenses = expenses.filter(
+          (expense: { category: string; status: string }) =>
+            expense.category === "reimbursement" && expense.status === "pending"
         ).length;
+
         const approvedExpenses = expenses.filter(
-          (expense: any) => expense.status === "APPROVED"
+          (expense: { category: string; status: string }) =>
+            expense.category === "reimbursement" &&
+            expense.status === "approved"
         ).length;
+
         const rejectedExpenses = expenses.filter(
-          (expense: any) => expense.status === "REJECTED"
+          (expense: { category: string; status: string }) =>
+            expense.category === "reimbursement" &&
+            expense.status === "rejected"
         ).length;
+
+        const openTravels = expenses.filter(
+          (expense: { category: string; status: string }) =>
+            expense.category === "travel" && expense.status === "pending"
+        ).length;
+
+        const approvedTravels = expenses.filter(
+          (expense: { category: string; status: string }) =>
+            expense.category === "travel" && expense.status === "approved"
+        ).length;
+
+        const rejectedTravels = expenses.filter(
+          (expense: { category: string; status: string }) =>
+            expense.category === "travel" && expense.status === "rejected"
+        ).length;
+
         setOpenExpensesCount(openExpenses);
         setApprovedExpensesCount(approvedExpenses);
         setRejectedExpensesCount(rejectedExpenses);
+        setOpenTravelsCount(openTravels);
+        setApprovedTravelsCount(approvedTravels);
+        setRejectedTravelsCount(rejectedTravels);
       } catch (error) {
         console.error("Error loading data:", error);
       }

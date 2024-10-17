@@ -1,3 +1,4 @@
+// Typ: API-Route für allgmeine Anfragen
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/db";
 import { getServerSession } from "next-auth/next";
