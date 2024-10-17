@@ -1,3 +1,4 @@
+// Path: src/components/admin-dashboard/ProjectTable.tsx
 "use client";
 
 import {
@@ -90,7 +91,6 @@ export default function ProjectTable() {
       try {
         const users = await getUser(""); // API-Aufruf zum Abrufen der Benutzer
         setAvailableUsers(users); // Benutzer in den Zustand laden
-        console.log("Users:", users);
       } catch (error) {
         console.error("Error fetching users:", error);
       }
@@ -256,8 +256,8 @@ export default function ProjectTable() {
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
-            <TableHead>Status</TableHead>
             <TableHead>Progres</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead>Budget</TableHead>
             <TableHead>Actual Spend</TableHead>
             <TableHead>Users</TableHead>
@@ -320,7 +320,6 @@ export default function ProjectTable() {
                   onProjectUpdated={(project: Project) =>
                     handleUpdateProject(project as any)
                   }
-                  availableUsers={availableUsers}
                   editingProject={null}
                 />
                 <ProjectDeleteDialog

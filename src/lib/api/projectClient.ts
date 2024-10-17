@@ -9,6 +9,18 @@ export async function getProject(id?: string) {
     const url = id ? `${API_URL}/${id}` : API_URL; // Spezifisches oder alle Projekte abrufen
     const response = await axios.get(url);
     return response.data;
+    // für das richtige Format, siehe https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud#selecting-fields
+    // as Prisma.ProjectGetPayload<{
+    //   include: {
+    //     users: {
+    //       select: {
+    //         name: true;
+    //         email: true;
+    //         role: true;
+    //       };
+    //     };
+    //   };
+    // }>;
   } catch (error) {
     console.error("Error fetching project(s):", error);
     throw error;
