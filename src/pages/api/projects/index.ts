@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import prisma from "@/lib/db"; // Prisma client importieren
+import prisma from "@/lib/db";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
@@ -9,17 +9,27 @@ export default async function handler(
 ) {
   const session = await getServerSession(req, res, authOptions);
 
-  // Überprüfen, ob der Benutzer eingeloggt ist
   if (!session) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  // GET-Methode: Abrufen aller Projekte
   if (req.method === "GET") {
     try {
       const projects = await prisma.project.findMany({
-        include: { users: true }, // Verknüpfte Benutzerdaten abrufen
-      }); // Alle Projekte abrufen
+        select: {
+          id: true,
+          name: true,
+          status: true,
+          budget: true,
+          actualSpend: true,
+          users: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
       return res.status(200).json(projects);
     } catch (error) {
       console.error("Error fetching projects:", error);
@@ -27,9 +37,7 @@ export default async function handler(
     }
   }
 
-  // POST-Methode: Neues Projekt erstellen
   if (req.method === "POST") {
-    // Überprüfen, ob der Benutzer Admin ist
     const isAdmin = session.user.role === "admin";
     if (!isAdmin) {
       return res
@@ -39,23 +47,22 @@ export default async function handler(
 
     const { name, status, budget, actualSpend, users } = req.body;
 
-    // Validierung der benötigten Felder
     if (
       !name ||
       !status ||
       !budget ||
       actualSpend === undefined ||
       !users ||
+      !Array.isArray(users) ||
       users.length === 0
     ) {
       return res.status(400).json({
         error:
-          "Missing required fields: name, status, budget, actualSpend, userIds",
+          "Missing or invalid required fields: name, status, budget, actualSpend, users",
       });
     }
 
     try {
-      // Neues Projekt erstellen
       const project = await prisma.project.create({
         data: {
           name,
@@ -63,7 +70,20 @@ export default async function handler(
           budget: parseFloat(budget),
           actualSpend: parseFloat(actualSpend),
           users: {
-            connect: users.map((id: string) => ({ id })), // Benutzer verknüpfen
+            connect: users.map((id: string) => ({ id })),
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          status: true,
+          budget: true,
+          actualSpend: true,
+          users: {
+            select: {
+              id: true,
+              name: true,
+            },
           },
         },
       });
@@ -72,10 +92,8 @@ export default async function handler(
       console.error("Error creating project:", error);
       return res.status(500).json({ error: "Error creating project" });
     }
-  } else {
-    res.setHeader("Allow", ["GET", "POST"]);
-    return res
-      .status(405)
-      .json({ message: `Method ${req.method} Not Allowed` });
   }
+
+  res.setHeader("Allow", ["GET", "POST"]);
+  return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
 }

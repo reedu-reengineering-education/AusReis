@@ -5,14 +5,13 @@
 // import { toast } from "react-toastify";
 // import { updateExpense, deleteExpense } from "@/lib/api/expenseClient";
 // import { ExpenseStatus } from "@prisma/client";
-// import ViewExpenseModal from "./ViewExpenseModal";
 
 // interface ExpenseButtonsProps {
 //   expenseId: string;
 //   status: ExpenseStatus;
 //   onStatusChange: (newStatus: ExpenseStatus) => void;
 //   onDelete: () => void;
-//   fileUrl: string;
+//   fileId: number;
 //   fileName: string;
 //   fileType: "image" | "pdf";
 // }
@@ -22,11 +21,13 @@
 //   status,
 //   onStatusChange,
 //   onDelete,
-//   fileUrl,
-//   fileName,
-//   fileType,
+//   fileId,
 // }: ExpenseButtonsProps) {
 //   const [isLoading, setIsLoading] = useState(false);
+
+//   const handleDownload = () => {
+//     window.open(`/api/download/${fileId}`, "_blank");
+//   };
 
 //   const handleStatusChange = async (newStatus: ExpenseStatus) => {
 //     setIsLoading(true);
@@ -94,14 +95,11 @@
 //           {isLoading ? "Paying..." : "Pay"}
 //         </Button>
 //       )}
-//       <ViewExpenseModal
-//         expenseId={expenseId}
-//         fileUrl={fileUrl}
-//         fileName={fileName}
-//         fileType={fileType}
-//       />
+//       <Button onClick={handleDownload} size="sm">
+//         Download
+//       </Button>
 //       <Button
-//         variant="outline"
+//         variant="destructive"
 //         size="sm"
 //         onClick={handleDelete}
 //         disabled={isLoading}
@@ -118,7 +116,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import { updateExpense, deleteExpense } from "@/lib/api/expenseClient";
 import { ExpenseStatus } from "@prisma/client";
-import ViewExpenseModal from "./ViewExpenseModal";
+import { Download } from "lucide-react";
 
 interface ExpenseButtonsProps {
   expenseId: string;
@@ -140,6 +138,25 @@ export default function ExpenseButtons({
   fileType,
 }: ExpenseButtonsProps) {
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleDownloadBlob = async () => {
+    try {
+      const response = await fetch(`/api/download/${fileId}`);
+      if (!response.ok) throw new Error("Download failed");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Error downloading file. Please try again.");
+    }
+  };
 
   const handleStatusChange = async (newStatus: ExpenseStatus) => {
     setIsLoading(true);
@@ -207,12 +224,10 @@ export default function ExpenseButtons({
           {isLoading ? "Paying..." : "Pay"}
         </Button>
       )}
-      {/* <ViewExpenseModal
-        expenseId={expenseId}
-        fileId={fileId}
-        fileName={fileName}
-        fileType={fileType}
-      /> */}
+      <Button onClick={handleDownloadBlob} size="sm">
+        Download
+      </Button>
+
       <Button
         variant="destructive"
         size="sm"

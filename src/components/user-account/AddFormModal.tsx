@@ -1,6 +1,16 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { toast } from "react-toastify";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { XIcon, UploadIcon, FileIcon, TrashIcon } from "lucide-react";
+import {
+  Calendar as CalendarIcon,
+  UploadIcon,
+  FileIcon,
+  TrashIcon,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -10,9 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState, useRef, useEffect } from "react";
 import { Progress } from "@/components/ui/progress";
-import { createFormData } from "@/helpers/fileUploadHelpers";
 import {
   Table,
   TableHeader,
@@ -20,8 +28,7 @@ import {
   TableHead,
   TableBody,
   TableCell,
-} from "../ui/table";
-import { useSession } from "next-auth/react";
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
@@ -29,8 +36,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { createFormData } from "@/helpers/fileUploadHelpers";
 import { getProject } from "@/lib/api/projectClient";
-import { toast } from "react-toastify";
 
 interface AddFormModalProps {
   activeTab: "expenses" | "travel";
@@ -43,6 +60,8 @@ interface AddFormModalProps {
     userId: string;
     category: string;
     bills: { file: File; amount: number }[];
+    travelStartDate?: string;
+    travelEndDate?: string;
   }) => void;
 }
 
@@ -52,35 +71,28 @@ export function AddFormModal({
   handleFormSubmit,
 }: AddFormModalProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [file, setFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [projects, setProject] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
   const { data: session } = useSession();
 
-  const [formData, setFormData] = useState<{
-    status: string;
-    amount: number;
-    description: string;
-    projectId: string;
-    userId: string;
-    category: string;
-    bills: { file: File; amount: number }[];
-  }>({
+  const [formData, setFormData] = useState({
     status: "pending",
     amount: 0,
     description: "",
     projectId: "",
     userId: session?.user?.id || "",
     category: activeTab === "expenses" ? "reimbursement" : "travel",
-    bills: [],
+    bills: [] as { file: File; amount: number }[],
+    travelStartDate: undefined as Date | undefined,
+    travelEndDate: undefined as Date | undefined,
   });
 
   useEffect(() => {
     async function fetchProjects() {
       try {
         const fetchedProjects = await getProject();
-        setProject(fetchedProjects);
+        setProjects(fetchedProjects);
       } catch (error) {
         console.error("Error fetching projects:", error);
         toast.error(
@@ -102,10 +114,12 @@ export function AddFormModal({
       !formData.userId ||
       !formData.category ||
       !formData.status ||
-      formData.bills.length === 0
+      formData.bills.length === 0 ||
+      (activeTab === "travel" &&
+        (!formData.travelStartDate || !formData.travelEndDate))
     ) {
       toast.error(
-        "Bitte füllen Sie alle Felder aus und laden Sie mindestens eine Datei hoch."
+        "Bitte füllen Sie alle Felder aus, laden Sie mindestens eine Datei hoch und wählen Sie die Reisedaten (falls zutreffend)."
       );
       return;
     }
@@ -131,9 +145,15 @@ export function AddFormModal({
       const updatedFormData = {
         ...formData,
         bills: uploadedFiles,
+        travelStartDate: formData.travelStartDate
+          ? formData.travelStartDate.toISOString()
+          : undefined,
+        travelEndDate: formData.travelEndDate
+          ? formData.travelEndDate.toISOString()
+          : undefined,
       };
 
-      console.log("Form data submitted:", updatedFormData);
+      // console.log("Form data submitted:", updatedFormData);
       handleFormSubmit(updatedFormData);
       setIsDialogOpen(false);
       toast.success("Formular erfolgreich eingereicht!");
@@ -193,9 +213,9 @@ export function AddFormModal({
           {activeTab === "expenses" ? "Neue Auslage" : "Neue Reisekosten"}
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-2xl font-bold">
             {activeTab === "expenses"
               ? "Auslage hinzufügen"
               : "Reisekosten hinzufügen"}
@@ -205,95 +225,179 @@ export function AddFormModal({
             Dateien hoch.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <Input
-            name="description"
-            placeholder="Titel"
-            required
-            className="mb-4"
-            onChange={handleInputChange}
-          />
-          <Input
-            name="amount"
-            placeholder="Betrag"
-            required
-            className="mb-4"
-            type="number"
-            onChange={handleInputChange}
-          />
-          <Select onValueChange={handleProjectChange} required>
-            <SelectTrigger className="mb-4">
-              <SelectValue placeholder="Projekt auswählen" />
-            </SelectTrigger>
-            <SelectContent>
-              {projects.map((project) => (
-                <SelectItem key={project.id} value={project.id}>
-                  {project.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <div className="border-2 border-gray-200 border-dashed rounded-lg p-6 dark:border-gray-700 group hover:border-primary transition-colors">
-            <div className="flex flex-col items-center justify-center space-y-3">
-              <UploadIcon className="h-10 w-10 text-gray-400 group-hover:text-primary" />
-              <p className="text-gray-500 dark:text-gray-400 group-hover:text-primary">
-                Dateien hier ablegen
-              </p>
-              <Button variant="outline" onClick={handleUploadClick}>
-                Dateien auswählen
-                <input
-                  className="hidden"
-                  type="file"
-                  onChange={handleFileChange}
-                  ref={fileInputRef}
-                  multiple
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="description">Zweck</Label>
+                <Input
+                  id="description"
+                  name="description"
+                  placeholder="Zweck der Ausgabe"
+                  required
+                  onChange={handleInputChange}
                 />
-              </Button>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="amount">Betrag</Label>
+                <Input
+                  id="amount"
+                  name="amount"
+                  placeholder="Betrag in €"
+                  required
+                  type="number"
+                  onChange={handleInputChange}
+                />
+              </div>
             </div>
-          </div>
-          {formData.bills.length > 0 && (
-            <div className="border rounded-lg overflow-hidden mt-4">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="px-4 py-2 text-left">File</TableHead>
-                    <TableHead className="px-4 py-2 text-right">Size</TableHead>
-                    <TableHead className="px-4 py-2 text-right">
-                      Actions
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {formData.bills.map((bill, index) => (
-                    <TableRow
-                      key={index}
-                      className="border-b dark:border-gray-700"
-                    >
-                      <TableCell className="px-4 py-2 flex items-center space-x-2">
-                        <FileIcon className="h-5 w-5 text-gray-500" />
-                        <span>{bill.file.name}</span>
-                      </TableCell>
-                      <TableCell className="px-4 py-2 text-right">
-                        <span className="text-gray-500 dark:text-gray-400">
-                          {(bill.file.size / 1024 / 1024).toFixed(2)} MB
-                        </span>
-                      </TableCell>
-                      <TableCell className="px-4 py-2 text-right">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => handleRemoveFile(index)}
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+            <div className="space-y-2">
+              <Label htmlFor="project">Projekt</Label>
+              <Select onValueChange={handleProjectChange} required>
+                <SelectTrigger id="project">
+                  <SelectValue placeholder="Projekt auswählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
                   ))}
-                </TableBody>
-              </Table>
+                </SelectContent>
+              </Select>
             </div>
-          )}
-          <DialogFooter className="mt-4">
+            {activeTab === "travel" && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Reisebeginn</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !formData.travelStartDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.travelStartDate ? (
+                          format(formData.travelStartDate, "PPP")
+                        ) : (
+                          <span>Datum wählen</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={formData.travelStartDate}
+                        onSelect={(date) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            travelStartDate: date || undefined,
+                          }))
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-2">
+                  <Label>Reiseende</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !formData.travelEndDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.travelEndDate ? (
+                          format(formData.travelEndDate, "PPP")
+                        ) : (
+                          <span>Datum wählen</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={formData.travelEndDate}
+                        onSelect={(date) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            travelEndDate: date || undefined,
+                          }))
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            )}
+          </div>
+          <Separator />
+          <div className="space-y-4">
+            <Label>Belege hochladen</Label>
+            <div className="border-2 border-dashed rounded-lg p-6 hover:border-primary transition-colors">
+              <div className="flex flex-col items-center justify-center space-y-3">
+                <UploadIcon className="h-10 w-10 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">
+                  Dateien hier ablegen oder klicken zum Auswählen
+                </p>
+                <Button variant="outline" onClick={handleUploadClick}>
+                  Dateien auswählen
+                  <input
+                    className="hidden"
+                    type="file"
+                    onChange={handleFileChange}
+                    ref={fileInputRef}
+                    multiple
+                  />
+                </Button>
+              </div>
+            </div>
+            {formData.bills.length > 0 && (
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Datei</TableHead>
+                      <TableHead className="text-right">Größe</TableHead>
+                      <TableHead className="text-right">Aktionen</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {formData.bills.map((bill, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="flex items-center space-x-2">
+                          <FileIcon className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{bill.file.name}</span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <span className="text-sm text-muted-foreground">
+                            {(bill.file.size / 1024 / 1024).toFixed(2)} MB
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleRemoveFile(index)}
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Abbrechen
             </Button>

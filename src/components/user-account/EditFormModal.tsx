@@ -49,6 +49,8 @@ const initialData: FormData = {
   bills: [],
   id: "",
   createdAt: new Date(),
+  travelStartDate: null,
+  travelEndDate: null,
 };
 
 export function EditFormModal(props: EditFormModalProps) {
@@ -85,7 +87,7 @@ export function EditFormModal(props: EditFormModalProps) {
 
     try {
       await props.handleFormSubmit(formData);
-      console.log("Form data submitted:", formData);
+      // console.log("Form data submitted:", formData);
       setIsDialogOpen(false);
       toast.success("Änderungen erfolgreich gespeichert.");
     } catch (error) {

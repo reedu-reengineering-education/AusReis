@@ -1,4 +1,3 @@
-// Path: src/components/admin-dashboard/ProjectForm.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -25,7 +24,7 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { XIcon, UserPlusIcon, UserMinusIcon } from "lucide-react";
+import { UserPlusIcon, UserMinusIcon } from "lucide-react";
 import axios from "axios";
 
 type ProjectStatus = "active" | "pending" | "completed" | "archived";
@@ -39,7 +38,6 @@ interface ProjectFormProps {
   projectId?: string;
   onSave: (project: any) => Promise<void>;
   initialProject?: any;
-  availableUsers: User[];
 }
 
 export default function ProjectForm({
@@ -49,7 +47,7 @@ export default function ProjectForm({
 }: ProjectFormProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
-  const [status, setStatus] = useState<ProjectStatus>("pending");
+  const [status, setStatus] = useState<ProjectStatus>("active");
   const [budget, setBudget] = useState("");
   const [actualSpend, setActualSpend] = useState("");
   const [involvedUsers, setInvolvedUsers] = useState<User[]>([]);
@@ -66,19 +64,25 @@ export default function ProjectForm({
         setActualSpend(initialProject.actualSpend.toString());
         setInvolvedUsers(initialProject.users || []);
       } else {
-        setName("");
-        setStatus("pending");
-        setBudget("");
-        setActualSpend("");
-        setInvolvedUsers([]);
+        resetForm();
       }
     }
   }, [isOpen, initialProject]);
 
+  const resetForm = () => {
+    setName("");
+    setStatus("active");
+    setBudget("");
+    setActualSpend("");
+    setInvolvedUsers([]);
+  };
+
   const loadAllUsers = async () => {
     try {
       const response = await axios.get("/api/users");
-      setAllUsers(response.data);
+      setAllUsers(
+        response.data.map((user: User) => ({ id: user.id, name: user.name }))
+      );
     } catch (error) {
       console.error("Error fetching users:", error);
       toast.error("Failed to load users. Please try again.");
@@ -111,6 +115,7 @@ export default function ProjectForm({
         users: involvedUsers.map((user) => user.id),
       });
       setIsOpen(false);
+      resetForm();
       toast.success(
         projectId
           ? "Project updated successfully!"
@@ -126,11 +131,11 @@ export default function ProjectForm({
   };
 
   const addUser = (user: User) => {
-    setInvolvedUsers([...involvedUsers, user]);
+    setInvolvedUsers((prev) => [...prev, user]);
   };
 
   const removeUser = (user: User) => {
-    setInvolvedUsers(involvedUsers.filter((u) => u.id !== user.id));
+    setInvolvedUsers((prev) => prev.filter((u) => u.id !== user.id));
   };
 
   const availableUsers = allUsers.filter(
@@ -196,26 +201,15 @@ export default function ProjectForm({
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">
-                    <Badge className={getStatusBadgeColor("active")}>
-                      Active
-                    </Badge>
-                  </SelectItem>
-                  <SelectItem value="pending">
-                    <Badge className={getStatusBadgeColor("pending")}>
-                      Pending
-                    </Badge>
-                  </SelectItem>
-                  <SelectItem value="completed">
-                    <Badge className={getStatusBadgeColor("completed")}>
-                      Completed
-                    </Badge>
-                  </SelectItem>
-                  <SelectItem value="archived">
-                    <Badge className={getStatusBadgeColor("archived")}>
-                      Archived
-                    </Badge>
-                  </SelectItem>
+                  {["active", "pending", "completed", "archived"].map((s) => (
+                    <SelectItem key={s} value={s}>
+                      <Badge
+                        className={getStatusBadgeColor(s as ProjectStatus)}
+                      >
+                        {s.charAt(0).toUpperCase() + s.slice(1)}
+                      </Badge>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

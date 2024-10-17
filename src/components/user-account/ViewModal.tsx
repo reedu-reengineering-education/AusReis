@@ -123,7 +123,7 @@ export function BillsModal({ selectedItem, setShowDetails }: BillsModalProps) {
                   {selectedItem.status}
                 </Badge>
               </TableCell>
-              <TableCell>${selectedItem.amount.toLocaleString()}</TableCell>
+              <TableCell>{selectedItem.amount.toLocaleString()}€</TableCell>
               <TableCell>
                 {selectedItem.bills && selectedItem.bills.length > 0
                   ? selectedItem.bills.map((bill, index) => (
