@@ -136,11 +136,20 @@ export const updateExpense = async (
 };
 
 // Löschen einer bestimmten Auslage
-export const deleteExpense = async (expenseId: string) => {
+export async function deleteExpense(expenseId: string): Promise<boolean> {
   try {
-    return await axios.delete(`api/expenses/${expenseId}`);
+    const response = await axios.delete(`/api/expenses/${expenseId}`);
+    if (response.status === 200) {
+      return true;
+    } else {
+      throw new Error(response.data.error || "Failed to delete expense");
+    }
   } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      console.warn("Expense not found, it may have been already deleted");
+      return true; // Behandeln Sie dies als erfolgreiche Löschung
+    }
     console.error("Error deleting expense:", error);
     throw error;
   }
-};
+}

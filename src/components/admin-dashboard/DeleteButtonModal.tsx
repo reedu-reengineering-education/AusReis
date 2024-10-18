@@ -75,21 +75,3 @@ export function ProjectDeleteDialog({
     </AlertDialog>
   );
 }
-// export default function DeleteProjectModal({ project, onDelete, onClose }) {
-//     return (
-//       <Dialog open={!!project} onOpenChange={onClose}>
-//         <DialogContent>
-//           <DialogHeader>
-//             <DialogTitle>Delete Project</DialogTitle>
-//           </DialogHeader>
-//           <p>Are you sure you want to delete the project "{project?.name}"?</p>
-//           <DialogFooter>
-//             <Button variant="destructive" onClick={() => onDelete(project.id)}>
-//               Delete
-//             </Button>
-//             <Button onClick={onClose}>Cancel</Button>
-//           </DialogFooter>
-//         </DialogContent>
-//       </Dialog>
-//     );
-//   }
