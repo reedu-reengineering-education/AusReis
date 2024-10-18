@@ -27,6 +27,20 @@ export async function getProject(id?: string) {
   }
 }
 
+export async function getProjectForExport(id: string) {
+  try {
+    const url = id ? `${API_URL}/${id}/export` : API_URL; // Spezifisches oder alle Projekte abrufen
+    console.log("Fetchiong project data for export from, url:", url);
+    const response = await axios.get(url);
+    console.log("Response data:", response.data);
+    return response.data;
+    // : API_URL; // Spezifisches oder alle Projekte abrufen
+  } catch (error) {
+    console.error("Error fetching project(s) data for export:", error);
+    throw error;
+  }
+}
+
 // Neues Projekt erstellen (nur für Admins)
 export async function createProject(
   name: string,
