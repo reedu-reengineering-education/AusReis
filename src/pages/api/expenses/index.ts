@@ -46,6 +46,9 @@ export default async function handler(
             },
           },
         },
+        include: {
+          project: true,
+        },
       });
 
       return res.status(201).json(newExpense);

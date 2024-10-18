@@ -97,7 +97,7 @@ export const createExpense = async (data: any, xhr: any) => {
       },
       xhr,
     });
-
+    console.log("response.data", response.data);
     return response.data;
   } catch (error) {
     console.error("Error creating expense:", error);
