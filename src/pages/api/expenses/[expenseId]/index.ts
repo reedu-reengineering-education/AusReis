@@ -60,17 +60,27 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     }
 
     try {
+      const expense = await prisma.expense.findUnique({
+        where: { id: expenseId },
+      });
+      if (!expense) {
+        console.log("Expense not found");
+        return res.status(404).json({ error: "Expense not found" });
+      }
       await prisma.expense.delete({
-        where: { id: expenseId as string },
+        where: { id: expenseId },
       });
 
-      return res.status(200).end();
+      console.log("Expense deleted successfully");
+
+      return res.status(200).json({ message: "Expense deleted successfully" });
     } catch (error) {
       console.error("Error deleting expense:", error);
       return res.status(500).json({ error: "Error deleting expense" });
     }
   } else {
     res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({ error: "Method not allowed" });
   }
 }
 
