@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { CalendarIcon, DollarSignIcon, Euro, UsersIcon } from "lucide-react";
+import { ProjectExport } from "./ProjectExport";
 
 export function ProjectViewModal({ project }: { project: any }) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
@@ -97,6 +98,7 @@ export function ProjectViewModal({ project }: { project: any }) {
           </div>
         </div>
         <DialogFooter>
+          <ProjectExport projectId={project.id} projectName={project.name} />
           <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
             Close
           </Button>

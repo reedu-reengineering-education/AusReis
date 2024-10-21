@@ -1,8 +1,21 @@
-// Api-Endpoint für spezifischen Anfragen
+// export default handler;
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/db";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { handleEmailFire } from "@/helpers/email-helper";
+import AdminExpenseEditedNotification from "@/components/email/AdminExpenseEditedNotification";
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  const session = await getServerSession(req, res, authOptions);
+
+  if (!session) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   const { expenseId } = req.query;
 
   if (req.method === "GET") {
@@ -21,10 +34,71 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       console.error("Error fetching expense:", error);
       return res.status(500).json({ error: "Error fetching expense" });
     }
-  } else if (req.method === "PUT") {
+  }
+  // else if (req.method === "PUT") {
+  //   const { amount, description, status, category, bills } = req.body;
+
+  //   try {
+  //     const updatedExpense = await prisma.expense.update({
+  //       where: { id: String(expenseId) },
+  //       data: {
+  //         amount,
+  //         description,
+  //         status,
+  //         category,
+  //         bills: {
+  //           set: bills?.map((bill: { file: string; amount: number }) => ({
+  //             file: bill.file,
+  //             amount: bill.amount,
+  //           })),
+  //         },
+  //       },
+  //       include: {
+  //         bills: true,
+  //         user: true,
+  //         project: true,
+  //       },
+  //     });
+
+  //     if (
+  //       session.user.role === "admin" &&
+  //       updatedExpense.userId !== session.user.id
+  //     ) {
+  //       await handleEmailFire({
+  //         to: updatedExpense.user?.email || "",
+  //         subject: "Your Expense has been edited",
+  //         component: AdminExpenseEditedNotification,
+  //         props: {
+  //           expenseId: updatedExpense.id,
+  //           amount: updatedExpense.amount,
+  //           description: updatedExpense.description,
+  //           status: updatedExpense.status,
+  //           category: updatedExpense.category,
+  //           bills: updatedExpense.bills,
+  //         },
+  //         from: "",
+  //         html: "",
+  //       });
+  //     }
+
+  //     return res.status(200).json(updatedExpense);
+  //   } catch (error: any) {
+  //     console.error("Error updating expense:", error.message);
+  //     return res.status(500).json({ error: error.message });
+  //   }
+  else if (req.method === "PUT") {
     const { amount, description, status, category, bills } = req.body;
 
     try {
+      const originalExpense = await prisma.expense.findUnique({
+        where: { id: String(expenseId) },
+        include: { user: true, project: true },
+      });
+
+      if (!originalExpense) {
+        return res.status(404).json({ error: "Expense not found" });
+      }
+
       const updatedExpense = await prisma.expense.update({
         where: { id: String(expenseId) },
         data: {
@@ -45,33 +119,49 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           project: true,
         },
       });
+
+      // Send notification to the expense owner (user or admin)
+      await handleEmailFire({
+        to: originalExpense.user?.email || "",
+        subject: "Your Expense has been edited",
+        component: AdminExpenseEditedNotification,
+        props: {
+          expenseId: updatedExpense.id,
+          amount: updatedExpense.amount,
+          description: updatedExpense.description,
+          status: updatedExpense.status,
+          category: updatedExpense.category,
+          bills: updatedExpense.bills,
+          createdBy:
+            originalExpense.user?.name ||
+            originalExpense.user?.email ||
+            "Unknown",
+          projectName: updatedExpense.project?.name || "Unknown",
+          projectStatus: updatedExpense.project?.status || "Unknown",
+          baseUrl: process.env.NEXT_PUBLIC_BASE_URL || "",
+          editedBy:
+            session.user.name || session.user.email || "An administrator",
+        },
+        from: "",
+        html: "",
+      });
+
       return res.status(200).json(updatedExpense);
     } catch (error: any) {
       console.error("Error updating expense:", error.message);
       return res.status(500).json({ error: error.message });
     }
-  }
-  if (req.method === "DELETE") {
-    console.log("DELETE request received for ID:", expenseId); // Überprüfe, ob die ID korrekt abgefangen wird
-
-    if (!expenseId || typeof expenseId !== "string") {
-      console.log("Invalid or missing ID");
-      return res.status(400).json({ error: "Invalid or missing expense ID" });
-    }
-
+  } else if (req.method === "DELETE") {
     try {
       const expense = await prisma.expense.findUnique({
-        where: { id: expenseId },
+        where: { id: String(expenseId) },
       });
       if (!expense) {
-        console.log("Expense not found");
         return res.status(404).json({ error: "Expense not found" });
       }
       await prisma.expense.delete({
-        where: { id: expenseId },
+        where: { id: String(expenseId) },
       });
-
-      console.log("Expense deleted successfully");
 
       return res.status(200).json({ message: "Expense deleted successfully" });
     } catch (error) {
@@ -79,9 +169,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       return res.status(500).json({ error: "Error deleting expense" });
     }
   } else {
-    res.status(405).json({ error: "Method not allowed" });
-    return res.status(405).json({ error: "Method not allowed" });
+    res.setHeader("Allow", ["GET", "PUT", "DELETE"]);
+    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
   }
 }
-
-export default handler;
