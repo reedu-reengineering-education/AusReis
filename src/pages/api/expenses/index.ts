@@ -2,6 +2,9 @@ import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/db";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import UserExpenseCreatedNotification from "@/components/email/UserExpenseCreatedNotification";
+import { handleEmailFire } from "@/helpers/email-helper";
+import { ExpenseStatus, ProjectStatus } from "@prisma/client";
 
 export default async function handler(
   req: NextApiRequest,
@@ -46,7 +49,37 @@ export default async function handler(
             },
           },
         },
+        include: {
+          user: true,
+          project: true,
+        },
       });
+
+      const adminUsers = await prisma.user.findMany({
+        where: { role: "admin" },
+        select: { email: true },
+      });
+      for (const admin of adminUsers) {
+        if (admin.email) {
+          await handleEmailFire({
+            to: admin.email,
+            subject: "New Expense Created",
+            component: UserExpenseCreatedNotification,
+            props: {
+              expenseId: newExpense.id,
+              amount: newExpense.amount,
+              description: newExpense.description,
+              category: newExpense.category,
+              createdBy: newExpense.user?.name || newExpense.user?.email,
+              projectName: newExpense.project.name,
+              projectStatus: newExpense.project.status,
+              ExpenseStatus: newExpense.status,
+            },
+            from: "",
+            html: "",
+          });
+        }
+      }
 
       return res.status(201).json(newExpense);
     } catch (error) {

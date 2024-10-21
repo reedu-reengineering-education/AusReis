@@ -68,7 +68,6 @@
 //   }
 // };
 import axios from "axios";
-import File from "prisma/prisma-client";
 
 const API_URL = "/api/expenses";
 
@@ -147,7 +146,7 @@ export async function deleteExpense(expenseId: string): Promise<boolean> {
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 404) {
       console.warn("Expense not found, it may have been already deleted");
-      return true; // Behandeln Sie dies als erfolgreiche Löschung
+      return true;
     }
     console.error("Error deleting expense:", error);
     throw error;

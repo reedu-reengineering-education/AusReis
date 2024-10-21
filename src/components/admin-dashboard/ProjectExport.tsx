@@ -1,4 +1,3 @@
-// components/ProjectExport.tsx
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
@@ -22,14 +21,21 @@ export function ProjectExport({ projectId, projectName }: ProjectExportProps) {
 
   const handleExport = async () => {
     setIsLoading(true);
-    console.log("Export started for project:", projectId, projectName);
+    console.log("Export started for project:", { projectId, projectName });
+
+    if (!projectId || typeof projectId !== "string") {
+      console.error("Invalid projectId:", projectId);
+      toast.error("Invalid project ID");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       console.log("Fetching data from API...");
       const data = await getProjectForExport(projectId);
       console.log("Data received:", data);
 
       if (!Array.isArray(data) || data.length === 0) {
-        console.log("No data available for export");
         throw new Error("No data available for export");
       }
 
@@ -67,22 +73,32 @@ export function ProjectExport({ projectId, projectName }: ProjectExportProps) {
         ),
       ].join("\n");
 
-      console.log("CSV Content:", csvContent);
+      console.log(
+        "CSV Content (first 100 characters):",
+        csvContent.substring(0, 100)
+      );
 
       // Create Blob and save file
       console.log("Creating and saving CSV file...");
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
 
-      saveAs(blob, `${projectName}_export.csv`);
-      console.log("File saved successfully");
+      try {
+        saveAs(blob, `${projectName}_export.csv`);
+        console.log("File saved successfully");
+      } catch (saveError) {
+        console.error("Error saving file:", saveError);
+        throw new Error("Failed to save file");
+      }
 
       console.log("Export completed successfully");
       toast.success("Project data exported successfully");
     } catch (error) {
       console.error("Error exporting project data:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-      toast.error(`Failed to export project data: ${errorMessage}`);
+      if (error instanceof Error) {
+        toast.error(`Failed to export project data: ${error.message}`);
+      } else {
+        toast.error("An unknown error occurred during export");
+      }
     } finally {
       setIsLoading(false);
     }
