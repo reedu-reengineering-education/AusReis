@@ -32,7 +32,7 @@ import ProjectForm from "./ProjectForm";
 import { getUser } from "@/lib/api/userClient";
 
 import { ProjectEditModal } from "./EditButtonModal";
-import { ProjectDeleteDialog } from "./DeleteButtonModal";
+import { UniversalDeleteDialog } from "../forms/UniversalDeleteButton";
 
 // Importiere die API-Client-Funktionen
 import {
@@ -45,6 +45,7 @@ import { useSession } from "next-auth/react";
 import { Project, User } from "@prisma/client";
 import { Progress } from "../ui/progress";
 import { ProjectViewModal } from "./ViewButtonModal";
+import { toast } from "react-toastify";
 
 export default function ProjectTable() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -167,11 +168,17 @@ export default function ProjectTable() {
     }
   };
 
-  const handleDeleteSuccess = (deletedProjectId: string, message: string) => {
-    console.log(message); // Erfolgsnachricht oder Benachrichtigung anzeigen
-    setProjects((prevProjects) =>
-      prevProjects.filter((project) => project.id !== deletedProjectId)
-    ); // Entferne das gelöschte Projekt aus der Projektliste
+  const handleDeleteSuccess = async (id: string, message: string) => {
+    try {
+      await deleteProject(id);
+      setProjects(projects.filter((project) => project.id !== id));
+      console.log(message);
+      console.log("Project deleted successfully");
+      toast.success(message);
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      toast.error("Error deleting project. Please try again.");
+    }
   };
 
   // Neues Projekt speichern
@@ -302,8 +309,8 @@ export default function ProjectTable() {
                           key={user.id}
                           className="block transform transition-all duration-300 group-hover:translate-y-[var(--hover-spacing)]"
                           style={{
-                            transform: `translateY(${index * -5}px)`, // Stapel-Effekt
-                            ["--hover-spacing" as any]: `${index * 15}px`, // Abstand bei Hover
+                            transform: `translateY(${index * -5}px)`,
+                            ["--hover-spacing" as any]: `${index * 15}px`,
                           }}
                         >
                           {user.name ?? "Unknown"}
@@ -323,11 +330,16 @@ export default function ProjectTable() {
                   }
                   editingProject={null}
                 />
-                <ProjectDeleteDialog
-                  project={project}
-                  onDelete={handleDelete}
-                  onClose={handleCloseModal}
-                  onDeleteSuccess={handleDeleteSuccess}
+                <UniversalDeleteDialog
+                  item={{ id: project.id, name: project.name }}
+                  itemType="Projekt"
+                  onDelete={handleDeleteSuccess}
+                  onClose={() => {}}
+                  triggerButton={
+                    <Button variant="destructive" size="sm">
+                      Delete
+                    </Button>
+                  }
                 />
               </TableCell>
             </TableRow>
