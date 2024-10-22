@@ -29,6 +29,16 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+
+    /* Neue Sidebar-Variablen */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
@@ -56,36 +66,39 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    /* Neue Sidebar-Variablen für den Dark Mode */
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
-/* @layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-} */
 @layer base {
   html,
   body {
-    height: 100%; /* Stellt sicher, dass die Seite die volle Höhe des Viewports einnimmt */
+    height: 100%;
     margin: 0;
     padding: 0;
-    overflow-x: hidden; /* Verhindert ungewolltes horizontales Scrollen */
+    overflow-x: hidden;
   }
 
   body {
     @apply bg-background text-foreground;
     background: url("/background.svg") no-repeat center center fixed;
-    min-height: 100vh; /* Verhindert ungewolltes Scrollen nach unten */
+    min-height: 100vh;
   }
 
   #__next {
-    min-height: 100vh; /* Stellt sicher, dass das Haupt-Wrapper-Element die volle Höhe einnimmt */
+    min-height: 100vh;
   }
 }
+
 .underline-animation {
   position: relative;
   display: inline-block;
@@ -117,13 +130,22 @@
 }
 
 .typewriter {
-  overflow: hidden; /* Versteckt den überlaufenden Text */
-  white-space: nowrap; /* Verhindert Zeilenumbruch */
-  margin: 0 auto; /* Zentriert das Element */
-  letter-spacing: 0.15em; /* Abstand zwischen Buchstaben */
+  overflow: hidden;
+  white-space: nowrap;
+  margin: 0 auto;
+  letter-spacing: 0.15em;
   animation: typewriter 1.5s steps(40, end), blink-caret 0.75s step-end infinite;
 }
 
 .underline-animation:hover::after {
   width: 100%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

@@ -1,16 +1,345 @@
-// Path: src/components/admin-dashboard/ProjectTable.tsx
+// "use client";
+
+// import { useEffect, useState } from "react";
+// import {
+//   Table,
+//   TableHeader,
+//   TableRow,
+//   TableHead,
+//   TableBody,
+//   TableCell,
+// } from "@/components/ui/table";
+// import { Button } from "@/components/ui/button";
+// import { Badge } from "@/components/ui/badge";
+// import {
+//   DropdownMenu,
+//   DropdownMenuTrigger,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuCheckboxItem,
+//   DropdownMenuLabel,
+//   DropdownMenuSeparator,
+//   DropdownMenuSub,
+//   DropdownMenuSubContent,
+//   DropdownMenuSubTrigger,
+//   DropdownMenuRadioGroup,
+//   DropdownMenuRadioItem,
+// } from "@/components/ui/dropdown-menu";
+// import SearchBar from "./SearchBar";
+// import ProjectForm from "./ProjectForm";
+// import { getUser } from "@/lib/api/userClient";
+// import { ProjectEditModal } from "./EditButtonModal";
+// import { UniversalDeleteDialog } from "../forms/UniversalDeleteButton";
+// import {
+//   getProject,
+//   createProject,
+//   deleteProject,
+//   updateProject,
+// } from "@/lib/api/projectClient";
+// import { useSession } from "next-auth/react";
+// import { Project, User } from "@prisma/client";
+// import { Progress } from "../ui/progress";
+// import { ProjectViewModal } from "./ViewButtonModal";
+// import { toast } from "react-toastify";
+
+// export default function ProjectTable() {
+//   const [searchTerm, setSearchTerm] = useState("");
+//   const [projects, setProjects] = useState<(Project & { users: User[] })[]>([]);
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [error, setError] = useState<Error | null>(null);
+//   const [availableUsers, setAvailableUsers] = useState<
+//     (User & { name: string })[]
+//   >([]);
+//   const { data: session, status } = useSession();
+//   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+//   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+//   const [sortBy, setSortBy] = useState<string>("name");
+
+//   useEffect(() => {
+//     const fetchProjects = async () => {
+//       try {
+//         setIsLoading(true);
+//         const data = await getProject();
+//         setProjects(data);
+//       } catch (error) {
+//         console.error("Error fetching projects:", error);
+//         setError(error as Error);
+//       } finally {
+//         setIsLoading(false);
+//       }
+//     };
+
+//     const fetchUsers = async () => {
+//       try {
+//         const users = await getUser("");
+//         setAvailableUsers(users);
+//       } catch (error) {
+//         console.error("Error fetching users:", error);
+//       }
+//     };
+
+//     fetchProjects();
+//     fetchUsers();
+//   }, []);
+
+//   const handleUpdateProject = async (
+//     updatedProject: Project & { users: User[] }
+//   ): Promise<boolean> => {
+//     try {
+//       console.log("updatedProject.users:", updatedProject);
+//       setProjects((prevProjects) =>
+//         prevProjects.map((p) =>
+//           p.id === updatedProject.id ? updatedProject : p
+//         )
+//       );
+//       return true;
+//     } catch (error) {
+//       console.error("Error updating project:", error);
+//       return false;
+//     }
+//   };
+
+//   const handleDeleteSuccess = async (id: string, message: string) => {
+//     try {
+//       await deleteProject(id);
+//       setProjects(projects.filter((project) => project.id !== id));
+//       console.log(message);
+//       toast.success(message);
+//     } catch (error) {
+//       console.error("Error deleting project:", error);
+//       toast.error("Error deleting project. Please try again.");
+//     }
+//   };
+
+//   const handleSaveProject = async (newProject: {
+//     name: string;
+//     status: string;
+//     budget: number;
+//     actualSpend: number;
+//     users: any[];
+//   }) => {
+//     try {
+//       const savedProject = await createProject(
+//         newProject.name,
+//         newProject.status,
+//         newProject.budget,
+//         newProject.actualSpend,
+//         newProject.users
+//       );
+//       setProjects([...projects, savedProject]);
+//     } catch (error) {
+//       console.error("Error creating project:", error);
+//     }
+//   };
+
+//   const filteredAndSortedProjects = projects
+//     .filter((project) => {
+//       const nameMatch = project.name
+//         .toLowerCase()
+//         .includes(searchTerm.toLowerCase());
+//       const statusMatch =
+//         selectedStatuses.length === 0 ||
+//         selectedStatuses.includes(project.status);
+//       const userMatch =
+//         selectedUsers.length === 0 ||
+//         project.users.some((user) => selectedUsers.includes(user.id));
+//       return nameMatch && statusMatch && userMatch;
+//     })
+//     .sort((a, b) => {
+//       switch (sortBy) {
+//         case "name":
+//           return a.name.localeCompare(b.name);
+//         case "status":
+//           return a.status.localeCompare(b.status);
+//         case "budget":
+//           return a.budget - b.budget;
+//         case "actualSpend":
+//           return a.actualSpend - b.actualSpend;
+//         default:
+//           return 0;
+//       }
+//     });
+
+//   const getStatusBadgeColor = (status: string) => {
+//     switch (status) {
+//       case "active":
+//         return "bg-green-100 text-green-800";
+//       case "pending":
+//         return "bg-yellow-100 text-yellow-800";
+//       case "completed":
+//         return "bg-blue-100 text-blue-800";
+//       default:
+//         return "bg-gray-100 text-gray-800";
+//     }
+//   };
+
+//   if (status === "loading" || isLoading) {
+//     return <div>Loading projects...</div>;
+//   }
+
+//   if (!session) {
+//     return <div>You must be logged in to view this page.</div>;
+//   }
+
+//   if (error) {
+//     return <div>Error loading projects: {error.message}</div>;
+//   }
+
+//   return (
+//     <div>
+//       <div className="flex items-center gap-4 mb-4 ">
+//         <SearchBar
+//           value={searchTerm}
+//           onChange={(e) => setSearchTerm(e.target.value)}
+//           placeholder="Search by name..."
+//         />
+//         <DropdownMenu>
+//           <DropdownMenuTrigger asChild>
+//             <Button variant="outline">Sort and Filter</Button>
+//           </DropdownMenuTrigger>
+//           <DropdownMenuContent className="w-56">
+//             <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+//             <DropdownMenuRadioGroup value={sortBy} onValueChange={setSortBy}>
+//               <DropdownMenuRadioItem value="name">Name</DropdownMenuRadioItem>
+//               <DropdownMenuRadioItem value="status">
+//                 Status
+//               </DropdownMenuRadioItem>
+//               <DropdownMenuRadioItem value="budget">
+//                 Budget
+//               </DropdownMenuRadioItem>
+//               <DropdownMenuRadioItem value="actualSpend">
+//                 Actual Spend
+//               </DropdownMenuRadioItem>
+//             </DropdownMenuRadioGroup>
+//             <DropdownMenuSeparator />
+//             <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+//             {["active", "pending", "completed"].map((status) => (
+//               <DropdownMenuCheckboxItem
+//                 key={status}
+//                 checked={selectedStatuses.includes(status)}
+//                 onCheckedChange={(checked) => {
+//                   setSelectedStatuses(
+//                     checked
+//                       ? [...selectedStatuses, status]
+//                       : selectedStatuses.filter((s) => s !== status)
+//                   );
+//                 }}
+//               >
+//                 {status.charAt(0).toUpperCase() + status.slice(1)}
+//               </DropdownMenuCheckboxItem>
+//             ))}
+//             <DropdownMenuSeparator />
+//             <DropdownMenuSub>
+//               <DropdownMenuSubTrigger>Filter by User</DropdownMenuSubTrigger>
+//               <DropdownMenuSubContent>
+//                 {availableUsers.map((user) => (
+//                   <DropdownMenuCheckboxItem
+//                     key={user.id}
+//                     checked={selectedUsers.includes(user.id)}
+//                     onCheckedChange={(checked) => {
+//                       setSelectedUsers(
+//                         checked
+//                           ? [...selectedUsers, user.id]
+//                           : selectedUsers.filter((id) => id !== user.id)
+//                       );
+//                     }}
+//                   >
+//                     {user.name}
+//                   </DropdownMenuCheckboxItem>
+//                 ))}
+//               </DropdownMenuSubContent>
+//             </DropdownMenuSub>
+//           </DropdownMenuContent>
+//         </DropdownMenu>
+//         <ProjectForm
+//           onSave={handleSaveProject}
+//           availableUsers={availableUsers}
+//         />
+//       </div>
+
+//       <Table>
+//         <TableHeader>
+//           <TableRow>
+//             <TableHead>Name</TableHead>
+//             <TableHead>Status</TableHead>
+//             <TableHead>Progress</TableHead>
+//             <TableHead>Budget</TableHead>
+//             <TableHead>Actual Spend</TableHead>
+//             <TableHead>Users</TableHead>
+//             <TableHead>
+//               <span className="sr-only">Actions</span>
+//             </TableHead>
+//           </TableRow>
+//         </TableHeader>
+//         <TableBody>
+//           {filteredAndSortedProjects.map((project) => (
+//             <TableRow key={project.id}>
+//               <TableCell>{project.name}</TableCell>
+//               <TableCell>
+//                 <Badge className={getStatusBadgeColor(project.status)}>
+//                   {project.status}
+//                 </Badge>
+//               </TableCell>
+//               <TableCell>
+//                 <Progress
+//                   value={project.actualSpend}
+//                   max={project.budget}
+//                   className="bg-gradient-to-r from-green-500 via-orange-500 to-red-500 opacity-50"
+//                 />
+//               </TableCell>
+//               <TableCell>{project.budget.toLocaleString()} €</TableCell>
+//               <TableCell>{project.actualSpend.toLocaleString()} €</TableCell>
+//               <TableCell>
+//                 <div className="relative group">
+//                   <div className="flex flex-col space-y-0 transition-all duration-300">
+//                     {project.users?.map((user: User, index: number) => (
+//                       <Badge
+//                         key={user.id}
+//                         className="block transform transition-all duration-300 group-hover:translate-y-[var(--hover-spacing)]"
+//                         style={{
+//                           transform: `translateY(${index * -5}px)`,
+//                           ["--hover-spacing" as any]: `${index * 15}px`,
+//                         }}
+//                       >
+//                         {user.name ?? "Unknown"}
+//                       </Badge>
+//                     ))}
+//                   </div>
+//                 </div>
+//               </TableCell>
+//               <TableCell className="flex justify-end space-x-2">
+//                 <ProjectViewModal project={project} />
+//                 <ProjectEditModal
+//                   projectId={project.id}
+//                   onProjectUpdated={(project: Project) =>
+//                     handleUpdateProject(project as any)
+//                   }
+//                   editingProject={null}
+//                 />
+//                 <UniversalDeleteDialog
+//                   item={{ id: project.id, name: project.name }}
+//                   itemType="Projekt"
+//                   onDelete={handleDeleteSuccess}
+//                   onClose={() => {}}
+//                   triggerButton={
+//                     <Button variant="destructive" size="sm">
+//                       Delete
+//                     </Button>
+//                   }
+//                 />
+//               </TableCell>
+//             </TableRow>
+//           ))}
+//         </TableBody>
+//       </Table>
+//     </div>
+//   );
+// }
+//  --------------------------------------------------------------------------------------------------------------------------------
+
 "use client";
 
-import {
-  AwaitedReactNode,
-  JSXElementConstructor,
-  Key,
-  ReactElement,
-  ReactNode,
-  ReactPortal,
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -26,15 +355,20 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 import SearchBar from "./SearchBar";
 import ProjectForm from "./ProjectForm";
 import { getUser } from "@/lib/api/userClient";
-
 import { ProjectEditModal } from "./EditButtonModal";
 import { UniversalDeleteDialog } from "../forms/UniversalDeleteButton";
-
-// Importiere die API-Client-Funktionen
 import {
   getProject,
   createProject,
@@ -49,122 +383,58 @@ import { toast } from "react-toastify";
 
 export default function ProjectTable() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState("name");
-  const [projects, setProjects] = useState<(Project & { users: User[] })[]>([]); // Zustandsvariable für Projekte
-  const [isLoading, setIsLoading] = useState(true); // Zustandsvariable für Ladezustand
-  const [error, setError] = useState<Error | null>(null); // Zustandsvariable für Fehler
-  const [availableUsers, setAvailableUsers] = useState([]);
-  const [showAddProjectForm, setShowAddProjectForm] = useState(false); // Steuerung des Formulars
-  const { data: session, status } = useSession(); // Session holen
-  const [editingProject, setEditingProject] = useState<Project | null>(null); // Für das Bearbeiten
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null); // Zustandsvariable für das ausgewählte Projekt
+  const [projects, setProjects] = useState<(Project & { users: User[] })[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [availableUsers, setAvailableUsers] = useState<
+    (User & { name: string })[]
+  >([]);
+  const { data: session, status } = useSession();
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState<string>("name");
 
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
-
-  if (!session) {
-    return <div>You must be logged in to view this page.</div>;
-  }
-
-  // Daten von der API laden
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        setIsLoading(true); // Ladevorgang beginnt
-        const data = await getProject(); // API-Aufruf ohne ID, um alle Projekte zu laden
-        const sortedProjects = sortProjects(data); // Projekte sortieren
-        setProjects(data); // Projekte in den Zustand laden
+        setIsLoading(true);
+        const data = await getProject();
+        setProjects(data);
       } catch (error) {
         console.error("Error fetching projects:", error);
-        setError(error as any); // Fehler im Zustand speichern
+        setError(error as Error);
       } finally {
-        setIsLoading(false); // Ladevorgang abgeschlossen
+        setIsLoading(false);
       }
     };
 
-    fetchProjects();
-  }, []);
-
-  // Benutzerdaten abrufen
-  useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const users = await getUser(""); // API-Aufruf zum Abrufen der Benutzer
-        setAvailableUsers(users); // Benutzer in den Zustand laden
+        const users = await getUser("");
+        setAvailableUsers(users);
       } catch (error) {
         console.error("Error fetching users:", error);
       }
     };
 
+    fetchProjects();
     fetchUsers();
   }, []);
-
-  // Funktion, um Projekte alphabetisch und nach letztem Änderungsdatum zu sortieren
-  const sortProjects = (projects: Project[]) => {
-    return projects.sort((a, b) => {
-      // Zuerst alphabetisch nach dem Projektnamen sortieren
-      const nameComparison = a.name.localeCompare(b.name);
-
-      // Falls die Namen gleich sind, nach dem letzten Änderungsdatum sortieren
-      if (nameComparison === 0) {
-        return (
-          new Date(b.updatedAt ?? 0).getTime() -
-          new Date(a.updatedAt ?? 0).getTime()
-        );
-      }
-
-      // Wenn die Namen nicht gleich sind, die alphabetische Reihenfolge beibehalten
-      return nameComparison;
-    });
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false); // Modal schließen
-    setSelectedProject(null); // Auswahl zurücksetzen
-  };
 
   const handleUpdateProject = async (
     updatedProject: Project & { users: User[] }
   ): Promise<boolean> => {
     try {
-      // Prüfen, ob assignedUsers ein Array ist
-
       console.log("updatedProject.users:", updatedProject);
-
       setProjects((prevProjects) =>
         prevProjects.map((p) =>
           p.id === updatedProject.id ? updatedProject : p
         )
-      ); // Aktualisiere die Projektliste
-      setEditingProject(null); // Formular schließen
-      return true; // Return true on success
+      );
+      return true;
     } catch (error) {
       console.error("Error updating project:", error);
-      return false; // Return false on error
-    }
-  };
-
-  // Projekt löschen
-  const handleDelete = async (projectId: string) => {
-    try {
-      const response = await deleteProject(projectId); // Warte auf die Antwort des DELETE-Requests
-      // Überprüfen, ob der Request erfolgreich war
-      if (response.status === 204 || response.status === 200) {
-        setProjects(
-          (prevProjects) =>
-            prevProjects.filter((project) => project.id !== projectId) // Entferne das gelöschte Projekt aus der Liste
-        );
-        console.log("Project deleted successfully");
-      } else {
-        console.error(
-          "Failed to delete project. Status code:",
-          response.status
-        );
-      }
-    } catch (error) {
-      console.error("Error deleting project:", error);
+      return false;
     }
   };
 
@@ -173,7 +443,6 @@ export default function ProjectTable() {
       await deleteProject(id);
       setProjects(projects.filter((project) => project.id !== id));
       console.log(message);
-      console.log("Project deleted successfully");
       toast.success(message);
     } catch (error) {
       console.error("Error deleting project:", error);
@@ -181,7 +450,6 @@ export default function ProjectTable() {
     }
   };
 
-  // Neues Projekt speichern
   const handleSaveProject = async (newProject: {
     name: string;
     status: string;
@@ -195,38 +463,72 @@ export default function ProjectTable() {
         newProject.status,
         newProject.budget,
         newProject.actualSpend,
-        newProject.users // Benutzer-IDs hinzufügen
+        newProject.users
       );
-      setProjects([...projects, savedProject]); // Das neue Projekt der Liste hinzufügen
-      setShowAddProjectForm(false); // Formular schließen
+      setProjects([...projects, savedProject]);
     } catch (error) {
       console.error("Error creating project:", error);
     }
   };
 
-  // Gefilterte Projekte basierend auf Suchfeld und Filterkriterien
-  const filteredProjects = projects.filter((project) =>
-    selectedFilter === "name"
-      ? project.name.toLowerCase().includes(searchTerm.toLowerCase())
-      : project.status.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredAndSortedProjects = projects
+    .filter((project) => {
+      if (searchTerm === "") return true;
 
-  // Funktion, um Status zu bestimmen und die entsprechende Farbe für das Badge zu setzen
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        project.name.toLowerCase().includes(searchLower) ||
+        project.status.toLowerCase().includes(searchLower) ||
+        project.budget.toString().includes(searchLower) ||
+        project.actualSpend.toString().includes(searchLower) ||
+        project.users.some((user) =>
+          user.name?.toLowerCase().includes(searchLower)
+        )
+      );
+    })
+    .filter((project) => {
+      const statusMatch =
+        selectedStatuses.length === 0 ||
+        selectedStatuses.includes(project.status);
+      const userMatch =
+        selectedUsers.length === 0 ||
+        project.users.some((user) => selectedUsers.includes(user.id));
+      return statusMatch && userMatch;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "name":
+          return a.name.localeCompare(b.name);
+        case "status":
+          return a.status.localeCompare(b.status);
+        case "budget":
+          return a.budget - b.budget;
+        case "actualSpend":
+          return a.actualSpend - b.actualSpend;
+        default:
+          return 0;
+      }
+    });
+
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
       case "active":
-        return "bg-green-100 text-green-800"; // Grün für "Active"
+        return "bg-green-100 text-green-800";
       case "pending":
-        return "bg-yellow-100 text-yellow-800"; // Gelb für "Pending"
+        return "bg-yellow-100 text-yellow-800";
       case "completed":
-        return "bg-blue-100 text-blue-800"; // Blau für "Completed"
+        return "bg-blue-100 text-blue-800";
       default:
-        return "bg-gray-100 text-gray-800"; // Grau für unbekannte Status
+        return "bg-gray-100 text-gray-800";
     }
   };
 
-  if (isLoading) {
+  if (status === "loading" || isLoading) {
     return <div>Loading projects...</div>;
+  }
+
+  if (!session) {
+    return <div>You must be logged in to view this page.</div>;
   }
 
   if (error) {
@@ -235,28 +537,73 @@ export default function ProjectTable() {
 
   return (
     <div>
-      <div className="flex items-center gap-4 mb-4">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">Filter By</Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            <DropdownMenuItem onClick={() => setSelectedFilter("name")}>
-              Project Name
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSelectedFilter("status")}>
-              Status
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="flex items-center gap-4 mb-4 ">
         <SearchBar
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search projects..."
         />
-        {/* Button, um das Formular für neue Projekte zu öffnen */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline">Sort and Filter</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+            <DropdownMenuRadioGroup value={sortBy} onValueChange={setSortBy}>
+              <DropdownMenuRadioItem value="name">Name</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="status">
+                Status
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="budget">
+                Budget
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="actualSpend">
+                Actual Spend
+              </DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+            {["active", "pending", "completed"].map((status) => (
+              <DropdownMenuCheckboxItem
+                key={status}
+                checked={selectedStatuses.includes(status)}
+                onCheckedChange={(checked) => {
+                  setSelectedStatuses(
+                    checked
+                      ? [...selectedStatuses, status]
+                      : selectedStatuses.filter((s) => s !== status)
+                  );
+                }}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </DropdownMenuCheckboxItem>
+            ))}
+            <DropdownMenuSeparator />
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>Filter by User</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                {availableUsers.map((user) => (
+                  <DropdownMenuCheckboxItem
+                    key={user.id}
+                    checked={selectedUsers.includes(user.id)}
+                    onCheckedChange={(checked) => {
+                      setSelectedUsers(
+                        checked
+                          ? [...selectedUsers, user.id]
+                          : selectedUsers.filter((id) => id !== user.id)
+                      );
+                    }}
+                  >
+                    {user.name}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <ProjectForm
           onSave={handleSaveProject}
-          availableUsers={availableUsers} // Benutzerliste weitergeben
+          availableUsers={availableUsers}
         />
       </div>
 
@@ -265,7 +612,7 @@ export default function ProjectTable() {
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Progres</TableHead>
+            <TableHead>Progress</TableHead>
             <TableHead>Budget</TableHead>
             <TableHead>Actual Spend</TableHead>
             <TableHead>Users</TableHead>
@@ -275,11 +622,9 @@ export default function ProjectTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredProjects.map((project) => (
+          {filteredAndSortedProjects.map((project) => (
             <TableRow key={project.id}>
               <TableCell>{project.name}</TableCell>
-
-              {/* Badge für den Status */}
               <TableCell>
                 <Badge className={getStatusBadgeColor(project.status)}>
                   {project.status}
@@ -292,35 +637,26 @@ export default function ProjectTable() {
                   className="bg-gradient-to-r from-green-500 via-orange-500 to-red-500 opacity-50"
                 />
               </TableCell>
-
               <TableCell>{project.budget.toLocaleString()} €</TableCell>
               <TableCell>{project.actualSpend.toLocaleString()} €</TableCell>
-
-              {/* Benutzerliste anzeigen */}
               <TableCell>
                 <div className="relative group">
                   <div className="flex flex-col space-y-0 transition-all duration-300">
-                    {project.users?.map(
-                      (
-                        user: { id: string; name: string | null },
-                        index: number
-                      ) => (
-                        <Badge
-                          key={user.id}
-                          className="block transform transition-all duration-300 group-hover:translate-y-[var(--hover-spacing)]"
-                          style={{
-                            transform: `translateY(${index * -5}px)`,
-                            ["--hover-spacing" as any]: `${index * 15}px`,
-                          }}
-                        >
-                          {user.name ?? "Unknown"}
-                        </Badge>
-                      )
-                    )}
+                    {project.users?.map((user: User, index: number) => (
+                      <Badge
+                        key={user.id}
+                        className="block transform transition-all duration-300 group-hover:translate-y-[var(--hover-spacing)]"
+                        style={{
+                          transform: `translateY(${index * -5}px)`,
+                          ["--hover-spacing" as any]: `${index * 15}px`,
+                        }}
+                      >
+                        {user.name ?? "Unknown"}
+                      </Badge>
+                    ))}
                   </div>
                 </div>
               </TableCell>
-
               <TableCell className="flex justify-end space-x-2">
                 <ProjectViewModal project={project} />
                 <ProjectEditModal
@@ -346,7 +682,6 @@ export default function ProjectTable() {
           ))}
         </TableBody>
       </Table>
-      {/*  */}
     </div>
   );
 }
