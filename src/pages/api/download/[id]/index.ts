@@ -1,3 +1,4 @@
+// path: src/pages/api/download/%5Bid%5D/index.ts
 import { NextApiRequest, NextApiResponse } from "next";
 import { getFileFromBucket } from "@/utils/s3-file-management";
 import prisma from "@/lib/db";

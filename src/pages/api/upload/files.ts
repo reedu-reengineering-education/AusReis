@@ -1,10 +1,10 @@
+// path: src/pages/api/upload/files.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 import fs from "fs";
 import { IncomingForm, type File } from "formidable";
 import { saveFileInBucket } from "@/utils/s3-file-management";
 import { nanoid } from "nanoid";
 import prisma from "@/lib/db";
-import { File as PrismaFile } from "@prisma/client";
 
 const bucketName = process.env.S3_BUCKET_NAME as string;
 

@@ -38,7 +38,7 @@ export default function EnhancedExpenseNotification({
     });
   };
 
-  const getStatusBadgeColor = (projectStatus: string) => {
+  const getStatusBadgeColorForProject = (projectStatus: string) => {
     switch (projectStatus) {
       case "active":
         return "bg-green-100 text-green-800 hover:bg-green-200";
@@ -46,6 +46,18 @@ export default function EnhancedExpenseNotification({
         return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
       case "compelted":
         return "bg-blue-100 text-blue-800 hover:bg-blue-200";
+      default:
+        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
+    }
+  };
+  const getStatusBadgeColorForExpense = (expenseStatus: string) => {
+    switch (expenseStatus) {
+      case "approved":
+        return "bg-green-100 text-green-800 hover:bg-green-200";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
+      case "rejected":
+        return "bg-red-100 text-red-800 hover:bg-red-200";
       default:
         return "bg-gray-100 text-gray-800 hover:bg-gray-200";
     }
@@ -73,7 +85,7 @@ export default function EnhancedExpenseNotification({
                     {projectName}
                   </Text>
                   <Badge
-                    className={`${getStatusBadgeColor(
+                    className={`${getStatusBadgeColorForProject(
                       projectStatus
                     )} px-4 py-2 text-sm`}
                   >
@@ -94,7 +106,13 @@ export default function EnhancedExpenseNotification({
                     <Text className="text-gray-600">Created By:</Text>
                     <Text className="font-medium">{createdBy}</Text>
                     {/* <Text className="text-gray-600">Status:</Text>
-                    <Badge>{expenseStatus}</Badge> */}
+                    <Badge
+                      className={`${getStatusBadgeColorForExpense(
+                        expenseStatus
+                      )} px-4 py-2 text-sm`}
+                    >
+                      {expenseStatus}
+                    </Badge> */}
                     <Text className="text-sm text-gray-600">Description: </Text>
                     <Text className="font-medium">{description}</Text>
                   </div>

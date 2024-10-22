@@ -119,22 +119,7 @@ export default function AdminExpenseEditedNotification({
                     <Text className="font-medium">{description}</Text>
                   </div>
                 </div>
-                {bills.length > 0 && (
-                  <div className="bg-gray-50 rounded-lg p-4 space-y-3 transition-all duration-300 hover:bg-gray-100">
-                    <Text className="font-semibold text-gray-700">
-                      Attached Bills
-                    </Text>
-                    {bills.map((bill, index) => (
-                      <div
-                        key={index}
-                        className="grid grid-cols-2 gap-2 text-sm"
-                      >
-                        <Text className="text-gray-600">File:</Text>
-                        <Text className="font-medium">{bill.file}</Text>
-                      </div>
-                    ))}
-                  </div>
-                )}
+
                 <Text className="text-sm text-gray-600 italic">
                   This expense has been updated. If you have any questions about
                   these changes, please contact the finance department.
