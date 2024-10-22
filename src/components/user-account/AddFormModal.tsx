@@ -45,9 +45,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { createFormData } from "@/helpers/fileUploadHelpers";
 import { getProject } from "@/lib/api/projectClient";
+import { createExpense } from "@/lib/api/expenseClient";
+import axios from "axios";
 
 interface AddFormModalProps {
   activeTab: "expenses" | "travel";
@@ -71,7 +73,7 @@ export function AddFormModal({
   handleFormSubmit,
 }: AddFormModalProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const { data: session } = useSession();
@@ -124,21 +126,26 @@ export function AddFormModal({
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
       const uploadedFiles = await Promise.all(
         formData.bills.map(async (bill) => {
           const uploadFormData = createFormData([bill.file]);
-          const response = await fetch("/api/upload/files", {
-            method: "POST",
-            body: uploadFormData,
-          });
+          const response = await axios.post(
+            "/api/upload/files",
+            uploadFormData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
 
-          if (!response.ok) {
-            throw new Error(`Failed to upload file: ${bill.file.name}`);
-          }
-
-          const result = await response.json();
-          return { ...bill, fileId: result.fileId };
+          return {
+            ...bill,
+            file: { id: response.data.data.id, name: bill.file.name },
+          };
         })
       );
 
@@ -153,15 +160,23 @@ export function AddFormModal({
           : undefined,
       };
 
-      // console.log("Form data submitted:", updatedFormData);
-      handleFormSubmit(updatedFormData);
+      const createdExpense = await createExpense(updatedFormData);
       setIsDialogOpen(false);
       toast.success("Formular erfolgreich eingereicht!");
+      // Component AddFormModal.tsx
+      handleFormSubmit(createdExpense);
     } catch (error) {
-      console.error("Error during file upload or form submission:", error);
-      toast.error(
-        "Fehler beim Hochladen der Dateien oder Einreichen des Formulars. Bitte versuchen Sie es erneut."
-      );
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error:", error.response?.data);
+        toast.error(`Fehler beim Hochladen der Dateien: ${error.message}`);
+      } else {
+        console.error("Unexpected error:", error);
+        toast.error(
+          "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+        );
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
