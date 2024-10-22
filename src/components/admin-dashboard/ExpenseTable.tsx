@@ -22,9 +22,11 @@ import {
   getExpenses,
   updateExpense,
   deleteExpense,
+  getExpensesForAdmin,
 } from "@/lib/api/expenseClient";
 import { toast } from "react-toastify";
 import axios from "axios";
+import MinioFilePreviewer from "../preview/FilePreviewer";
 
 export default function ExpenseTable() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,7 +49,7 @@ export default function ExpenseTable() {
     const fetchExpenses = async () => {
       try {
         setIsLoading(true);
-        const data = await getExpenses();
+        const data = await getExpensesForAdmin();
         setExpenses(data);
       } catch (error) {
         console.error("Error fetching expenses:", error);

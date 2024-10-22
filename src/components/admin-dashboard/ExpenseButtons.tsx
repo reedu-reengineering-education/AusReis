@@ -1,3 +1,132 @@
+// "use client";
+
+// import { useState } from "react";
+// import { Button } from "@/components/ui/button";
+// import { toast } from "react-toastify";
+// import { updateExpense, deleteExpense } from "@/lib/api/expenseClient";
+// import { ExpenseStatus } from "@prisma/client";
+// import { UniversalDeleteDialog } from "@/components/forms/UniversalDeleteButton";
+
+// interface ExpenseButtonsProps {
+//   expenseId: string;
+//   status: ExpenseStatus;
+//   onStatusChange: (newStatus: ExpenseStatus) => void;
+//   onDelete: () => void;
+//   fileId: number;
+//   fileName: string;
+//   fileType: "image" | "pdf";
+//   description: string; // Hinzugefügt für den UniversalDeleteDialog
+//   isDeleting: boolean;
+// }
+
+// export default function ExpenseButtons({
+//   expenseId,
+//   status,
+//   onStatusChange,
+//   onDelete,
+//   fileId,
+//   fileName,
+//   fileType,
+//   description,
+//   isDeleting,
+// }: ExpenseButtonsProps) {
+//   const [isLoading, setIsLoading] = useState(false);
+
+//   const handleDownloadBlob = async () => {
+//     try {
+//       const response = await fetch(`/api/download/${fileId}`);
+//       if (!response.ok) throw new Error("Download failed");
+//       const blob = await response.blob();
+//       const url = window.URL.createObjectURL(blob);
+//       const a = document.createElement("a");
+//       a.style.display = "none";
+//       a.href = url;
+//       a.download = fileName;
+//       document.body.appendChild(a);
+//       a.click();
+//       window.URL.revokeObjectURL(url);
+//     } catch (error) {
+//       console.error("Download error:", error);
+//       toast.error("Error downloading file. Please try again.");
+//     }
+//   };
+
+//   const handleStatusChange = async (newStatus: ExpenseStatus) => {
+//     setIsLoading(true);
+//     try {
+//       const updatedExpense = await updateExpense(expenseId, newStatus);
+//       onStatusChange(updatedExpense.status);
+//       toast.success(`Expense ${newStatus}. The expense has been ${newStatus}.`);
+//     } catch (error) {
+//       console.error(`Error updating expense status:`, error);
+//       toast.error(
+//         `Error: There was an error updating the expense status. Please try again.`
+//       );
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   const handleDeleteSuccess = (id: string, message: string) => {
+//     onDelete();
+//     toast.success(message);
+//   };
+
+//   return (
+//     <div className="flex space-x-2">
+//       {status === "pending" && (
+//         <>
+//           <Button
+//             variant="outline"
+//             size="sm"
+//             onClick={() => handleStatusChange("processed")}
+//             disabled={isLoading}
+//           >
+//             {isLoading ? "Processing..." : "Process"}
+//           </Button>
+//           <Button
+//             variant="outline"
+//             size="sm"
+//             onClick={() => handleStatusChange("paid")}
+//             disabled={isLoading}
+//           >
+//             {isLoading ? "Paying..." : "Pay"}
+//           </Button>
+//         </>
+//       )}
+//       {status === "processed" && (
+//         <Button
+//           variant="outline"
+//           size="sm"
+//           onClick={() => handleStatusChange("paid")}
+//           disabled={isLoading}
+//         >
+//           {isLoading ? "Paying..." : "Pay"}
+//         </Button>
+//       )}
+//       <Button onClick={handleDownloadBlob} size="sm">
+//         Download
+//       </Button>
+
+//       <UniversalDeleteDialog
+//         item={{ id: expenseId, name: description }}
+//         itemType="Expense"
+//         onDelete={handleDeleteSuccess}
+//         onDeleteSuccess={handleDeleteSuccess}
+//         onClose={() => {}}
+//         triggerButton={
+//           <Button
+//             variant="destructive"
+//             size="sm"
+//             disabled={isLoading || isDeleting}
+//           >
+//             {isDeleting ? "Deleting..." : "Delete"}
+//           </Button>
+//         }
+//       />
+//     </div>
+//   );
+// }
 "use client";
 
 import { useState } from "react";
@@ -6,6 +135,13 @@ import { toast } from "react-toastify";
 import { updateExpense, deleteExpense } from "@/lib/api/expenseClient";
 import { ExpenseStatus } from "@prisma/client";
 import { UniversalDeleteDialog } from "@/components/forms/UniversalDeleteButton";
+import MinioFilePreviewer from "@/components/preview/FilePreviewer";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface ExpenseButtonsProps {
   expenseId: string;
@@ -15,7 +151,7 @@ interface ExpenseButtonsProps {
   fileId: number;
   fileName: string;
   fileType: "image" | "pdf";
-  description: string; // Hinzugefügt für den UniversalDeleteDialog
+  description: string;
   isDeleting: boolean;
 }
 
@@ -31,6 +167,7 @@ export default function ExpenseButtons({
   isDeleting,
 }: ExpenseButtonsProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const handleDownloadBlob = async () => {
     try {
@@ -107,7 +244,21 @@ export default function ExpenseButtons({
       <Button onClick={handleDownloadBlob} size="sm">
         Download
       </Button>
-
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            View
+          </Button>
+        </DialogTrigger>
+        <DialogTitle className="sr-only">{fileName}</DialogTitle>
+        <DialogContent className="max-w-4xl">
+          <MinioFilePreviewer
+            fileUrl={`/api/download/${fileId}`}
+            fileName={fileName}
+            fileType={fileType === "image" ? "image/jpeg" : "application/pdf"}
+          />
+        </DialogContent>
+      </Dialog>
       <UniversalDeleteDialog
         item={{ id: expenseId, name: description }}
         itemType="Expense"

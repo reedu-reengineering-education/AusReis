@@ -50,7 +50,6 @@ export default async function handler(
           },
         },
         include: {
-
           user: true,
           project: true,
         },
@@ -59,8 +58,6 @@ export default async function handler(
       const adminUsers = await prisma.user.findMany({
         where: { role: "admin" },
         select: { email: true },
-
-
       });
       for (const admin of adminUsers) {
         if (admin.email) {
