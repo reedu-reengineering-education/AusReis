@@ -1,149 +1,130 @@
-import { useState, useEffect } from "react";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
 
-type MinioFileViewerProps = {
-  fileKey: string;
-  bucketName: string;
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+  DrawerClose,
+} from "@/components/ui/drawer";
+import { FileIcon, Maximize2Icon, EyeIcon, X } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+
+type CustomFilePreviewerProps = {
+  fileUrl: string;
+  fileName: string;
+  fileType: string;
 };
 
-export default function MinioFileViewer({
-  fileKey,
-  bucketName,
-}: MinioFileViewerProps) {
-  const [fileUrl, setFileUrl] = useState<string | null>(null);
-  const [fileType, setFileType] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+export default function CustomFilePreviewer({
+  fileUrl,
+  fileName,
+  fileType,
+}: CustomFilePreviewerProps) {
+  const [content, setContent] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const fetchFile = async () => {
-      try {
-        const response = await fetch(
-          `/api/minio-file?key=${fileKey}&bucket=${bucketName}`
-        );
-        if (!response.ok) {
-          throw new Error("Fehler beim Abrufen der Datei");
-        }
-        const data = await response.json();
-        setFileUrl(data.url);
-        setFileType(data.contentType);
-      } catch (err) {
-        setError("Fehler beim Laden der Datei");
-        console.error(err);
-      }
-    };
+    if (fileType.startsWith("text/")) {
+      setIsLoading(true);
+      fetch(fileUrl)
+        .then((response) => response.text())
+        .then((text) => {
+          setContent(text);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching text content:", error);
+          setIsLoading(false);
+        });
+    }
+  }, [fileUrl, fileType]);
 
-    fetchFile();
-  }, [fileKey, bucketName]);
+  const renderPreview = (fullSize: boolean = false) => {
+    const containerClass = fullSize
+      ? "w-full h-full"
+      : "w-full h-48 md:h-64 lg:h-80";
 
-  const renderFileContent = () => {
-    if (!fileUrl || !fileType) return null;
+    if (isLoading) {
+      return (
+        <div className={`${containerClass} flex items-center justify-center`}>
+          <Progress value={progress} className="w-1/2" />
+        </div>
+      );
+    }
 
     if (fileType.startsWith("image/")) {
       return (
-        <Image
-          src={fileUrl}
-          alt="Minio File"
-          width={500}
-          height={300}
-          layout="responsive"
-          objectFit="contain"
-        />
+        <div className={`${containerClass} relative group`}>
+          <img
+            src={fileUrl}
+            alt={fileName}
+            className="w-full h-full object-contain transition-transform group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"></div>
+        </div>
       );
     } else if (fileType === "application/pdf") {
       return (
-        <iframe src={fileUrl} width="100%" height="500px" title="PDF Viewer" />
+        <iframe src={fileUrl} className={`${containerClass} border-none`} />
+      );
+    } else if (fileType.startsWith("text/") && content) {
+      return (
+        <pre
+          className={`${containerClass} bg-gray-100 p-4 rounded overflow-auto text-sm`}
+        >
+          {content}
+        </pre>
       );
     } else {
       return (
-        <Button onClick={() => window.open(fileUrl, "_blank")}>
-          Datei herunterladen
-        </Button>
+        <div
+          className={`${containerClass} flex flex-col items-center justify-center bg-gray-100 rounded`}
+        >
+          <FileIcon className="w-16 h-16 text-gray-400 mb-2" />
+          <span className="text-gray-600 text-sm text-center">{fileName}</span>
+        </div>
       );
     }
   };
 
   return (
-    <Card className="w-full max-w-3xl mx-auto">
-      <CardHeader>
-        <CardTitle>Minio Datei Viewer</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {error ? (
-          <p className="text-red-500">{error}</p>
-        ) : fileUrl ? (
-          renderFileContent()
-        ) : (
-          <p>Lade Datei...</p>
-        )}
-      </CardContent>
-    </Card>
+    <Drawer>
+      <DrawerTrigger asChild>
+        <Button variant="outline" size="sm">
+          <EyeIcon className="h-4 w-4 mr-2" />
+          View
+        </Button>
+      </DrawerTrigger>
+      <DrawerContent className="w-full h-full flex">
+        <DrawerHeader className="flex justify-between items-center border-b pb-4">
+          <div className="flex items-center space-x-2">
+            <FileIcon className="h-6 w-6 text-gray-400" />
+            <DrawerTitle className="text-lg font-semibold truncate">
+              {fileName}
+            </DrawerTitle>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.open(fileUrl, "_blank")}
+            >
+              <Maximize2Icon className="h-4 w-4 " />
+            </Button>
+            <DrawerClose asChild>
+              <Button variant="outline" size="sm">
+                <X className="h-4 w-4" />
+              </Button>
+            </DrawerClose>
+          </div>
+        </DrawerHeader>
+        <div className="px-28 h-[calc(100vh-120px)]">{renderPreview(true)}</div>
+      </DrawerContent>
+    </Drawer>
   );
 }
-// ----------------------------------------------------------------------
-// "use client";
-
-// import { useState, useEffect } from "react";
-// import { Button } from "@/components/ui/button";
-// import { Card, CardContent } from "@/components/ui/card";
-
-// type CustomFilePreviewerProps = {
-//   fileUrl: string;
-//   fileName: string;
-//   fileType: string;
-// };
-
-// export default function CustomFilePreviewer({
-//   fileUrl,
-//   fileName,
-//   fileType,
-// }: CustomFilePreviewerProps) {
-//   const [fileContent, setFileContent] = useState<string | null>(null);
-//   const [currentPage, setCurrentPage] = useState(1);
-
-//   useEffect(() => {
-//     const fetchFile = async () => {
-//       try {
-//         const response = await fetch(fileUrl);
-//         if (!response.ok) throw new Error("Fehler beim Laden der Datei");
-//         const blob = await response.blob();
-
-//         if (fileType.startsWith("image/")) {
-//           setFileContent(URL.createObjectURL(blob));
-//         } else if (fileType === "application/pdf") {
-//           // Für PDFs wird wir einen iframe verwenden
-//           setFileContent(URL.createObjectURL(blob));
-//         } else if (fileType.startsWith("text/")) {
-//           const text = await blob.text();
-//           setFileContent(text);
-//         }
-//       } catch (error) {
-//         console.error("Fehler beim Laden der Datei:", error);
-//       }
-//     };
-
-//     fetchFile();
-//   }, [fileUrl, fileType]);
-
-//   return (
-//     <Card className="w-full max-w-3xl mx-auto">
-//       <CardContent className="p-6">
-//         <h2 className="text-2xl font-bold mb-4">{fileName}</h2>
-//         {fileType.startsWith("image/") && fileContent && (
-//           <img src={fileContent} alt={fileName} className="max-w-full h-auto" />
-//         )}
-//         {fileType === "application/pdf" && fileContent && (
-//           <div className="h-[600px]">
-//             <iframe src={fileContent} className="w-full h-full" />
-//           </div>
-//         )}
-//         {fileType.startsWith("text/") && fileContent && (
-//           <pre className="bg-gray-100 p-4 rounded overflow-auto max-h-96">
-//             {fileContent}
-//           </pre>
-//         )}
-//       </CardContent>
-//     </Card>
-//   );
-// }

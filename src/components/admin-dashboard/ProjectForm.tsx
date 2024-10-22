@@ -38,6 +38,7 @@ interface ProjectFormProps {
   projectId?: string;
   onSave: (project: any) => Promise<void>;
   initialProject?: any;
+  availableUsers: User[];
 }
 
 export default function ProjectForm({

@@ -11,8 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { AddFormModal } from "./AddFormModal";
-import DeleteButtonExpenseModal from "@/components/user-account/DeleteButtonExpenseModal";
-import { Expense } from "@prisma/client";
+import { UniversalDeleteDialog } from "../forms/UniversalDeleteButton";
 
 interface SharedExpenseTableProps {
   category: "reimbursement" | "travel";
@@ -22,7 +21,6 @@ interface SharedExpenseTableProps {
   setSearchTerm: (value: string) => void;
   handleAddNewClick: () => void;
   handleViewDetails: (item: any) => void;
-
   handleFormSubmit: (formData: any) => Promise<void>;
   handleDelete: (id: string) => Promise<void>;
 }
@@ -35,7 +33,6 @@ export default function SharedExpenseTable({
   setSearchTerm,
   handleAddNewClick,
   handleViewDetails,
-
   handleFormSubmit,
   handleDelete,
 }: SharedExpenseTableProps) {
@@ -44,6 +41,11 @@ export default function SharedExpenseTable({
       item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.project.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleDeleteSuccess = async (id: string, message: string) => {
+    await handleDelete(id);
+    console.log(message); // Sie können hier auch einen Toast verwenden
+  };
 
   return (
     <div>
@@ -116,11 +118,18 @@ export default function SharedExpenseTable({
                     >
                       Ansehen
                     </Button>
-                    <DeleteButtonExpenseModal
-                      expense={item as unknown as Expense}
-                      onDelete={() => handleDelete(item.id)}
-                      onDeleteSuccess={() => {}}
+                    <UniversalDeleteDialog
+                      item={{ id: item.id, name: item.description }}
+                      itemType={
+                        category === "reimbursement" ? "Auslage" : "Reisekosten"
+                      }
+                      onDelete={handleDeleteSuccess}
                       onClose={() => {}}
+                      triggerButton={
+                        <Button variant="destructive" size="sm">
+                          Delete
+                        </Button>
+                      }
                     />
                   </div>
                 </TableCell>

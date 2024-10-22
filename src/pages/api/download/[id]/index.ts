@@ -48,10 +48,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   // set header for download file
-  res.setHeader(
-    "content-disposition",
-    `attachment; filename="${fileObject?.filename}"`
-  );
+  // res.setHeader(
+  //   "content-disposition",
+  //   `attachment; filename="${fileObject?.filename}"`
+  // );
 
   // pipe the data to the res object
   data.pipe(res);

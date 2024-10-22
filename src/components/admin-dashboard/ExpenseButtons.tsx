@@ -6,6 +6,8 @@
 // import { updateExpense, deleteExpense } from "@/lib/api/expenseClient";
 // import { ExpenseStatus } from "@prisma/client";
 // import { UniversalDeleteDialog } from "@/components/forms/UniversalDeleteButton";
+// import CustomFilePreviewer from "@/components/preview/FilePreviewer";
+// // Removed import for Dialog components
 
 // interface ExpenseButtonsProps {
 //   expenseId: string;
@@ -14,8 +16,8 @@
 //   onDelete: () => void;
 //   fileId: number;
 //   fileName: string;
-//   fileType: "image" | "pdf";
-//   description: string; // Hinzugefügt für den UniversalDeleteDialog
+//   fileType: string;
+//   description: string;
 //   isDeleting: boolean;
 // }
 
@@ -31,6 +33,7 @@
 //   isDeleting,
 // }: ExpenseButtonsProps) {
 //   const [isLoading, setIsLoading] = useState(false);
+//   // Removed isPreviewOpen state
 
 //   const handleDownloadBlob = async () => {
 //     try {
@@ -107,7 +110,11 @@
 //       <Button onClick={handleDownloadBlob} size="sm">
 //         Download
 //       </Button>
-
+//       <CustomFilePreviewer
+//         fileUrl={`/api/download/${fileId}`}
+//         fileName={fileName}
+//         fileType={fileType === "image" ? "image/jpeg" : "application/pdf"}
+//       />
 //       <UniversalDeleteDialog
 //         item={{ id: expenseId, name: description }}
 //         itemType="Expense"
@@ -127,6 +134,7 @@
 //     </div>
 //   );
 // }
+// ------------------------------------------------------------
 "use client";
 
 import { useState } from "react";
@@ -135,13 +143,8 @@ import { toast } from "react-toastify";
 import { updateExpense, deleteExpense } from "@/lib/api/expenseClient";
 import { ExpenseStatus } from "@prisma/client";
 import { UniversalDeleteDialog } from "@/components/forms/UniversalDeleteButton";
-import MinioFilePreviewer from "@/components/preview/FilePreviewer";
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import CustomFilePreviewer from "@/components/preview/FilePreviewer";
+// Removed import for Dialog components
 
 interface ExpenseButtonsProps {
   expenseId: string;
@@ -150,7 +153,7 @@ interface ExpenseButtonsProps {
   onDelete: () => void;
   fileId: number;
   fileName: string;
-  fileType: "image" | "pdf";
+  fileType: string;
   description: string;
   isDeleting: boolean;
 }
@@ -167,7 +170,7 @@ export default function ExpenseButtons({
   isDeleting,
 }: ExpenseButtonsProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  // Removed isPreviewOpen state
 
   const handleDownloadBlob = async () => {
     try {
@@ -204,7 +207,10 @@ export default function ExpenseButtons({
     }
   };
 
-  const handleDeleteSuccess = (id: string, message: string) => {
+  const handleDeleteSuccess = async (
+    id: string,
+    message: string
+  ): Promise<void> => {
     onDelete();
     toast.success(message);
   };
@@ -244,26 +250,15 @@ export default function ExpenseButtons({
       <Button onClick={handleDownloadBlob} size="sm">
         Download
       </Button>
-      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogTrigger asChild>
-          <Button variant="outline" size="sm">
-            View
-          </Button>
-        </DialogTrigger>
-        <DialogTitle className="sr-only">{fileName}</DialogTitle>
-        <DialogContent className="max-w-4xl">
-          <MinioFilePreviewer
-            fileUrl={`/api/download/${fileId}`}
-            fileName={fileName}
-            fileType={fileType === "image" ? "image/jpeg" : "application/pdf"}
-          />
-        </DialogContent>
-      </Dialog>
+      <CustomFilePreviewer
+        fileUrl={`/api/download/${fileId}`}
+        fileName={fileName}
+        fileType={fileType === "image" ? "image/jpeg" : "application/pdf"}
+      />
       <UniversalDeleteDialog
         item={{ id: expenseId, name: description }}
         itemType="Expense"
         onDelete={handleDeleteSuccess}
-        onDeleteSuccess={handleDeleteSuccess}
         onClose={() => {}}
         triggerButton={
           <Button
