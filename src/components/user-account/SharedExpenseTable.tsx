@@ -36,11 +36,25 @@ export default function SharedExpenseTable({
   handleFormSubmit,
   handleDelete,
 }: SharedExpenseTableProps) {
-  const filteredResults = expenses.filter(
-    (item: any) =>
-      item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.project.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredResults = expenses.filter((item: any) => {
+    if (searchTerm === "") return true;
+
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      item.description.toLowerCase().includes(searchLower) ||
+      item.project.name.toLowerCase().includes(searchLower) ||
+      item.status.toLowerCase().includes(searchLower) ||
+      item.amount.toString().includes(searchLower) ||
+      new Date(item.createdAt)
+        .toLocaleDateString("de-DE", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+        .toLowerCase()
+        .includes(searchLower)
+    );
+  });
 
   const handleDeleteSuccess = async (id: string, message: string) => {
     await handleDelete(id);
@@ -53,7 +67,7 @@ export default function SharedExpenseTable({
         <Input
           placeholder={`Suchen nach ${
             category === "reimbursement" ? "Auslagen" : "Reisekosten"
-          } oder Projekten...`}
+          }, Projekten, Status, Betrag oder Datum...`}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="bg-background"

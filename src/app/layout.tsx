@@ -1,4 +1,4 @@
-import "@/app/styles/globals.css";
+import "@/app/globals.css";
 import { cn } from "@/lib/utils";
 import { Space_Mono } from "next/font/google";
 import { Bricolage_Grotesque } from "next/font/google";

@@ -1,19 +1,26 @@
 // components/AdminDashboard/SearchBar.tsx
 import { Input } from "@/components/ui/input";
+import { ChangeEvent } from "react";
+
+interface SearchBarProps {
+  value: string;
+
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+
+  placeholder?: string; // Add placeholder prop
+}
 
 export default function SearchBar({
   value,
   onChange,
-}: {
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}) {
+  placeholder = "Search...",
+}: SearchBarProps) {
   return (
     <Input
-      placeholder="Search..."
+      placeholder={placeholder}
       value={value}
       onChange={onChange}
-      className=" bg-background"
+      className="bg-background"
     />
   );
 }
