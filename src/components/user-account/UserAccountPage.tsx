@@ -645,65 +645,197 @@ export default function UserAccountPage() {
   //     }
   //   }
   // };
+  // const handleFormSubmit = async (formData: any) => {
+  //   console.log(
+  //     "UserAccountPage: Form submit triggered",
+  //     JSON.stringify(formData, null, 2)
+  //   );
+  //   try {
+  //     console.log("UserAccountPage: Processing bills");
+  //     if (!formData.bills || !Array.isArray(formData.bills)) {
+  //       console.error(
+  //         "UserAccountPage: formData.bills is not an array",
+  //         formData.bills
+  //       );
+  //       throw new Error("Invalid bills data");
+  //     }
+
+  //     const processedBills = formData.bills.map((bill: any, index: number) => {
+  //       console.log(
+  //         `UserAccountPage: Processing bill ${index}`,
+  //         JSON.stringify(bill, null, 2)
+  //       );
+  //       if (
+  //         !bill ||
+  //         !bill.files ||
+  //         !Array.isArray(bill.files) ||
+  //         bill.files.length === 0
+  //       ) {
+  //         console.error(
+  //           `UserAccountPage: Invalid bill at index ${index}`,
+  //           bill
+  //         );
+  //         throw new Error(`Invalid bill data at index ${index}`);
+  //       }
+
+  //       const file = bill.files[0]; // Assuming we're only dealing with the first file
+  //       return {
+  //         id: bill.id, // Include the bill id
+  //         fileId: file.id,
+  //         amount: bill.amount,
+  //         fileName: file.filename,
+  //         fileSize: file.size,
+  //         fileType: file.mimeType,
+  //       };
+  //     });
+
+  //     console.log(
+  //       "UserAccountPage: All bills processed",
+  //       JSON.stringify(processedBills, null, 2)
+  //     );
+
+  //     const updatedFormData = {
+  //       ...formData,
+  //       bills: processedBills,
+  //     };
+
+  //     console.log(
+  //       "UserAccountPage: Creating expense with updated form data",
+  //       JSON.stringify(updatedFormData, null, 2)
+  //     );
+  //     const newExpense = await createExpense(updatedFormData);
+  //     console.log(
+  //       "UserAccountPage: New expense created",
+  //       JSON.stringify(newExpense, null, 2)
+  //     );
+
+  //     setExpenses((prevExpenses) => [...prevExpenses, newExpense]);
+  //     toast.success(
+  //       `${
+  //         formData.category === "reimbursement" ? "Auslage" : "Reisekosten"
+  //       } erfolgreich erstellt`
+  //     );
+  //   } catch (error) {
+  //     console.error("UserAccountPage: Error creating expense:", error);
+  //     if (error instanceof Error) {
+  //       toast.error(
+  //         `Fehler beim Erstellen der ${
+  //           formData.category === "reimbursement" ? "Auslage" : "Reisekosten"
+  //         }: ${error.message}`
+  //       );
+  //     } else {
+  //       toast.error(
+  //         `Fehler beim Erstellen der ${
+  //           formData.category === "reimbursement" ? "Auslage" : "Reisekosten"
+  //         }`
+  //       );
+  //     }
+  //   }
+  // };
+  // const handleFormSubmit = async (formData: any) => {
+  //   console.log(
+  //     "UserAccountPage: Form submit triggered",
+  //     JSON.stringify(formData, null, 2)
+  //   );
+  //   try {
+  //     const processedFormData = {
+  //       ...formData,
+  //       bills: formData.bills.map((bill: any) => ({
+  //         fileId: bill.files[0].id,
+  //         amount: bill.amount,
+  //       })),
+  //     };
+
+  //     console.log(
+  //       "UserAccountPage: Processed form data",
+  //       JSON.stringify(processedFormData, null, 2)
+  //     );
+
+  //     const newExpense = await createExpense(processedFormData);
+  //     console.log(
+  //       "UserAccountPage: New expense created",
+  //       JSON.stringify(newExpense, null, 2)
+  //     );
+
+  //     setExpenses((prevExpenses) => [...prevExpenses, newExpense]);
+  //     toast.success(
+  //       `${
+  //         formData.category === "reimbursement" ? "Auslage" : "Reisekosten"
+  //       } erfolgreich erstellt`
+  //     );
+  //   } catch (error) {
+  //     console.error("UserAccountPage: Error creating expense:", error);
+  //     toast.error(
+  //       `Fehler beim Erstellen der ${
+  //         formData.category === "reimbursement" ? "Auslage" : "Reisekosten"
+  //       }: ${(error as any).response?.data?.error || (error as any).message}`
+  //     );
+  //   }
+  // };
+
+  // funktioniert mit einer datei
+
+  // const handleFormSubmit = async (formData: any) => {
+  //   console.log(
+  //     "UserAccountPage: Form submit triggered",
+  //     JSON.stringify(formData, null, 2)
+  //   );
+  //   try {
+  //     const processedFormData = {
+  //       ...formData,
+  //       bills: formData.bills.map((bill: any) => ({
+  //         fileId: bill.fileId,
+  //         amount: bill.amount,
+  //       })),
+  //     };
+
+  //     console.log(
+  //       "UserAccountPage: Processed form data",
+  //       JSON.stringify(processedFormData, null, 2)
+  //     );
+
+  //     const newExpense = await createExpense(processedFormData);
+  //     console.log(
+  //       "UserAccountPage: New expense created",
+  //       JSON.stringify(newExpense, null, 2)
+  //     );
+
+  //     setExpenses((prevExpenses) => [...prevExpenses, newExpense]);
+  //     toast.success(
+  //       `${
+  //         formData.category === "reimbursement" ? "Auslage" : "Reisekosten"
+  //       } erfolgreich erstellt`
+  //     );
+  //   } catch (error) {
+  //     console.error("UserAccountPage: Error creating expense:", error);
+  //     toast.error(
+  //       `Fehler beim Erstellen der ${
+  //         formData.category === "reimbursement" ? "Auslage" : "Reisekosten"
+  //       }: ${(error as any).response?.data?.error || (error as any).message}`
+  //     );
+  //   }
+  // };
+
   const handleFormSubmit = async (formData: any) => {
     console.log(
       "UserAccountPage: Form submit triggered",
       JSON.stringify(formData, null, 2)
     );
     try {
-      console.log("UserAccountPage: Processing bills");
-      if (!formData.bills || !Array.isArray(formData.bills)) {
-        console.error(
-          "UserAccountPage: formData.bills is not an array",
-          formData.bills
-        );
-        throw new Error("Invalid bills data");
-      }
-
-      const processedBills = formData.bills.map((bill: any, index: number) => {
-        console.log(
-          `UserAccountPage: Processing bill ${index}`,
-          JSON.stringify(bill, null, 2)
-        );
-        if (
-          !bill ||
-          !bill.files ||
-          !Array.isArray(bill.files) ||
-          bill.files.length === 0
-        ) {
-          console.error(
-            `UserAccountPage: Invalid bill at index ${index}`,
-            bill
-          );
-          throw new Error(`Invalid bill data at index ${index}`);
-        }
-
-        const file = bill.files[0]; // Assuming we're only dealing with the first file
-        return {
-          id: bill.id, // Include the bill id
-          fileId: file.id,
-          amount: bill.amount,
-          fileName: file.filename,
-          fileSize: file.size,
-          fileType: file.mimeType,
-        };
-      });
-
-      console.log(
-        "UserAccountPage: All bills processed",
-        JSON.stringify(processedBills, null, 2)
-      );
-
-      const updatedFormData = {
+      const processedFormData = {
         ...formData,
-        bills: processedBills,
+        bills: formData.bills.map((bill: any) => ({
+          fileId: bill.fileId,
+          amount: bill.amount,
+        })),
       };
 
       console.log(
-        "UserAccountPage: Creating expense with updated form data",
-        JSON.stringify(updatedFormData, null, 2)
+        "UserAccountPage: Processed form data",
+        JSON.stringify(processedFormData, null, 2)
       );
-      const newExpense = await createExpense(updatedFormData);
+
+      const newExpense = await createExpense(processedFormData);
       console.log(
         "UserAccountPage: New expense created",
         JSON.stringify(newExpense, null, 2)
@@ -717,21 +849,14 @@ export default function UserAccountPage() {
       );
     } catch (error) {
       console.error("UserAccountPage: Error creating expense:", error);
-      if (error instanceof Error) {
-        toast.error(
-          `Fehler beim Erstellen der ${
-            formData.category === "reimbursement" ? "Auslage" : "Reisekosten"
-          }: ${error.message}`
-        );
-      } else {
-        toast.error(
-          `Fehler beim Erstellen der ${
-            formData.category === "reimbursement" ? "Auslage" : "Reisekosten"
-          }`
-        );
-      }
+      toast.error(
+        `Fehler beim Erstellen der ${
+          formData.category === "reimbursement" ? "Auslage" : "Reisekosten"
+        }: ${(error as any).response?.data?.error || (error as any).message}`
+      );
     }
   };
+
   const handleDelete = async (expenseId: string) => {
     console.log("UserAccountPage: Delete expense triggered", { expenseId });
     try {

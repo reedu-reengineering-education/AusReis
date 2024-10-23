@@ -146,45 +146,58 @@ export const getExpenses = async () => {
 // };
 
 // Erstellen einer neuen Auslage
+// export const createExpense = async (data: any) => {
+//   console.log("createExpense called with:", JSON.stringify(data, null, 2));
+//   try {
+//     // Ensure bills are in the correct format
+//     const formattedBills = data.bills.map((bill: any) => {
+//       if (bill.files && bill.files.length > 0) {
+//         // Handle the case where files are nested in a 'files' array
+//         return {
+//           id: bill.id,
+//           fileId: bill.files[0].id,
+//           amount: bill.amount,
+//         };
+//       } else if (bill.file && bill.file.id) {
+//         // Handle the case where file is directly on the bill object
+//         return {
+//           id: bill.id,
+//           fileId: bill.file.id,
+//           amount: bill.amount,
+//         };
+//       } else {
+//         console.error("Invalid bill structure:", bill);
+//         throw new Error("Invalid bill structure");
+//       }
+//     });
+
+//     const response = await axios.post(API_URL, {
+//       ...data,
+//       bills: formattedBills,
+//       travelStartDate: data.travelStartDate,
+//       travelEndDate: data.travelEndDate,
+//     });
+//     console.log("response.data", response.data);
+//     return response.data;
+//   } catch (error) {
+//     console.error("Error creating expense:", error);
+//     throw error;
+//   }
+// };
 export const createExpense = async (data: any) => {
   console.log("createExpense called with:", JSON.stringify(data, null, 2));
   try {
-    // Ensure bills are in the correct format
-    const formattedBills = data.bills.map((bill: any) => {
-      if (bill.files && bill.files.length > 0) {
-        // Handle the case where files are nested in a 'files' array
-        return {
-          id: bill.id,
-          fileId: bill.files[0].id,
-          amount: bill.amount,
-        };
-      } else if (bill.file && bill.file.id) {
-        // Handle the case where file is directly on the bill object
-        return {
-          id: bill.id,
-          fileId: bill.file.id,
-          amount: bill.amount,
-        };
-      } else {
-        console.error("Invalid bill structure:", bill);
-        throw new Error("Invalid bill structure");
-      }
-    });
-
-    const response = await axios.post(API_URL, {
-      ...data,
-      bills: formattedBills,
-      travelStartDate: data.travelStartDate,
-      travelEndDate: data.travelEndDate,
-    });
-    console.log("response.data", response.data);
+    const response = await axios.post(API_URL, data);
+    console.log(
+      "createExpense response:",
+      JSON.stringify(response.data, null, 2)
+    );
     return response.data;
   } catch (error) {
     console.error("Error creating expense:", error);
     throw error;
   }
 };
-
 // Aktualisieren einer bestimmten Auslage
 export const updateExpense = async (
   id: string,
