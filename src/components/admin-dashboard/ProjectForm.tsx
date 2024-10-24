@@ -1,3 +1,5 @@
+// Path: src/components/admin-dashboard/ProjectForm.tsx
+// Component: ProjectForm for creating and editing projects
 "use client";
 
 import React, { useState, useEffect } from "react";

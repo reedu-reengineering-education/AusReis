@@ -1,3 +1,5 @@
+// Path: src/components/user-account/BillsModal.tsx
+// Component: BillsModal for displaying bills and upload functionality in the user account page
 import { useState, useRef } from "react";
 import {
   Table,

@@ -1,3 +1,5 @@
+// path: src/app/login/page.tsx
+// Component: LoginPage for displaying the login page with the magic link form
 "use client";
 import { MagicLinkForm } from "@/components/forms/MagicLinkForm";
 

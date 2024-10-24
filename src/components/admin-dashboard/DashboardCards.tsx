@@ -1,4 +1,5 @@
 // components/AdminDashboard/DashboardCards.tsx
+// Component: DashboardCards for displaying key metrics on the admin dashboard
 import { getExpenses } from "@/lib/api/expenseClient";
 import { Project } from "@prisma/client";
 import { getProject } from "@/lib/api/projectClient";

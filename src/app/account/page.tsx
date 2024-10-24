@@ -1,3 +1,5 @@
+// Path: src/app/account/page.tsx
+// Component: AccountPage for displaying the user account page
 "use client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";

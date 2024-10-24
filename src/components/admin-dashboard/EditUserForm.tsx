@@ -1,4 +1,5 @@
 // Path: src/components/admin-dashboard/EditUserForm.tsx
+// Component: EditUserForm for editing a user
 import React, { useState, useEffect } from "react";
 import {
   Dialog,

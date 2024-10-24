@@ -1,3 +1,5 @@
+// Path: src/components/email/EnhancedExpenseNotification.tsx
+// Component: EnhancedExpenseNotification for notifying users about new expenses
 import {
   Body,
   Container,

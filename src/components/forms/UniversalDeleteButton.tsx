@@ -1,3 +1,5 @@
+// Path: src/components/forms/UniversalDeleteDialog.tsx
+// Component: UniversalDeleteDialog for deleting items from the database
 "use client";
 
 import { useState } from "react";

@@ -1,3 +1,5 @@
+// Path: src/components/user-account/UserTabs.tsx
+// Component: TabsComponent for displaying tabs for expenses and travel costs on the user account page
 import { useMemo, Dispatch, SetStateAction } from "react";
 import { expenses, travels } from "../../../data"; // Importiere die Daten
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
