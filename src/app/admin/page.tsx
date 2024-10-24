@@ -1,4 +1,5 @@
 // src/app/admin/page.tsx
+// Component: AdminPage for displaying the admin dashboard page
 import AdminDashboard from "@/components/admin-dashboard/AdminDashboard";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";

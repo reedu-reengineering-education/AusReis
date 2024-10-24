@@ -1,3 +1,5 @@
+// Path: src/components/user-account/SharedExpenseTable.tsx
+// Component: SharedExpenseTable for displaying shared expenses in travel costs and reimbursement cost on the user account page
 import React from "react";
 import {
   Table,

@@ -1,3 +1,5 @@
+// Path: src/app/providers.tsx
+// Component: Providers for wrapping the app with the SessionProvider
 "use client";
 import { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";

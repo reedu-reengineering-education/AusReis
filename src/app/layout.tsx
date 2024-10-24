@@ -1,3 +1,5 @@
+// Path: src/app/layout.tsx
+// Component: RootLayout for wrapping the app with the session provider and layout components
 import "@/app/globals.css";
 import { cn } from "@/lib/utils";
 import { Space_Mono } from "next/font/google";

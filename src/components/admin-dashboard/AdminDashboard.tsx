@@ -1,4 +1,5 @@
 // components/AdminDashboard/Dashboard.tsx
+// Component: AdminDashboard for the admin dashboard page
 "use client";
 import DashboardCards from "@/components/admin-dashboard/DashboardCards";
 import ProjectTable from "@/components/admin-dashboard/ProjectTable";

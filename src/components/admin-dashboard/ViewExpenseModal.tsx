@@ -1,3 +1,5 @@
+// Path: src/components/admin-dashboard/ViewExpenseModal.tsx
+// Component: ViewExpenseModal for viewing expense details and downloading files
 "use client";
 
 import { useState, useEffect } from "react";

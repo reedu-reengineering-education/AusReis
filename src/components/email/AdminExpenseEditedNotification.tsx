@@ -1,3 +1,5 @@
+// Path: src/components/email/AdminExpenseEditedNotification.tsx
+// Component: AdminExpenseEditedNotification for notifying users about expense updates
 import {
   Body,
   Container,

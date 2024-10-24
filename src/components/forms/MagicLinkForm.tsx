@@ -1,3 +1,5 @@
+// Path: src/components/forms/MagicLinkForm.tsx
+// Component: MagicLinkForm for sending magic links to users for authentication and login/register
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -70,7 +72,7 @@ export function MagicLinkForm({ handleUserCreated }: MagicLinkFormProps) {
           className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
           onClick={() => setIsDialogOpen(true)}
         >
-          Get Started
+          Get Logged In
         </Button>
       </DialogTrigger>
       <DialogContent

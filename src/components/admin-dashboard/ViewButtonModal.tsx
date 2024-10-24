@@ -1,3 +1,5 @@
+// Path: src/components/admin-dashboard/ProjectViewModal.tsx
+// Component: ProjectViewModal for viewing project details
 "use client";
 
 import { useState } from "react";

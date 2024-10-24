@@ -1,3 +1,5 @@
+// Path: src/components/admin/DashboardCardsAdmin.tsx
+// Component: DashboardCards for displaying statistics on the admin dashboard
 import { getExpenses } from "@/lib/api/expenseClient";
 import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";

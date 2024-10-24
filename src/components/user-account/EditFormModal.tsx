@@ -1,6 +1,17 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { toast } from "react-toastify";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { UploadIcon, FileIcon, TrashIcon } from "lucide-react";
+import {
+  Calendar as CalendarIcon,
+  UploadIcon,
+  FileIcon,
+  TrashIcon,
+  Loader2,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -10,9 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useState, useRef } from "react";
 import { Progress } from "@/components/ui/progress";
-import { createFormData } from "@/helpers/fileUploadHelpers";
 import {
   Table,
   TableHeader,
@@ -20,57 +29,79 @@ import {
   TableHead,
   TableBody,
   TableCell,
-} from "../ui/table";
-import { useSession } from "next-auth/react";
+} from "@/components/ui/table";
 import {
-  Expense as BaseFormData,
-  ExpenseCategory,
-  ExpenseStatus,
-} from "@prisma/client";
-import { toast } from "react-toastify";
-
-interface FormData extends BaseFormData {
-  bills: { file: string; amount: number }[];
-}
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { getProject } from "@/lib/api/projectClient";
+import axios from "axios";
 
 interface EditFormModalProps {
-  activeTab: "expenses" | "travel";
-  expenseId: string;
-  handleFormSubmit: (formData: FormData) => Promise<void>;
+  expense: {
+    id: string;
+    amount: number;
+    description: string;
+    projectId: string;
+    status: string;
+    userId: string;
+    category: string;
+    bills: { file: File; amount: number; fileId?: string }[];
+    travelStartDate?: string;
+    travelEndDate?: string;
+  };
+  onUpdate: (updatedExpense: any) => void;
 }
 
-const initialData: FormData = {
-  amount: 0,
-  description: "",
-  projectId: "",
-  userId: "",
-  category: ExpenseCategory.reimbursement,
-  status: ExpenseStatus.pending,
-  bills: [],
-  id: "",
-  createdAt: new Date(),
-  travelStartDate: null,
-  travelEndDate: null,
-};
-
-export function EditFormModal(props: EditFormModalProps) {
+export function EditFormModal({ expense, onUpdate }: EditFormModalProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [projects, setProjects] = useState<any[]>([]);
   const { data: session } = useSession();
 
   const [formData, setFormData] = useState({
-    ...initialData,
-    userId: session?.user?.id || "",
+    ...expense,
+    travelStartDate: expense.travelStartDate
+      ? new Date(expense.travelStartDate)
+      : undefined,
+    travelEndDate: expense.travelEndDate
+      ? new Date(expense.travelEndDate)
+      : undefined,
   });
 
-  if (!formData) {
-    return null;
-  }
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const fetchedProjects = await getProject();
+        setProjects(fetchedProjects);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+        toast.error(
+          "Fehler beim Laden der Projekte. Bitte versuchen Sie es später erneut."
+        );
+      }
+    }
+
+    fetchProjects();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log("EditFormModal: handleSubmit called", { formData });
 
     if (
       !formData.amount ||
@@ -79,22 +110,72 @@ export function EditFormModal(props: EditFormModalProps) {
       !formData.userId ||
       !formData.category ||
       !formData.status ||
-      !formData.bills
+      formData.bills.length === 0 ||
+      (formData.category === "travel" &&
+        (!formData.travelStartDate || !formData.travelEndDate))
     ) {
-      toast.error("Bitte füllen Sie alle Felder aus.");
+      toast.error(
+        "Bitte füllen Sie alle Felder aus, laden Sie mindestens eine Datei hoch und wählen Sie die Reisedaten (falls zutreffend)."
+      );
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
-      await props.handleFormSubmit(formData);
-      // console.log("Form data submitted:", formData);
-      setIsDialogOpen(false);
-      toast.success("Änderungen erfolgreich gespeichert.");
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error(
-        "Fehler beim Speichern der Änderungen. Bitte versuchen Sie es erneut."
+      console.log("EditFormModal: Starting file upload");
+      const uploadedFiles = await Promise.all(
+        formData.bills.map(async (bill) => {
+          if (bill.fileId) return bill; // Skip already uploaded files
+
+          console.log("EditFormModal: Uploading file", {
+            fileName: bill.file.name,
+          });
+          const uploadFormData = new FormData();
+          uploadFormData.append("file", bill.file);
+          const response = await axios.post(
+            "/api/upload/files",
+            uploadFormData,
+            {
+              headers: { "Content-Type": "multipart/form-data" },
+            }
+          );
+          console.log("EditFormModal: File upload response", {
+            response: response.data,
+          });
+
+          return {
+            ...bill,
+            fileId: response.data.data.id,
+          };
+        })
       );
+      console.log("EditFormModal: All files uploaded", { uploadedFiles });
+
+      const updatedFormData = {
+        ...formData,
+        bills: uploadedFiles,
+        travelStartDate: formData.travelStartDate
+          ? formData.travelStartDate.toISOString()
+          : undefined,
+        travelEndDate: formData.travelEndDate
+          ? formData.travelEndDate.toISOString()
+          : undefined,
+      };
+      console.log("EditFormModal: Calling onUpdate", {
+        updatedFormData,
+      });
+      await onUpdate(updatedFormData);
+
+      setIsDialogOpen(false);
+      toast.success("Auslage erfolgreich aktualisiert!");
+    } catch (error) {
+      console.error("EditFormModal: Error in handleSubmit:", error);
+      toast.error(
+        "Ein Fehler ist beim Aktualisieren der Auslage aufgetreten. Bitte versuchen Sie es erneut."
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -106,27 +187,23 @@ export function EditFormModal(props: EditFormModalProps) {
     }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    const bills = files
-      ? Array.from(files).map((file) => ({ file: file.name, amount: 0 }))
-      : [];
+  const handleProjectChange = (value: string) => {
     setFormData((prevData) => ({
       ...prevData,
-      bills: [...prevData.bills, ...bills],
+      projectId: value,
     }));
-    if (files && files.length > 0) {
-      setFile(files[0]);
-      toast.info(`${files.length} neue Datei(en) hinzugefügt.`);
-    }
   };
 
-  const handleDeleteFile = (fileName: string) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      bills: prevData.bills.filter((bill) => bill.file !== fileName),
-    }));
-    toast.info(`Datei "${fileName}" entfernt.`);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const newBills = Array.from(files).map((file) => ({ file, amount: 0 }));
+      setFormData((prevData) => ({
+        ...prevData,
+        bills: [...prevData.bills, ...newBills],
+      }));
+      toast.info(`${files.length} Datei(en) hinzugefügt.`);
+    }
   };
 
   const handleUploadClick = () => {
@@ -135,159 +212,224 @@ export function EditFormModal(props: EditFormModalProps) {
     }
   };
 
-  const handleUpload = async (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-
-    if (file) {
-      const uploadFormData = createFormData([file]);
-
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", "/api/upload/files", true);
-
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          const progress = (e.loaded / e.total) * 100;
-          setUploadProgress(progress);
-          console.log(`Fortschritt: ${progress.toFixed(2)}%`);
-        }
-      };
-
-      xhr.onload = () => {
-        if (xhr.status === 200) {
-          console.log("Datei erfolgreich hochgeladen");
-          toast.success("Datei erfolgreich hochgeladen.");
-        } else {
-          console.error("Fehler beim Hochladen");
-          toast.error("Fehler beim Hochladen der Datei.");
-        }
-      };
-
-      xhr.onerror = () => {
-        console.error("Fehler beim Hochladen");
-        toast.error("Fehler beim Hochladen der Datei.");
-      };
-
-      xhr.send(uploadFormData);
-    }
+  const handleRemoveFile = (index: number) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      bills: prevData.bills.filter((_, i) => i !== index),
+    }));
+    toast.info("Datei entfernt.");
   };
-
-  const activeTab = "expenses"; // Define activeTab variable
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="default" onClick={() => setIsDialogOpen(true)}>
-          {activeTab === "expenses"
-            ? "Auslage bearbeiten"
-            : "Reisekosten bearbeiten"}
+        <Button variant="outline" onClick={() => setIsDialogOpen(true)}>
+          Bearbeiten
         </Button>
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader />
-        <DialogTitle>
-          {activeTab === "expenses"
-            ? "Auslage bearbeiten"
-            : "Reisekosten bearbeiten"}
-        </DialogTitle>
-        <DialogDescription>
-          Bearbeiten Sie die Details und fügen Sie neue Dateien hinzu oder
-          löschen Sie vorhandene.
-        </DialogDescription>
-        <form onSubmit={handleSubmit}>
-          <Input
-            name="description"
-            placeholder="Titel"
-            required
-            className="mb-4"
-            value={formData.description}
-            onChange={handleInputChange}
-          />
-          <Input
-            name="amount"
-            placeholder="Betrag"
-            required
-            className="mb-4"
-            type="number"
-            value={formData.amount}
-            onChange={handleInputChange}
-          />
-          <Input
-            name="projectId"
-            placeholder="Projekt"
-            required
-            className="mb-4"
-            value={formData.projectId}
-            onChange={handleInputChange}
-          />
-          <div className="border-2 border-gray-200 border-dashed rounded-lg p-6 dark:border-gray-700 group hover:border-primary transition-colors">
-            <div className="flex flex-col items-center justify-center space-y-3">
-              <UploadIcon className="h-10 w-10 text-gray-400 group-hover:text-primary" />
-              <p className="text-gray-500 dark:text-gray-400 group-hover:text-primary">
-                Dateien hier ablegen
-              </p>
-              <Button variant="outline" onClick={handleUploadClick}>
-                Neue Dateien auswählen
-                <input
-                  className="hidden"
-                  type="file"
-                  onChange={handleFileChange}
-                  ref={fileInputRef}
+      <DialogContent className="sm:max-w-[625px]">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold">
+            Auslage bearbeiten
+          </DialogTitle>
+          <DialogDescription>
+            Bitte aktualisieren Sie die Details und laden Sie bei Bedarf neue
+            Dateien hoch.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="description">Zweck</Label>
+                <Input
+                  id="description"
+                  name="description"
+                  placeholder="Zweck der Ausgabe"
+                  required
+                  value={formData.description}
+                  onChange={handleInputChange}
                 />
-              </Button>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="amount">Betrag</Label>
+                <Input
+                  id="amount"
+                  name="amount"
+                  placeholder="Betrag in €"
+                  required
+                  type="number"
+                  value={formData.amount}
+                  onChange={handleInputChange}
+                />
+              </div>
             </div>
-          </div>
-
-          {formData.bills.length > 0 && (
-            <div className="border rounded-lg overflow-hidden mt-4">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="px-4 py-2 text-left">File</TableHead>
-                    <TableHead className="px-4 py-2 text-right">
-                      Größe
-                    </TableHead>
-                    <TableHead className="px-4 py-2 text-right">
-                      Aktionen
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {formData.bills.map((bill, index) => (
-                    <TableRow
-                      className="border-b dark:border-gray-700"
-                      key={index}
-                    >
-                      <TableCell className="px-4 py-2 flex items-center space-x-2">
-                        <FileIcon className="h-5 w-5 text-gray-500" />
-                        <span>{bill.file}</span>
-                      </TableCell>
-                      <TableCell className="px-4 py-2 text-right">
-                        <span className="text-gray-500 dark:text-gray-400">
-                          {/* Display file size if available */}
-                          {(file?.size || 0) / 1024 / 1024} MB
-                        </span>
-                      </TableCell>
-                      <TableCell className="px-4 py-2 text-right">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => handleDeleteFile(bill.file)}
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+            <div className="space-y-2">
+              <Label htmlFor="project">Projekt</Label>
+              <Select
+                onValueChange={handleProjectChange}
+                value={formData.projectId}
+                required
+              >
+                <SelectTrigger id="project">
+                  <SelectValue placeholder="Projekt auswählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
                   ))}
-                </TableBody>
-              </Table>
+                </SelectContent>
+              </Select>
             </div>
-          )}
-
-          <DialogFooter className="mt-4">
+            {formData.category === "travel" && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Reisebeginn</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !formData.travelStartDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.travelStartDate ? (
+                          format(formData.travelStartDate, "PPP")
+                        ) : (
+                          <span>Datum wählen</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={formData.travelStartDate}
+                        onSelect={(date) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            travelStartDate: date || undefined,
+                          }))
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="space-y-2">
+                  <Label>Reiseende</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !formData.travelEndDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.travelEndDate ? (
+                          format(formData.travelEndDate, "PPP")
+                        ) : (
+                          <span>Datum wählen</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={formData.travelEndDate}
+                        onSelect={(date) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            travelEndDate: date || undefined,
+                          }))
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            )}
+          </div>
+          <Separator />
+          <div className="space-y-4">
+            <Label>Belege hochladen</Label>
+            <div className="border-2 border-dashed rounded-lg p-6 hover:border-primary transition-colors">
+              <div className="flex flex-col items-center justify-center space-y-3">
+                <UploadIcon className="h-10 w-10 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">
+                  Dateien hier ablegen oder klicken zum Auswählen
+                </p>
+                <Button variant="outline" onClick={handleUploadClick}>
+                  Dateien auswählen
+                  <input
+                    className="hidden"
+                    type="file"
+                    onChange={handleFileChange}
+                    ref={fileInputRef}
+                    multiple
+                  />
+                </Button>
+              </div>
+            </div>
+            {formData.bills.length > 0 && (
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Datei</TableHead>
+                      <TableHead className="text-right">Größe</TableHead>
+                      <TableHead className="text-right">Aktionen</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {formData.bills.map((bill, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="flex items-center space-x-2">
+                          <FileIcon className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{bill.file.name}</span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <span className="text-sm text-muted-foreground">
+                            {(bill.file.size / 1024 / 1024).toFixed(2)} MB
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleRemoveFile(index)}
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Abbrechen
             </Button>
-            <Button type="submit">Speichern</Button>
+
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Wird aktualisiert...
+                </>
+              ) : (
+                "Aktualisieren"
+              )}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

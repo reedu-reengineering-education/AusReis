@@ -1,4 +1,5 @@
 // components/AdminDashboard/SearchBar.tsx
+// Component: SearchBar for filtering data in the admin dashboard
 import { Input } from "@/components/ui/input";
 import { ChangeEvent } from "react";
 

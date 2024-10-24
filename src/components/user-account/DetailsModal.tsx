@@ -1,3 +1,5 @@
+// Path: src/components/user-account/DetailsModal.tsx
+// Component: DetailsModal for displaying expense details
 import {
   Table,
   TableHeader,

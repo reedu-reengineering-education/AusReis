@@ -1,4 +1,5 @@
 // Path: src/components/admin-dashboard/ProjectTable.tsx
+// Component: ProjectTable for displaying projects on the admin dashboard
 "use client";
 
 import { useEffect, useState } from "react";

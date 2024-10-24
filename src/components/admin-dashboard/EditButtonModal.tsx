@@ -1,3 +1,5 @@
+// Path: src/components/admin-dashboard/EditButtonModal.tsx
+// Components: ProjectEditModal for editing a project
 "use client";
 
 import React, { useEffect, useState } from "react";
