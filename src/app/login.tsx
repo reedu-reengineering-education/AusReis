@@ -1,4 +1,4 @@
-import { LoginRegisterForm } from "@/components/forms/LoginRegisterForm";
+import { LoginRegisterForm } from "@/components/forms/MagicLinkForm";
 
 export default function LoginPage() {
   const handleUserCreated = () => {

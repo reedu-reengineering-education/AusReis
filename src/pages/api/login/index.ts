@@ -1,3 +1,4 @@
+// Path: src/pages/api/login/index.ts
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/db";
 import bcrypt from "bcryptjs";

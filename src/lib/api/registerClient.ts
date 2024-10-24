@@ -1,3 +1,4 @@
+// Path: src/lib/api/registerClient.ts
 import axios from "axios";
 
 export async function registerUser(

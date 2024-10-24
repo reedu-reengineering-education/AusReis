@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { LoginRegisterForm } from "@/components/forms/LoginRegisterForm";
+import { MagicLinkForm } from "@/components/forms/MagicLinkForm";
 
 export default function HomePage({ params }: { params: { userId: string } }) {
   const { data: session, status } = useSession();
@@ -36,10 +36,7 @@ export default function HomePage({ params }: { params: { userId: string } }) {
               performance, and deliver exceptional user experiences.
             </p>
             <div className="flex flex-col gap-2 sm:flex-row">
-              <LoginRegisterForm
-                user={params.userId}
-                handleUserCreated={handleUserCreated}
-              />
+              <MagicLinkForm handleUserCreated={handleUserCreated} />
             </div>
           </div>
         </section>

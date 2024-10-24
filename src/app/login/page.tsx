@@ -1,5 +1,5 @@
 "use client";
-import { LoginRegisterForm } from "@/components/forms/LoginRegisterForm";
+import { MagicLinkForm } from "@/components/forms/MagicLinkForm";
 
 export default function LoginPage() {
   const handleUserCreated = () => {
@@ -8,7 +8,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
-      <LoginRegisterForm user={null} handleUserCreated={handleUserCreated} />
+      <MagicLinkForm handleUserCreated={handleUserCreated} />
     </div>
   );
 }

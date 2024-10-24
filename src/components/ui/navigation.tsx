@@ -83,17 +83,6 @@ function MainNav({ items }: MainNavProps) {
                   </div>
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Link href="/profile" className="flex items-center gap-2">
-                    <span>Profile</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Link href="/settings" className="flex items-center gap-2">
-                    <span>Settings</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>
                   <span>Sign out</span>
                 </DropdownMenuItem>
