@@ -221,6 +221,7 @@ import type { ExpenseStatus } from "@prisma/client";
 import { Expense, Bill, File } from "@prisma/client";
 import { User } from "@prisma/client";
 import { Project } from "@prisma/client";
+import { getUsers } from "@/lib/api/userClient";
 
 import {
   getExpenses,
@@ -247,7 +248,22 @@ export default function ExpenseTable() {
   const [isDeletingExpense, setIsDeletingExpense] = useState<{
     [key: string]: boolean;
   }>({});
+  const [availableUsers, setAvailableUsers] = useState<User[]>([]);
 
+  useEffect(() => {
+    // ... other effect logic
+
+    const fetchUsers = async () => {
+      try {
+        const users = await getUsers();
+        setAvailableUsers(users);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
   useEffect(() => {
     const fetchExpenses = async () => {
       try {

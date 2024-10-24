@@ -649,6 +649,20 @@ export function AddFormModal({
         updatedFormData,
       });
       await handleFormSubmit(updatedFormData);
+      // ich brauche sowas wie resetFormData()
+      // @ts-ignore
+      setFormData({
+        status: "pending",
+        amount: 0,
+        description: "",
+        projectId: "",
+        userId: session?.user?.id || "",
+        category: activeTab === "expenses" ? "reimbursement" : "travel",
+        bills: [] as { file: File; amount: number; fileId?: string }[],
+        travelStartDate: undefined as Date | undefined,
+        travelEndDate: undefined as Date | undefined,
+      });
+
       setIsDialogOpen(false);
       toast.success("Formular erfolgreich eingereicht!");
     } catch (error) {

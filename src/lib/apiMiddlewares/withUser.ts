@@ -11,6 +11,7 @@ export function withUser(handler: NextApiHandler) {
       if (!session) {
         return res.status(401).json({ error: "Unauthorized" });
       }
+      console.log("userId in middleware:", session.user.id);
 
       const user = await prisma.user.findUnique({
         where: {
