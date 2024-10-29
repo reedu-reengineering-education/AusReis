@@ -17,7 +17,8 @@ export default async function handler(
       const expenses = await prisma.expense.findMany({
         select: {
           id: true,
-          amount: true,
+          grossAmount: true,
+          netAmount: true,
           description: true,
           status: true,
           category: true,

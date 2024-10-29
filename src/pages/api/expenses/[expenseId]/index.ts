@@ -1,4 +1,6 @@
 // export default handler;
+// Path: src/pages/api/expenses/[expenseId]/index.ts
+
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/db";
 import { getServerSession } from "next-auth/next";
@@ -34,60 +36,9 @@ export default async function handler(
       console.error("Error fetching expense:", error);
       return res.status(500).json({ error: "Error fetching expense" });
     }
-  }
-  // else if (req.method === "PUT") {
-  //   const { amount, description, status, category, bills } = req.body;
-
-  //   try {
-  //     const updatedExpense = await prisma.expense.update({
-  //       where: { id: String(expenseId) },
-  //       data: {
-  //         amount,
-  //         description,
-  //         status,
-  //         category,
-  //         bills: {
-  //           set: bills?.map((bill: { file: string; amount: number }) => ({
-  //             file: bill.file,
-  //             amount: bill.amount,
-  //           })),
-  //         },
-  //       },
-  //       include: {
-  //         bills: true,
-  //         user: true,
-  //         project: true,
-  //       },
-  //     });
-
-  //     if (
-  //       session.user.role === "admin" &&
-  //       updatedExpense.userId !== session.user.id
-  //     ) {
-  //       await handleEmailFire({
-  //         to: updatedExpense.user?.email || "",
-  //         subject: "Your Expense has been edited",
-  //         component: AdminExpenseEditedNotification,
-  //         props: {
-  //           expenseId: updatedExpense.id,
-  //           amount: updatedExpense.amount,
-  //           description: updatedExpense.description,
-  //           status: updatedExpense.status,
-  //           category: updatedExpense.category,
-  //           bills: updatedExpense.bills,
-  //         },
-  //         from: "",
-  //         html: "",
-  //       });
-  //     }
-
-  //     return res.status(200).json(updatedExpense);
-  //   } catch (error: any) {
-  //     console.error("Error updating expense:", error.message);
-  //     return res.status(500).json({ error: error.message });
-  //   }
-  else if (req.method === "PUT") {
-    const { amount, description, status, category, bills } = req.body;
+  } else if (req.method === "PUT") {
+    const { grossAmount, netAmount, description, status, category, bills } =
+      req.body;
 
     try {
       const originalExpense = await prisma.expense.findUnique({
@@ -102,7 +53,8 @@ export default async function handler(
       const updatedExpense = await prisma.expense.update({
         where: { id: String(expenseId) },
         data: {
-          amount,
+          grossAmount,
+          netAmount,
           description,
           status,
           category,
@@ -127,7 +79,8 @@ export default async function handler(
         component: AdminExpenseEditedNotification,
         props: {
           expenseId: updatedExpense.id,
-          amount: updatedExpense.amount,
+          grossAmount: updatedExpense.grossAmount,
+          netAmount: updatedExpense.netAmount,
           description: updatedExpense.description,
           status: updatedExpense.status,
           category: updatedExpense.category,

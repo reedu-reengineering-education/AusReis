@@ -24,7 +24,8 @@ export type FileType = {
 // Typ für Expenses
 export type ExpenseType = {
   id: string;
-  amount: number;
+  grossAmount: number;
+  netAmount: number;
   description: string;
   status: ExpenseStatus;
   userId?: string;
@@ -64,7 +65,9 @@ export type UserType = {
 export interface FormData {
   status: string;
 
-  amount: number;
+  grossAmount: number;
+
+  netAmount: number;
 
   description: string;
 

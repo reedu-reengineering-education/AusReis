@@ -1,3 +1,5 @@
+// // Zweck: Definiert die API-Methoden für Auslagen
+// //  Path: src/lib/api/expenseClient.ts
 // import axios from "axios";
 
 // const API_URL = "/api/expenses";
@@ -25,28 +27,20 @@
 //   }
 // };
 
-// // Erstellen einer neuen Auslage
-// export const createExpense = async (data: any, xhr: any) => {
-//   console.log("createExpense called with:", {
-//     data,
-//   });
+// export const createExpense = async (data: any) => {
+//   console.log("createExpense called with:", JSON.stringify(data, null, 2));
 //   try {
-//     const response = await axios.post(API_URL, {
-//       data: {
-//         ...data,
-//         travelStartDate: data.travelStartDate,
-//         travelEndDate: data.travelEndDate,
-//       },
-//       xhr,
-//     });
-//     console.log("response.data", response.data);
+//     const response = await axios.post(API_URL, data);
+//     console.log(
+//       "createExpense response:",
+//       JSON.stringify(response.data, null, 2)
+//     );
 //     return response.data;
 //   } catch (error) {
 //     console.error("Error creating expense:", error);
 //     throw error;
 //   }
 // };
-
 // // Aktualisieren einer bestimmten Auslage
 // export const updateExpense = async (
 //   id: string,
@@ -55,7 +49,7 @@
 //   description?: string,
 //   projectId?: string,
 //   category?: string,
-//   bills?: { file: string; amount: number }[],
+//   bills?: { fileId: string; amount: number }[],
 //   travelStartDate?: Date,
 //   travelEndDate?: Date
 // ) => {
@@ -78,7 +72,7 @@
 // };
 
 // // Löschen einer bestimmten Auslage
-// export async function deleteExpense(expenseId: string): Promise<boolean> {
+// export const deleteExpense = async (expenseId: string): Promise<boolean> => {
 //   try {
 //     const response = await axios.delete(`/api/expenses/${expenseId}`);
 //     if (response.status === 200) {
@@ -94,7 +88,9 @@
 //     console.error("Error deleting expense:", error);
 //     throw error;
 //   }
-// }
+// };
+// Zweck: Definiert die API-Methoden für Auslagen
+// Path: src/lib/api/expenseClient.ts
 import axios from "axios";
 
 const API_URL = "/api/expenses";
@@ -122,68 +118,7 @@ export const getExpenses = async () => {
   }
 };
 
-// Erstellen einer neuen Auslage
-// export const createExpense = async (data: any) => {
-//   console.log("createExpense called with:", { data });
-//   try {
-//     const response = await axios.post(API_URL, {
-//       ...data,
-//       bills: data.bills.map(
-//         (bill: { file: { id: number }; amount: number }) => ({
-//           fileId: bill.file.id,
-//           amount: bill.amount,
-//         })
-//       ),
-//       travelStartDate: data.travelStartDate,
-//       travelEndDate: data.travelEndDate,
-//     });
-//     console.log("response.data", response.data);
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error creating expense:", error);
-//     throw error;
-//   }
-// };
-
-// Erstellen einer neuen Auslage
-// export const createExpense = async (data: any) => {
-//   console.log("createExpense called with:", JSON.stringify(data, null, 2));
-//   try {
-//     // Ensure bills are in the correct format
-//     const formattedBills = data.bills.map((bill: any) => {
-//       if (bill.files && bill.files.length > 0) {
-//         // Handle the case where files are nested in a 'files' array
-//         return {
-//           id: bill.id,
-//           fileId: bill.files[0].id,
-//           amount: bill.amount,
-//         };
-//       } else if (bill.file && bill.file.id) {
-//         // Handle the case where file is directly on the bill object
-//         return {
-//           id: bill.id,
-//           fileId: bill.file.id,
-//           amount: bill.amount,
-//         };
-//       } else {
-//         console.error("Invalid bill structure:", bill);
-//         throw new Error("Invalid bill structure");
-//       }
-//     });
-
-//     const response = await axios.post(API_URL, {
-//       ...data,
-//       bills: formattedBills,
-//       travelStartDate: data.travelStartDate,
-//       travelEndDate: data.travelEndDate,
-//     });
-//     console.log("response.data", response.data);
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error creating expense:", error);
-//     throw error;
-//   }
-// };
+// Änderung: Aktualisierung der createExpense-Funktion, um grossAmount und netAmount zu verwenden
 export const createExpense = async (data: any) => {
   console.log("createExpense called with:", JSON.stringify(data, null, 2));
   try {
@@ -198,11 +133,13 @@ export const createExpense = async (data: any) => {
     throw error;
   }
 };
-// Aktualisieren einer bestimmten Auslage
+
+// Änderung: Aktualisierung der updateExpense-Funktion, um grossAmount und netAmount zu verwenden
 export const updateExpense = async (
   id: string,
   status?: string,
-  amount?: number,
+  grossAmount?: number,
+  netAmount?: number,
   description?: string,
   projectId?: string,
   category?: string,
@@ -213,7 +150,8 @@ export const updateExpense = async (
   try {
     const response = await axios.put(`${API_URL}/${id}`, {
       status,
-      amount,
+      grossAmount,
+      netAmount,
       description,
       projectId,
       category,

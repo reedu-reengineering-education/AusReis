@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-    "types": ["node"],
-    "typeRoots": ["./typings", "./vendor/types"],
+    "types": ["node", "cypress"],
+    "typeRoots": ["./typings", "./vendor/types", "./node_modules/@types"],
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": ["es5", "dom", "dom.iterable", "esnext"],
+    "baseUrl": ".",
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -30,10 +31,10 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/pages/api/auth/[...nextauth].js",
-    "src/pages/api/auth/[...nextauth].js",
     "src/scripts/parseDependencies.js",
     "src/types/react-three-fiber.d.ts",
-    "src/components/user-account"
+    "src/components/user-account",
+    "cypress/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

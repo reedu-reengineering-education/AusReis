@@ -1,0 +1,20 @@
+{
+  "common": {
+    "welcome": "Willkommen bei Aus:Reis",
+    "description": "Verwalten Sie Ihre Auslagen und Reisekosten einfach und effizient.",
+    "login": "Anmelden",
+    "userAccount": "Benutzerkonto",
+    "adminArea": "Admin-Bereich",
+    "footer": "© {year} Reedu GmbH & Co. KG. Alle Rechte vorbehalten."
+  },
+  "magicLink": {
+    "title": "Magic Link Authentifizierung",
+    "description": "Geben Sie Ihre @reedu.de E-Mail-Adresse ein, um einen Magic Link zur Authentifizierung zu erhalten.",
+    "emailLabel": "E-Mail",
+    "emailPlaceholder": "ihre@reedu.de",
+    "sendButton": "Magic Link senden",
+    "successMessage": "Magic Link gesendet! Überprüfen Sie Ihre E-Mails.",
+    "errorMessage": "Fehler beim Senden des Magic Links. Bitte versuchen Sie es erneut.",
+    "invalidEmail": "Bitte geben Sie eine gültige @reedu.de E-Mail-Adresse ein."
+  }
+}

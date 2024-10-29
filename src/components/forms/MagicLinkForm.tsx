@@ -1,5 +1,5 @@
-// Path: src/components/forms/MagicLinkForm.tsx
-// Component: MagicLinkForm for sending magic links to users for authentication and login/register
+// // Path: src/components/forms/MagicLinkForm.tsx
+// // Component: MagicLinkForm for sending magic links to users for authentication and login/register
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -32,6 +32,7 @@ type MagicLinkFormProps = {
 export function MagicLinkForm({ handleUserCreated }: MagicLinkFormProps) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
+  const [emailError, setEmailError] = useState<string>("");
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -43,8 +44,23 @@ export function MagicLinkForm({ handleUserCreated }: MagicLinkFormProps) {
     }
   }, [status, router, session]);
 
+  const validateEmail = (email: string): boolean => {
+    const isValidFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const isReeduDomain = email.endsWith("@reedu.de");
+    return isValidFormat && isReeduDomain;
+  };
+
   const onSubmitMagicLink = async (e: React.FormEvent) => {
     e.preventDefault();
+    setEmailError("");
+
+    if (!validateEmail(email)) {
+      setEmailError(
+        "Bitte geben Sie eine gültige @reedu.de E-Mail-Adresse ein."
+      );
+      return;
+    }
+
     try {
       const result = await signIn("email", {
         email,
@@ -53,15 +69,19 @@ export function MagicLinkForm({ handleUserCreated }: MagicLinkFormProps) {
 
       if (result?.error) {
         console.error("Magic link error:", result.error);
-        toast.error("Failed to send magic link. Please try again.");
+        toast.error(
+          "Fehler beim Senden des Magic Links. Bitte versuchen Sie es erneut."
+        );
       } else {
         setIsDialogOpen(false);
-        toast.success("Magic link sent! Check your email.");
+        toast.success("Magic Link gesendet! Überprüfen Sie Ihre E-Mails.");
         handleUserCreated();
       }
     } catch (error) {
       console.error("Error when sending magic link:", error);
-      toast.error("An unexpected error occurred. Please try again.");
+      toast.error(
+        "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+      );
     }
   };
 
@@ -72,43 +92,54 @@ export function MagicLinkForm({ handleUserCreated }: MagicLinkFormProps) {
           className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
           onClick={() => setIsDialogOpen(true)}
         >
-          Get Logged In
+          Anmelden
         </Button>
       </DialogTrigger>
       <DialogContent
         className="sm:max-w-[425px] w-full p-4"
         aria-describedby="dialog-description"
       >
-        <DialogTitle>Magic Link Authentication</DialogTitle>
+        <DialogTitle>Magic Link Authentifizierung</DialogTitle>
         <DialogDescription id="dialog-description">
-          Enter your email to receive a magic link for authentication.
+          Geben Sie Ihre @reedu.de E-Mail-Adresse ein, um einen Magic Link zur
+          Authentifizierung zu erhalten.
         </DialogDescription>
         <Card className="w-full">
           <CardHeader>
             <CardTitle>Magic Link</CardTitle>
             <CardDescription>
-              Enter your email to receive a magic link.
+              Geben Sie Ihre @reedu.de E-Mail-Adresse ein, um einen Magic Link
+              zu erhalten.
             </CardDescription>
           </CardHeader>
           <form onSubmit={onSubmitMagicLink}>
             <CardContent className="space-y-4">
               <div className="space-y-1">
-                <Label htmlFor="magic-link-email">Email</Label>
+                <Label htmlFor="magic-link-email">E-Mail</Label>
                 <Input
                   id="magic-link-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
+                  placeholder="ihre@reedu.de"
                   className="w-full"
                   required
                 />
+                {emailError && (
+                  <p className="text-sm text-red-500">{emailError}</p>
+                )}
               </div>
             </CardContent>
             <CardFooter className="flex justify-end">
               <Button type="submit" className="w-full sm:w-auto">
-                Send Magic Link
+                Magic Link senden
               </Button>
+              {/* <Button
+                onClick={() => router.push("/auth/error?error=ServerError")}
+                className="mt-2"
+              >
+                Test Error Page
+              </Button> */}
             </CardFooter>
           </form>
         </Card>

@@ -15,7 +15,8 @@ import { Badge } from "../ui/badge";
 import { Tailwind } from "@react-email/tailwind";
 
 interface EnhancedExpenseNotificationProps {
-  amount: number;
+  grossAmount: number;
+  netAmount: number;
   description: string;
   category: string;
   createdBy: string;
@@ -25,7 +26,8 @@ interface EnhancedExpenseNotificationProps {
 }
 
 export default function EnhancedExpenseNotification({
-  amount,
+  grossAmount,
+  netAmount,
   description,
   category,
   createdBy,
@@ -99,9 +101,13 @@ export default function EnhancedExpenseNotification({
                     New Expense Details
                   </Text>
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <Text className="text-gray-600">Amount:</Text>
+                    <Text className="text-gray-600">gross Amount:</Text>
                     <Text className="font-medium">
-                      {formatCurrency(amount)}
+                      {formatCurrency(grossAmount)}
+                    </Text>
+                    <Text className="text-gray-600">net Amount:</Text>
+                    <Text className="font-medium">
+                      {formatCurrency(netAmount)}
                     </Text>
                     <Text className="text-gray-600">Category:</Text>
                     <Text className="font-medium">{category}</Text>

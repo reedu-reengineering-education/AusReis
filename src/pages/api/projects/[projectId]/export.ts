@@ -67,14 +67,16 @@ export default async function handler(
         (expense, index) => {
           console.log(`Processing expense ${index + 1}:`, {
             id: expense.id,
-            amount: expense.amount,
+            grossAmount: expense.grossAmount,
+            netAmount: expense.netAmount,
             category: expense.category,
             status: expense.status,
           });
           return {
             number: index + 1,
             date: expense.createdAt.toISOString().split("T")[0],
-            amount: expense.amount,
+            grossAmount: expense.grossAmount,
+            netAmount: expense.netAmount,
             description: expense.description,
             category: expense.category,
             status: expense.status,
