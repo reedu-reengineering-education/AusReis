@@ -97,7 +97,8 @@ export default function ExpenseTable() {
       expense.user?.name?.toLowerCase().includes(searchLower) ||
       false ||
       expense.project.name.toLowerCase().includes(searchLower) ||
-      expense.amount.toString().includes(searchLower) ||
+      expense.grossAmount.toString().includes(searchLower) ||
+      expense.netAmount.toString().includes(searchLower) ||
       expense.category.toLowerCase().includes(searchLower) ||
       expense.status.toLowerCase().includes(searchLower) ||
       (expense.description &&
@@ -182,7 +183,8 @@ export default function ExpenseTable() {
             <TableRow>
               <TableHead>User</TableHead>
               <TableHead>Project</TableHead>
-              <TableHead>Amount</TableHead>
+              <TableHead>gross Amount</TableHead>
+              <TableHead>net Amount</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>
@@ -195,7 +197,8 @@ export default function ExpenseTable() {
               <TableRow key={expense.id}>
                 <TableCell>{expense.user.name}</TableCell>
                 <TableCell>{expense.project.name}</TableCell>
-                <TableCell>{expense.amount.toLocaleString()} €</TableCell>
+                <TableCell>{expense.grossAmount.toLocaleString()} €</TableCell>
+                <TableCell>{expense.netAmount.toLocaleString()} €</TableCell>
                 <TableCell>{expense.category}</TableCell>
                 <TableCell>
                   <Badge

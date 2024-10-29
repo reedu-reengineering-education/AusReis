@@ -63,7 +63,7 @@ const faqData = [
             B->>S: Auf Magic Link klicken
             S->>B: Authentifizieren und einloggen
         `,
-        gif: "/gifs/login-process.gif",
+        gif: "/gifs/anmelden.gif",
       },
       {
         question: "Was ist ein Magic Link?",
@@ -277,9 +277,9 @@ export default function EnhancedFAQPage() {
                           <Image
                             src={item.gif}
                             alt={`GIF für ${item.question}`}
-                            width={500}
+                            width={1000}
                             height={300}
-                            className="rounded-lg"
+                            className="rounded-lg items-center"
                           />
                         </div>
                       )}

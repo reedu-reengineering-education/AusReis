@@ -20,7 +20,8 @@ interface Bill {
 
 interface AdminExpenseEditedNotificationProps {
   expenseId: string;
-  amount: number;
+  grossAmount: number;
+  netAmount: number;
   description: string;
   status: string;
   category: string;
@@ -34,7 +35,8 @@ interface AdminExpenseEditedNotificationProps {
 
 export default function AdminExpenseEditedNotification({
   expenseId,
-  amount,
+  grossAmount,
+  netAmount,
   description,
   status,
   category,
@@ -99,9 +101,13 @@ export default function AdminExpenseEditedNotification({
                     Updated Expense Details
                   </Text>
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <Text className="text-gray-600">Amount:</Text>
+                    <Text className="text-gray-600">gross Amount:</Text>
                     <Text className="font-medium">
-                      {formatCurrency(amount)}
+                      {formatCurrency(grossAmount)}
+                    </Text>
+                    <Text className="text-gray-600">net Amount:</Text>
+                    <Text className="font-medium">
+                      {formatCurrency(netAmount)}
                     </Text>
                     <Text className="text-gray-600">Category:</Text>
                     <Text className="font-medium">{category}</Text>

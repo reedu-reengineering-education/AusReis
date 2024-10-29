@@ -1,11 +1,11 @@
-// Component: [...nextauth].ts
-// Path: src/pages/api/auth/[...nextauth].ts
 import NextAuth, { NextAuthOptions } from "next-auth";
 import EmailProvider from "next-auth/providers/email";
-import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/db";
-import bcrypt from "bcryptjs";
+
+function isValidEmailDomain(email: string): boolean {
+  return email.endsWith("@reedu.de");
+}
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -29,8 +29,37 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/signin",
     verifyRequest: "/auth/verify-request",
+    error: "/auth/error",
   },
   callbacks: {
+    async signIn({ user, account }) {
+      try {
+        if (account?.type === "email" && user?.email) {
+          if (!isValidEmailDomain(user.email)) {
+            return "/auth/error?error=InvalidDomain";
+          }
+        } else {
+          return "/auth/error?error=InvalidEmail";
+        }
+
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email },
+        });
+
+        if (!existingUser) {
+          return "/auth/error?error=UserNotFound";
+        }
+
+        // Hier können Sie in Zukunft weitere Überprüfungen hinzufügen,
+        // wenn Sie eine Möglichkeit finden, Benutzer zu blockieren
+
+        return true;
+      } catch (error) {
+        console.error("Error in signIn callback:", error);
+        return "/auth/error?error=ServerError";
+      }
+    },
+
     async session({ token, session }) {
       if (token) {
         session.user.id = token.id as string;
@@ -41,26 +70,31 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
       }
 
-      const prismaUser = await prisma.user.findFirst({
-        where: {
-          email: token.email,
-        },
-      });
+      try {
+        const prismaUser = await prisma.user.findUnique({
+          where: {
+            email: token.email ?? undefined,
+          },
+        });
 
-      if (prismaUser) {
-        return {
-          id: prismaUser.id,
-          name: prismaUser.name,
-          email: prismaUser.email,
-          picture: prismaUser.image,
-          role: prismaUser.role,
-        };
+        if (prismaUser) {
+          return {
+            id: prismaUser.id,
+            name: prismaUser.name,
+            email: prismaUser.email,
+            picture: prismaUser.image,
+            role: prismaUser.role,
+          };
+        }
+      } catch (error) {
+        console.error("Error in jwt callback:", error);
       }
 
       return token;

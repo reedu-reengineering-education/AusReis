@@ -1,0 +1,20 @@
+{
+  "common": {
+    "welcome": "Welcome to Aus:Reis",
+    "description": "Manage your expenses and travel costs easily and efficiently.",
+    "login": "Log In",
+    "userAccount": "User Account",
+    "adminArea": "Admin Area",
+    "footer": "© {year} Reedu GmbH & Co. KG. All rights reserved."
+  },
+  "magicLink": {
+    "title": "Magic Link Authentication",
+    "description": "Enter your @reedu.de email to receive a magic link for authentication.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "your@reedu.de",
+    "sendButton": "Send Magic Link",
+    "successMessage": "Magic link sent! Check your email.",
+    "errorMessage": "Failed to send magic link. Please try again.",
+    "invalidEmail": "Please enter a valid @reedu.de email address."
+  }
+}

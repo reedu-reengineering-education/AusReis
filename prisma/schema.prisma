@@ -92,20 +92,23 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
+
+
 model Expense {
   id              String          @id @default(cuid())
-  amount          Float
+  grossAmount     Float
+  netAmount       Float
   description     String
   status          ExpenseStatus   @default(pending)
   userId          String?
-  user            User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
   projectId       String
-  project         Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt       DateTime        @default(now())
   category        ExpenseCategory
-  bills           Bill[]
   travelStartDate DateTime?
   travelEndDate   DateTime?
+  user            User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project         Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  bills           Bill[]
 }
 
 enum ExpenseStatus {
