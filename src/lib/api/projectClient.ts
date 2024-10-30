@@ -148,9 +148,9 @@ export async function getProjectForExport(id: string): Promise<Expense[]> {
       ? response.data
       : response.data.expenses || [];
 
-    // Transformieren Sie die Daten, um sicherzustellen, dass sie der Expense-Schnittstelle entsprechen
+    //
     return expenses.map(
-      (expense: any): Expense => ({
+      (expense: Expense): Expense => ({
         id: expense.id,
         projectId: expense.projectId,
         createdAt: expense.createdAt,

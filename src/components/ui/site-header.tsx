@@ -27,6 +27,8 @@ export function SiteHeader() {
           title: "FAQ",
           href: "/faq",
         },
+        { title: "Impressum", href: "/impressum" },
+        { title: "Datenschutz", href: "/datadefence" },
       ]
     : [];
 

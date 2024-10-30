@@ -5,6 +5,7 @@ import Page from "../../src/app/page";
 
 describe("<Page />", () => {
   beforeEach(() => {
+    // @ts-ignore
     cy.mount(<Page />);
   });
 

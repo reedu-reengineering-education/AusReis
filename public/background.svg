@@ -1,40 +1,3 @@
-<!-- <svg id="Ebene_1" data-name="Ebene 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 566.93 566.93" width="2500" height="1000">
-    <defs>
-      <style>
-        .cls-1 {
-          stroke: #EB5C37;
-          stroke-width: 1;
-          stroke-linejoin: round; 
-          stroke-linecap: round;  
-          stroke-dasharray: 100;
-          animation: dash 10s linear infinite, glow 1.5s ease-in-out infinite alternate forwards 0.5s   ;
-        }
-  
-        @keyframes dash {
-          to {
-            stroke-dashoffset: 1000;
-          }
-        }
-  
-        @keyframes glow {
-          from {
-            stroke-opacity: 1;
-            stroke-width: 0.5;
-          }
-          to {
-            stroke-opacity: 0.5;
-          }
-        }
-      </style>
-       Definieren des Filters für den Schlagschatten 
-      <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
-        <feDropShadow dx="-20" dy="0" stdDeviation="3" flood-color="#EB5C37" flood-opacity="1"/>
-      </filter>
-    </defs>
-    <title>114 logo_Step4</title>
-    Anwenden des Filters auf die Raute 
-    <polyline class="cls-1" fill="none" stroke="#EB5C37" points="236.41 283.46 142.28 377.58 236.41 471.7 424.64 283.46 236.41 95.22 142.28 189.34 236.41 283.46" filter="url(#dropShadow)"/>
-  </svg> -->
   <svg id="Ebene_1" data-name="Ebene 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 566.93 566.93" width="2500" height="1000">
     <defs>
         <style>
@@ -51,7 +14,7 @@
                 stroke-width: 2;
                 stroke-linecap: round;
                 stroke-opacity: 1;
-                animation: drawRay 2s ease forwards;
+               
             }
 
             @keyframes dash {
@@ -63,23 +26,14 @@
             @keyframes glow {
                 from {
                     stroke-opacity: 1;
-                    stroke-width: 0.5;
+                    stroke-width: 1;
                 }
                 to {
-                    stroke-opacity: 0.5;
+                    stroke-opacity: 1;
                 }
             }
 
-            @keyframes drawRay {
-                0% {
-                    stroke-opacity: 1;
-                    stroke-dasharray: 100, 0;
-                }
-                100% {
-                    stroke-opacity: 0;
-                    stroke-dasharray: 0, 100;
-                }
-            }
+            
         </style>
         <!-- Definieren des Filters für den Schlagschatten -->
         <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
@@ -88,15 +42,7 @@
     </defs>
     <title>114 logo_Step4</title>
 
-    <!-- Die neuen Startpunkte außerhalb der Raute -->
-    <!-- Neuer Startpunkt N1, der zu P4 (vordere Mitte) führt -->
-    <line class="ray" x1="500" y1="283.46" x2="424.64" y2="283.46" />
-    
-    <!-- Neuer Startpunkt N2, der zu P3 (rechts unten) führt -->
-    <line class="ray" x1="300" y1="600" x2="236.41" y2="471.7" />
-    
-    <!-- Neuer Startpunkt N3, der zu P5 (rechts oben) führt -->
-    <line class="ray" x1="236.41" y1="0" x2="236.41" y2="95.22" />
+ 
 
     <!-- Die Raute mit den bestehenden Effekten -->
     <polyline class="cls-1" fill="none" stroke="#EB5C37" points="236.41 283.46 142.28 377.58 236.41 471.7 424.64 283.46 236.41 95.22 142.28 189.34 236.41 283.46" filter="url(#dropShadow)"/>

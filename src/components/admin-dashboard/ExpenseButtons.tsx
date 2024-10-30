@@ -119,6 +119,7 @@ export default function ExpenseButtons({
       <UniversalDeleteDialog
         item={{ id: expenseId, name: description }}
         itemType="Expense"
+        // @ts-ignore
         onDelete={handleDeleteSuccess}
         onDeleteSuccess={handleDeleteSuccess}
         onClose={() => {}}

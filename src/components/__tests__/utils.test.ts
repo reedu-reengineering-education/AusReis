@@ -1,21 +1,3 @@
-// __tests__/utils.test.ts
-// import { formatCurrency } from "@/lib/utils";
-// import { describe, it, expect } from "@jest/globals";
-
-// describe("formatCurrency", () => {
-//   it("formats currency correctly", () => {
-//     console.log("Formatted output:", formatCurrency(1000));
-//     console.log(
-//       "Character codes:",
-//       formatCurrency(1000)
-//         .split("")
-//         .map((c) => c.charCodeAt(0))
-//     );
-//     expect(formatCurrency(1000)).toEqual("1.000,00 €");
-//     expect(formatCurrency(1234.56)).toEqual("1.234,56 €");
-//     expect(formatCurrency(0)).toEqual("0,00 €");
-//   });
-// });
 import { formatCurrency } from "@/lib/utils";
 import { describe, it, expect } from "@jest/globals";
 

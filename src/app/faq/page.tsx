@@ -1,5 +1,5 @@
-// Path: src/app/faq/page.tsx
-// Component: EnhancedFAQPage for displaying the FAQ page with search and accordion
+// // Path: src/app/faq/page.tsx
+// // Component: EnhancedFAQPage for displaying the FAQ page with search and accordion
 "use client";
 
 import React, { useState } from "react";
@@ -21,13 +21,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, HelpCircle, Phone, Mail, MapPin } from "lucide-react";
-import Mermaid from "@/components/MermaidComponent";
+import { Search, HelpCircle, Phone, Mail, MapPin, X } from "lucide-react";
+
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { MotionWrapper } from "@/components/MotionWrapper";
 
 const faqData = [
   {
@@ -52,17 +54,7 @@ const faqData = [
         question: "Wie kann ich mich im System anmelden?",
         answer:
           "Sie können sich mit Ihrer E-Mail-Adresse anmelden. Das System verwendet Magic Links für eine sichere und passwortlose Authentifizierung.",
-        diagram: `
-          sequenceDiagram
-            participant B as Benutzer
-            participant S as System
-            participant E as E-Mail
-            B->>S: E-Mail-Adresse eingeben
-            S->>E: Magic Link senden
-            E->>B: Magic Link empfangen
-            B->>S: Auf Magic Link klicken
-            S->>B: Authentifizieren und einloggen
-        `,
+
         gif: "/gifs/anmelden.gif",
       },
       {
@@ -79,14 +71,7 @@ const faqData = [
         question: "Wie reiche ich eine neue Auslage oder Reisekosten ein?",
         answer:
           "Folgen Sie diesen Schritten, um eine neue Auslage oder Reisekosten einzureichen:",
-        diagram: `
-          graph TD
-            A[Anmelden] --> B[Zum Tab 'Auslagen' oder 'Reisekosten' navigieren]
-            B --> C[Auf 'Neue Auslage' oder 'Neue Reisekosten' klicken]
-            C --> D[Formular ausfüllen]
-            D --> E[Belege hochladen]
-            E --> F[Auf 'Einreichen' klicken]
-        `,
+
         gif: "/gifs/submit-expense.gif",
       },
       {
@@ -169,23 +154,18 @@ const faqData = [
         question: "Wie funktioniert der Genehmigungsprozess für Ausgaben?",
         answer:
           "Der Genehmigungsprozess für Ausgaben durchläuft mehrere Stufen:",
-        diagram: `
-          graph TD
-            A[Mitarbeiter reicht Ausgabe ein] --> B[Status: Ausstehend]
-            B --> C{Administrator überprüft}
-            C -->|Genehmigt| D[Status: Genehmigt]
-            C -->|Abgelehnt| E[Status: Abgelehnt]
-            D --> F[Zur Zahlung freigegeben]
-            E --> G[Zurück an Mitarbeiter zur Überarbeitung]
-        `,
+
         gif: "/gifs/approval-process.gif",
       },
     ],
   },
 ];
-export default function EnhancedFAQPage() {
+
+export default function Component() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isMapOpen, setIsMapOpen] = useState(false);
+  const address = "Von-Steuben-Str. 21, 48143 Münster";
 
   const filteredFAQ = faqData
     .map((category) => ({
@@ -199,267 +179,196 @@ export default function EnhancedFAQPage() {
     .filter((category) => category.items.length > 0);
 
   return (
-    <div className="container mx-auto py-12 px-4 max-w-4xl">
-      <h1 className="text-4xl font-bold text-center mb-8">
-        Häufig gestellte Fragen (FAQ)
-      </h1>
+    <MotionWrapper>
+      <div className="container mx-auto py-12 px-4 max-w-5xl">
+        <h1 className="text-4xl text-center typewriter font-bold tracking-tighter sm:text-5xl md:text-4xl">
+          Häufig gestellte Fragen (FAQ)
+        </h1>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Suchen Sie nach Antworten</CardTitle>
-          <CardDescription>
-            Geben Sie Ihre Frage ein, um schnell Antworten zu finden.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <Input
-              type="text"
-              placeholder="Suchen Sie nach Fragen oder Stichwörtern..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {filteredFAQ.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <HelpCircle className="w-16 h-16 text-gray-400 mb-4" />
-            <p className="text-xl font-semibold text-gray-600 mb-2">
-              Keine Ergebnisse gefunden
-            </p>
-            <p className="text-gray-500 text-center">
-              Entschuldigung, wir konnten keine Antworten auf Ihre Frage finden.
-              Bitte versuchen Sie es mit einem anderen Suchbegriff oder
-              kontaktieren Sie unseren Support.
-            </p>
+        <Card className="mb-12 hover:shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-2xl">
+              Suchen Sie nach Antworten
+            </CardTitle>
+            <CardDescription className="text-lg">
+              Geben Sie Ihre Frage ein, um schnell Antworten zu finden.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-6 h-6" />
+              <Input
+                type="text"
+                placeholder="Suchen Sie nach Fragen oder Stichwörtern..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-12 py-3 text-lg"
+              />
+            </div>
           </CardContent>
         </Card>
-      ) : (
-        <ScrollArea className="h-[600px] rounded-md border p-4">
-          <Accordion type="single" collapsible className="w-full">
-            {filteredFAQ.map((category, categoryIndex) => (
-              <div key={categoryIndex} className="mb-6">
-                <h2 className="text-2xl font-semibold mb-4">
-                  {category.category}
-                </h2>
-                {category.items.map((item, itemIndex) => (
-                  <AccordionItem
-                    value={`item-${categoryIndex}-${itemIndex}`}
-                    key={itemIndex}
-                  >
-                    <AccordionTrigger className="text-left">
-                      <span className="flex items-center">
-                        <Badge variant="outline" className="mr-2">
-                          F
-                        </Badge>
-                        {item.question}
-                      </span>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="flex mb-4">
-                        <Badge variant="outline" className="mr-2 mt-1">
-                          A
-                        </Badge>
-                        <p className="whitespace-pre-line">{item.answer}</p>
-                      </div>
-                      {item.diagram && (
-                        <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                          <Mermaid chart={item.diagram} />
-                        </div>
-                      )}
-                      {item.gif && (
-                        <div className="mt-4">
-                          <Image
-                            src={item.gif}
-                            alt={`GIF für ${item.question}`}
-                            width={1000}
-                            height={300}
-                            className="rounded-lg items-center"
-                          />
-                        </div>
-                      )}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </div>
-            ))}
-          </Accordion>
-        </ScrollArea>
-      )}
 
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Noch Fragen?</CardTitle>
-          <CardDescription>
-            Wenn Sie keine Antwort auf Ihre Frage gefunden haben, kontaktieren
-            Sie uns gerne.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Collapsible
-            open={isContactOpen}
-            onOpenChange={setIsContactOpen}
-            className="w-full"
-          >
-            <CollapsibleTrigger asChild>
-              <Button className="w-full">
-                {isContactOpen
-                  ? "Kontaktinformationen ausblenden"
-                  : "Kontakt aufnehmen"}
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="mt-4">
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <Phone className="mr-2" />
-                  <span>+49 251 98119797</span>
+        {filteredFAQ.length === 0 ? (
+          <Card className="hover:shadow-lg">
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <HelpCircle className="w-24 h-24 text-primary mb-6" />
+              <p className="text-3xl font-semibold text-primary mb-4">
+                Keine Ergebnisse gefunden
+              </p>
+              <p className="text-xl text-gray-600 text-center max-w-md">
+                Entschuldigung, wir konnten keine Antworten auf Ihre Frage
+                finden. Bitte versuchen Sie es mit einem anderen Suchbegriff
+                oder kontaktieren Sie unseren Support.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <ScrollArea className="h-[700px] rounded-lg border p-6 hover:shadow-lg">
+            <Accordion type="single" collapsible className="w-full">
+              {filteredFAQ.map((category, categoryIndex) => (
+                <div key={categoryIndex} className="mb-10">
+                  <h2 className="text-3xl font-bold mb-6 text-primary">
+                    {category.category}
+                  </h2>
+                  {category.items.map((item, itemIndex) => (
+                    <AccordionItem
+                      value={`item-${categoryIndex}-${itemIndex}`}
+                      key={itemIndex}
+                      className="mb-4 border rounded-lg shadow-md"
+                    >
+                      <AccordionTrigger className="text-left p-4 hover:bg-gray-50">
+                        <span className="flex items-center text-xl">
+                          <Badge
+                            variant="outline"
+                            className="mr-3 text-lg px-3 py-1 bg-[#2B3F6B] text-white border-[#2B3F6B]"
+                          >
+                            F
+                          </Badge>
+                          {item.question}
+                        </span>
+                      </AccordionTrigger>
+                      <AccordionContent className="p-4 bg-gray-50">
+                        <div className="flex mb-6">
+                          <Badge
+                            variant="outline"
+                            className="mr-3 text-lg px-3 py-1 mt-1 bg-[#EB5C37] text-white border-[#EB5C37]"
+                          >
+                            A
+                          </Badge>
+                          <p className="whitespace-pre-line text-lg leading-relaxed">
+                            {item.answer}
+                          </p>
+                        </div>
+                        {item.gif && (
+                          <div className="mt-6">
+                            <Image
+                              src={item.gif}
+                              alt={`GIF für ${item.question}`}
+                              width={1000}
+                              height={300}
+                              className="rounded-lg shadow-md"
+                            />
+                          </div>
+                        )}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
                 </div>
-                <div className="flex items-center">
-                  <Mail className="mr-2" />
-                  <a
-                    href="mailto:kontakt@reedu.de"
-                    className="text-blue-600 hover:underline"
-                  >
-                    kontakt@reedu.de
-                  </a>
+              ))}
+            </Accordion>
+          </ScrollArea>
+        )}
+
+        <Card className="mt-12 hover:shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-2xl">Noch Fragen?</CardTitle>
+            <CardDescription className="text-lg">
+              Wenn Sie keine Antwort auf Ihre Frage gefunden haben, kontaktieren
+              Sie uns gerne.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Collapsible
+              open={isContactOpen}
+              onOpenChange={setIsContactOpen}
+              className="w-full"
+            >
+              <CollapsibleTrigger asChild>
+                <Button className="w-full text-lg py-6">
+                  {isContactOpen
+                    ? "Kontaktinformationen ausblenden"
+                    : "Kontakt aufnehmen"}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-6">
+                <div className="space-y-6 text-lg">
+                  <div className="flex items-center">
+                    <Phone className="mr-4 w-6 h-6" />
+                    <span>+49 251 98119797</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Mail className="mr-4 w-6 h-6" />
+                    <a
+                      href="mailto:kontakt@reedu.de"
+                      className="text-primary hover:underline"
+                    >
+                      kontakt@reedu.de
+                    </a>
+                  </div>
+                  <div className="flex items-center">
+                    <MapPin className="mr-4 w-6 h-6" />
+                    <Dialog open={isMapOpen} onOpenChange={setIsMapOpen}>
+                      <DialogTrigger asChild>
+                        <button
+                          onClick={() => setIsMapOpen(true)}
+                          className="text-primary hover:underline cursor-pointer flex items-center"
+                        >
+                          {address}
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[800px]">
+                        <div className="flex justify-between items-center mb-4">
+                          <h2 className="text-xl font-semibold">Standort</h2>
+                        </div>
+                        <div
+                          className="w-full h-[450px] bg-gray-100 flex items-center justify-center text-center p-4 rounded-lg"
+                          style={{
+                            backgroundImage:
+                              "linear-gradient(45deg, #f2f2f2 25%, #e6e6e6 25%, #e6e6e6 50%, #f2f2f2 50%, #f2f2f2 75%, #e6e6e6 75%, #e6e6e6 100%)",
+                            backgroundSize: "40px 40px",
+                          }}
+                        >
+                          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md">
+                            <p className="text-2xl font-bold mb-4">
+                              <span className="text-[#4285F4]">G</span>
+                              <span className="text-[#EA4335]">o</span>
+                              <span className="text-[#FBBC05]">o</span>
+                              <span className="text-[#4285F4]">g</span>
+                              <span className="text-[#34A853]">l</span>
+                              <span className="text-[#EA4335]">e</span>
+                              <span className="text-gray-700"> Maps</span>
+                            </p>
+                            <p className="text-lg text-gray-700">
+                              war zu teuer, also hier ein Platzhalter in den
+                              Farben von Google
+                            </p>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </div>
-                <div className="flex items-center">
-                  <MapPin className="mr-2" />
-                  <span>Von-Steuben-Str. 21, 48143 Münster</span>
-                </div>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-        </CardContent>
-      </Card>
-    </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </CardContent>
+        </Card>
+      </div>
+      <footer className="bg-muted py-6 text-center text-xs text-muted-foreground">
+        <div className="container">
+          &copy; {new Date().getFullYear()} Reedu GmbH & Co. KG. Alle Rechte
+          vorbehalten.
+        </div>
+      </footer>
+    </MotionWrapper>
   );
 }
-// export default function EnhancedFAQPage() {
-//   const [searchTerm, setSearchTerm] = useState("");
-
-//   const filteredFAQ = faqData
-//     .map((category) => ({
-//       ...category,
-//       items: category.items.filter(
-//         (item) =>
-//           item.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//           item.answer.toLowerCase().includes(searchTerm.toLowerCase())
-//       ),
-//     }))
-//     .filter((category) => category.items.length > 0);
-
-//   return (
-//     <div className="container mx-auto py-12 px-4 max-w-4xl">
-//       <h1 className="text-4xl font-bold text-center mb-8">
-//         Häufig gestellte Fragen (FAQ)
-//       </h1>
-
-//       <Card className="mb-8">
-//         <CardHeader>
-//           <CardTitle>Suchen Sie nach Antworten</CardTitle>
-//           <CardDescription>
-//             Geben Sie Ihre Frage ein, um schnell Antworten zu finden.
-//           </CardDescription>
-//         </CardHeader>
-//         <CardContent>
-//           <div className="relative">
-//             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-//             <Input
-//               type="text"
-//               placeholder="Suchen Sie nach Fragen oder Stichwörtern..."
-//               value={searchTerm}
-//               onChange={(e) => setSearchTerm(e.target.value)}
-//               className="pl-10"
-//             />
-//           </div>
-//         </CardContent>
-//       </Card>
-
-//       {filteredFAQ.length === 0 ? (
-//         <Card>
-//           <CardContent className="flex flex-col items-center justify-center py-12">
-//             <HelpCircle className="w-16 h-16 text-gray-400 mb-4" />
-//             <p className="text-xl font-semibold text-gray-600 mb-2">
-//               Keine Ergebnisse gefunden
-//             </p>
-//             <p className="text-gray-500 text-center">
-//               Entschuldigung, wir konnten keine Antworten auf Ihre Frage finden.
-//               Bitte versuchen Sie es mit einem anderen Suchbegriff oder
-//               kontaktieren Sie unseren Support.
-//             </p>
-//           </CardContent>
-//         </Card>
-//       ) : (
-//         <ScrollArea className="h-[600px] rounded-md border p-4">
-//           <Accordion type="single" collapsible className="w-full">
-//             {filteredFAQ.map((category, categoryIndex) => (
-//               <div key={categoryIndex} className="mb-6">
-//                 <h2 className="text-2xl font-semibold mb-4">
-//                   {category.category}
-//                 </h2>
-//                 {category.items.map((item, itemIndex) => (
-//                   <AccordionItem
-//                     value={`item-${categoryIndex}-${itemIndex}`}
-//                     key={itemIndex}
-//                   >
-//                     <AccordionTrigger className="text-left">
-//                       <span className="flex items-center">
-//                         <Badge variant="outline" className="mr-2">
-//                           F
-//                         </Badge>
-//                         {item.question}
-//                       </span>
-//                     </AccordionTrigger>
-//                     <AccordionContent>
-//                       <div className="flex mb-4">
-//                         <Badge variant="outline" className="mr-2 mt-1">
-//                           A
-//                         </Badge>
-//                         <p className="whitespace-pre-line">{item.answer}</p>
-//                       </div>
-//                       {item.diagram && (
-//                         <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-//                           <Mermaid chart={item.diagram} />
-//                         </div>
-//                       )}
-//                       {item.gif && (
-//                         <div className="mt-4">
-//                           <Image
-//                             src={item.gif}
-//                             alt={`GIF für ${item.question}`}
-//                             width={500}
-//                             height={300}
-//                             className="rounded-lg"
-//                           />
-//                         </div>
-//                       )}
-//                     </AccordionContent>
-//                   </AccordionItem>
-//                 ))}
-//               </div>
-//             ))}
-//           </Accordion>
-//         </ScrollArea>
-//       )}
-
-//       <Card className="mt-8">
-//         <CardHeader>
-//           <CardTitle>Noch Fragen?</CardTitle>
-//           <CardDescription>
-//             Wenn Sie keine Antwort auf Ihre Frage gefunden haben, kontaktieren
-//             Sie uns gerne.
-//           </CardDescription>
-//         </CardHeader>
-//         <CardContent>
-//           <Button className="w-full">Kontakt aufnehmen</Button>
-//         </CardContent>
-//       </Card>
-//     </div>
-//   );
-// }
