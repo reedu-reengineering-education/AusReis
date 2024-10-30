@@ -4,6 +4,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Button } from "@/components/ui/button";
 import { describe, it, expect, jest } from "@jest/globals";
+import { mount } from "cypress/react";
 
 describe("Button", () => {
   it("renders with correct text", () => {

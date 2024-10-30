@@ -13,6 +13,7 @@ export default async function handler(
 
   const session = await getServerSession(req, res, authOptions);
   console.log("Session:", session ? "Exists" : "Does not exist");
+  // check für admins
 
   if (!session) {
     console.log("Unauthorized access attempt");
@@ -74,13 +75,13 @@ export default async function handler(
           });
           return {
             number: index + 1,
-            date: expense.createdAt.toISOString().split("T")[0],
+            createdAt: expense.createdAt.toISOString().split("T")[0],
             grossAmount: expense.grossAmount,
             netAmount: expense.netAmount,
             description: expense.description,
             category: expense.category,
             status: expense.status,
-            user: expense.user?.name,
+            userId: expense.user?.name,
             travelStartDate: expense.travelStartDate
               ? expense.travelStartDate.toISOString().split("T")[0]
               : null,

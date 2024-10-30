@@ -73,7 +73,7 @@ export interface FormData {
 
   projectId: string;
 
-  userId: string; // Ensure this is always a string
+  userId: string;
 
   category: ExpenseCategory;
 

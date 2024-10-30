@@ -2,12 +2,18 @@
     <defs>
         <style>
             .cls-1 {
-                stroke: #FF8C00;
-                stroke-width: 1;
+                stroke: #FF6347; 
+                stroke-width: 2; 
                 stroke-linejoin: round; 
                 stroke-linecap: round;  
                 stroke-dasharray: 100;
-                animation: dash 10s linear infinite, glow 1.5s ease-in-out infinite alternate forwards 2.5s; /* Start verzögert nach Strahlenanimation */
+                animation: dash 10s linear infinite, glow 1.5s ease-in-out infinite alternate forwards 2.5s;
+            }
+            .ray {
+                stroke: #FF8C00;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-opacity: 1;
             }
 
             @keyframes dash {
@@ -18,23 +24,30 @@
 
             @keyframes glow {
                 from {
-                    stroke-opacity: 1;
-                    stroke-width: 0.5;
+                    stroke-opacity: 0.8;
+                    stroke-width: 2;
+                    filter: drop-shadow(0 0 5px #FF6347);
                 }
                 to {
-                    stroke-opacity: 0.5;
+                    stroke-opacity: 1;
+                    stroke-width: 3;
+                    filter: drop-shadow(0 0 10px #FF6347);
                 }
             }
-
-            
         </style>
-        <!-- Definieren des Filters für den Schlagschatten -->
+        <!-- Verstärkter Schlagschatten -->
         <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow dx="-20" dy="0" stdDeviation="3" flood-color="#EB5C37" flood-opacity="1"/>
+            <feDropShadow dx="-20" dy="0" stdDeviation="5" flood-color="#FF6347" flood-opacity="0.8"/>
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feFlood flood-color="#FF6347" flood-opacity="0.5"/>
+            <feComposite in2="blur" operator="in"/>
+            <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
         </filter>
     </defs>
     <title>114 logo_Step4</title>
 
-    <!-- Die Raute mit den bestehenden Effekten -->
-    <polyline class="cls-1" fill="none" stroke="#FF8C00" points="236.41 283.46 142.28 377.58 236.41 471.7 424.64 283.46 236.41 95.22 142.28 189.34 236.41 283.46" filter="url(#dropShadow)"/>
+    <polyline class="cls-1" fill="none" stroke="#FF6347" points="236.41 283.46 142.28 377.58 236.41 471.7 424.64 283.46 236.41 95.22 142.28 189.34 236.41 283.46" filter="url(#dropShadow)"/>
 </svg>

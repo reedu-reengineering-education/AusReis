@@ -46,7 +46,8 @@ export function DetailsModal({
             <TableRow>
               <TableHead>Zweck</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Betrag</TableHead>
+              <TableHead>Brutto Betrag</TableHead>
+              <TableHead>Netto Betrag</TableHead>
               <TableHead>Belege</TableHead>
             </TableRow>
           </TableHeader>
@@ -68,7 +69,10 @@ export function DetailsModal({
                   {selectedItem.status}
                 </Badge>
               </TableCell>
-              <TableCell>{selectedItem.amount.toLocaleString()} €</TableCell>
+              <TableCell>
+                {selectedItem.grossAmount.toLocaleString()} €
+              </TableCell>
+              <TableCell>{selectedItem.netAmount.toLocaleString()} €</TableCell>
               <TableCell>
                 {selectedItem.bills.length > 0 ? (
                   <div className="space-y-2">
